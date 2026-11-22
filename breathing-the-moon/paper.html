@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gravity, bubbles and oxygen: technical paper · Tauras Nienius</title>
+<meta name="description" content="Technical paper: a calibrated physics model of how reduced gravity changes anode bubbles, cell voltage and oxygen rate in molten-salt electrolysis of lunar regolith.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#0c0a0a; --ink:#efe9e2; --muted:#a39a91; --rule:rgba(255,235,220,.09); --panel:rgba(22,17,15,.8);
+  --accent:#ff8a5c; --earth:#7cc6e8; --mars:#f2836b; --moon:#e9e1d3; color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#0c0a0a; --ink:#efe9e2; --muted:#a39a91; --rule:rgba(255,235,220,.09); --panel:rgba(22,17,15,.8);
+    --accent:#ff8a5c; --earth:#7cc6e8; --mars:#f2836b; --moon:#e9e1d3;}
+}
+:root[data-theme="dark"]{--bg:#0c0a0a; --ink:#efe9e2; --muted:#a39a91; --rule:rgba(255,235,220,.09); --panel:rgba(22,17,15,.8);
+  --accent:#ff8a5c; --earth:#7cc6e8; --mars:#f2836b; --moon:#e9e1d3;}
+*{box-sizing:border-box}
+html,body{overflow-x:clip;max-width:100%}
+html{background:#0c0a0a}
+body{margin:0;color:var(--ink);background-color:#0c0a0a;
+  background-image:linear-gradient(180deg,rgba(12,10,10,0) 0%,rgba(12,10,10,0) 82%,rgba(96,38,18,.22) 100%);
+  font:17px/1.72 "IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(255,138,92,.35)}
+a:hover{border-bottom-color:var(--accent)}
+.page{display:block;max-width:1240px;margin:0 auto;padding:0 18px 80px}
+header.top{max-width:760px;margin:0 auto;padding:44px 0 26px;border-bottom:1px solid var(--rule)}
+header.top .back{font:500 14px/1 "IBM Plex Mono",monospace;display:inline-block;margin-bottom:26px}
+header.top h1{font:700 clamp(29px,5vw,44px)/1.08 Archivo,Arial,sans-serif;letter-spacing:-.012em;margin:0 0 16px}
+header.top .byline{color:var(--muted);font-size:15.5px;margin:0}
+header.top .byline b{color:var(--ink);font-weight:600}
+.layout{display:block}
+main{max-width:760px;margin:0 auto;min-width:0}
+aside.toc{display:none}
+details.toc-narrow{max-width:760px;margin:22px auto 0;background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 16px}
+details.toc-narrow summary{cursor:pointer;font:600 15px/1.4 Archivo,Arial,sans-serif;color:var(--ink)}
+.toc ol,.toc-narrow ol{list-style:none;margin:8px 0 4px;padding:0}
+.toc li,.toc-narrow li{margin:0;padding:0}
+.toc a,.toc-narrow a{display:block;border:0;color:var(--muted);font-size:14px;line-height:1.35;padding:4px 0 4px 10px;border-left:2px solid transparent}
+.toc a:hover,.toc-narrow a:hover{color:var(--ink)}
+.toc a.on{color:var(--ink);border-left-color:var(--accent)}
+.toc .n,.toc-narrow .n{font-family:"IBM Plex Mono",monospace;color:var(--accent);display:inline-block;min-width:1.9em}
+@media (min-width:1101px){
+  .layout{display:grid;grid-template-columns:240px minmax(0,760px);gap:56px;justify-content:center}
+  aside.toc{display:block;position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);overflow-y:auto;padding-top:34px}
+  aside.toc .lab{font:600 12px/1 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px 12px}
+  details.toc-narrow{display:none}
+  main{margin:0}
+}
+h2{font:700 25px/1.2 Archivo,Arial,sans-serif;margin:56px 0 14px;padding-top:26px;border-top:1px solid var(--rule);scroll-margin-top:20px}
+h2 .sn{color:var(--accent);font-family:"IBM Plex Mono",monospace;font-weight:500;margin-right:.45em}
+h3{font:600 18.5px/1.3 Archivo,Arial,sans-serif;margin:32px 0 8px;scroll-margin-top:20px}
+h3 .sn{color:var(--accent);font-family:"IBM Plex Mono",monospace;font-weight:500;margin-right:.45em;font-size:.9em}
+p{margin:0 0 15px}
+li{margin:0 0 7px}
+ul,ol{padding-left:1.25em;margin:0 0 16px}
+strong{font-weight:600}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em;color:#f3d9c9}
+.abstract{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 22px;margin:30px 0 0}
+.abstract h2{border:0;margin:0 0 8px;padding:0;font-size:19px}
+.box{background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:8px;padding:14px 18px;margin:20px 0}
+.box p:last-child,.box ul:last-child{margin-bottom:0}
+.box .t{font:600 15px/1.3 Archivo,Arial,sans-serif;margin:0 0 6px;color:var(--ink)}
+.muted{color:var(--muted)}
+.earth{color:var(--earth)} .mars{color:var(--mars)} .moon{color:var(--moon)}
+.tbl{overflow-x:auto;margin:16px 0 22px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14.5px;line-height:1.45}
+th,td{padding:7px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule)}
+th{font-weight:600;color:var(--ink);background:rgba(255,235,220,.03);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+td.num,.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13.5px;white-space:nowrap}
+caption{caption-side:bottom;text-align:left;color:var(--muted);font-size:13.5px;padding:8px 10px}
+figure{margin:24px 0 28px}
+figure img{display:block;width:100%;max-width:100%;height:auto;border-radius:8px;border:1px solid var(--rule);background:#151110}
+figure.tall{max-width:380px;margin-left:auto;margin-right:auto}
+figure.mid{max-width:560px;margin-left:auto;margin-right:auto}
+figcaption{color:var(--muted);font-size:14px;line-height:1.55;margin-top:9px}
+figcaption b{color:var(--ink);font-weight:600}
+mjx-container[display]{display:block;overflow-x:auto;overflow-y:hidden;max-width:100%;min-width:0 !important;padding:2px 0}
+mjx-container{max-width:100%}
+.eqnote{color:var(--muted);font-size:15px}
+.refs li{font-size:14.5px;line-height:1.55;margin-bottom:9px;color:#ddd5cc}
+footer{max-width:760px;margin:60px auto 0;color:var(--muted);font-size:13.5px;border-top:1px solid var(--rule);padding-top:16px}
+</style>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], tags: 'none' },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <a class="back" href="index.html">&larr; back to the main page</a>
+  <h1>Gravity, bubbles and oxygen: a physics model of molten-salt electrolysis for the Moon</h1>
+  <p class="byline"><b>Tauras Nienius</b> &middot; Aerospace engineering, ELISA Aerospace (ISAE Group) &middot; November 2026</p>
+  <p class="byline" style="margin-top:6px">Technical companion to the main page: every equation, assumption, data source, numerical method, check and limitation behind it.</p>
+</header>
+
+<details class="toc-narrow">
+  <summary>Contents</summary>
+  <ol>
+    <li><a href="#abstract"><span class="n">&middot;</span>Abstract</a></li>
+    <li><a href="#s1"><span class="n">1</span>Motivation and scope</a></li>
+    <li><a href="#s2"><span class="n">2</span>The FFC process and the datasets</a></li>
+    <li><a href="#s3"><span class="n">3</span>Model architecture</a></li>
+    <li><a href="#s4"><span class="n">4</span>Thermodynamics</a></li>
+    <li><a href="#s5"><span class="n">5</span>Kinetics and the 60 % knee</a></li>
+    <li><a href="#s6"><span class="n">6</span>Bubble departure</a></li>
+    <li><a href="#s7"><span class="n">7</span>Coverage and voltage penalty</a></li>
+    <li><a href="#s8"><span class="n">8</span>Calibration and uncertainty</a></li>
+    <li><a href="#s9"><span class="n">9</span>Results</a></li>
+    <li><a href="#s10"><span class="n">10</span>Environment design notes</a></li>
+    <li><a href="#s11"><span class="n">11</span>Independent review</a></li>
+    <li><a href="#s12"><span class="n">12</span>Limitations</a></li>
+    <li><a href="#s13"><span class="n">13</span>Proposed experiments</a></li>
+    <li><a href="#s14"><span class="n">14</span>Data and code</a></li>
+    <li><a href="#refs"><span class="n">&middot;</span>References</a></li>
+  </ol>
+</details>
+
+<div class="layout">
+<aside class="toc" aria-label="Contents">
+  <p class="lab">Contents</p>
+  <ol>
+    <li><a href="#abstract"><span class="n">&middot;</span>Abstract</a></li>
+    <li><a href="#s1"><span class="n">1</span>Motivation and scope</a></li>
+    <li><a href="#s2"><span class="n">2</span>The FFC process and the datasets</a></li>
+    <li><a href="#s3"><span class="n">3</span>Model architecture</a></li>
+    <li><a href="#s4"><span class="n">4</span>Thermodynamics</a></li>
+    <li><a href="#s5"><span class="n">5</span>Kinetics and the 60 % knee</a></li>
+    <li><a href="#s6"><span class="n">6</span>Bubble departure</a></li>
+    <li><a href="#s7"><span class="n">7</span>Coverage and voltage penalty</a></li>
+    <li><a href="#s8"><span class="n">8</span>Calibration and uncertainty</a></li>
+    <li><a href="#s9"><span class="n">9</span>Results</a></li>
+    <li><a href="#s10"><span class="n">10</span>Environment design notes</a></li>
+    <li><a href="#s11"><span class="n">11</span>Independent review</a></li>
+    <li><a href="#s12"><span class="n">12</span>Limitations</a></li>
+    <li><a href="#s13"><span class="n">13</span>Proposed experiments</a></li>
+    <li><a href="#s14"><span class="n">14</span>Data and code</a></li>
+    <li><a href="#refs"><span class="n">&middot;</span>References</a></li>
+  </ol>
+</aside>
+
+<main>
+
+<section class="abstract" id="abstract">
+<h2>Abstract</h2>
+<p>I describe a first-order physics model of how reduced gravity changes the anode gas bubbles, and through them the performance, of a molten-salt (FFC-type) electrolysis cell that extracts oxygen from lunar regolith simulant in CaCl<sub>2</sub> at 950 &deg;C. The model is built around the cell operated by ESA and the University of Glasgow (Meurisse et al. 2022; Lomax et al. 2025): a 24 g sintered LMS-1 pellet in a steel basket, a 12.7 mm graphite rod anode, and a constant applied voltage of 3.2 V. The gravity chain has four links: (i) a bubble departure size, from a Young-Laplace calculation of static bubble shapes and from published detachment laws; (ii) an anode gas coverage, from the Vogt-Balzer correlation scaled by bubble footprint with Poisson overlap; (iii) a voltage penalty, from a bubble-layer ohmic term and a coverage-driven activation term; (iv) a conversion of the penalty into current and oxygen rate at fixed voltage. The uncertain mechanism parameters were weighted against the only reduced-gravity electrolysis measurements that exist (Lomax et al. 2022, aqueous, 0.166 g to 8 g). Within the parameter ranges I assumed, the calibration rejects a spreading (Fritz) contact line and retains a pinned one. Transferred to molten CaCl<sub>2</sub> at an estimated anode current density of 0.14 A/cm&sup2;, the model gives an extra 41 mV at lunar gravity (90 % range 29 to 63 mV) and 18 mV at Martian gravity (13 to 26 mV); the anode coverage rises from 0.20 on Earth to 0.38 on the Moon. Widening the assumed ranges moves the lunar median between 29 and 53 mV and leaves the Fritz law disfavoured but not excluded. At the fixed 3.2 V used by ESA this corresponds to about 2.5 % less current and oxygen on the Moon (1.7 to 3.8 %) and about 1.1 % on Mars; two independent checks of the cell's voltage sensitivity suggest these are on the high side (1.6 to 2.7 % at the median penalty). The penalty scales roughly as $j^{0.55}$, so anode area is a design lever. The same chain under-predicts the measured hypergravity benefit by a factor of about three, so I do not use it to extrapolate centrifuge data. Two side analyses on the ESA datasets are included: a thermodynamic predominance analysis, in which Si reduction via CaSiO<sub>3</sub> and CaSi<sub>2</sub> formation lie 17 mV apart at unit CaO activity, and a test of whether the slowdown near 60 % extraction is chemical or geometric, which is inconclusive on the cumulative curve and only weakly favours chemistry on the rate shape. The work is a hypothesis generator, not a validated design tool; its main output is a ranked list of what to measure.</p>
+</section>
+
+<!-- ============================================================ 1 -->
+<h2 id="s1"><span class="sn">1</span>Motivation and scope</h2>
+
+<p>Molten-salt electrolysis in the FFC-Cambridge configuration is one of the leading routes to oxygen from lunar regolith. The regolith is pressed or sintered into a porous cathode, immersed in molten CaCl<sub>2</sub>, and polarised against an anode. Oxide ions leave the solid, cross the melt and are discharged at the anode as gas: O<sub>2</sub> on an inert anode, CO<sub>2</sub> and CO on graphite. The metal stays behind as an alloy. At ESA's ESTEC laboratory and the University of Glasgow this has been taken from a proof of concept on powder (Lomax et al. 2020) to systematic runs on sintered pellets (Meurisse et al. 2022; Lomax et al. 2025).</p>
+
+<p>All of these experiments were done at 1 g. On the Moon, buoyancy is about one sixth as strong. Buoyancy is what removes anode bubbles, so the bubbles grow larger before they leave, sit on the anode longer, and block more of it. That raises the anode overpotential and the ohmic drop in the gas-laden layer next to the anode. A review of the field states that there appear to be no experimental studies to date on the effects of low gravity on any molten-salt electrolysis process (Akay et al. 2022). The only reduced-gravity electrolysis data with voltage and current are for water (Lomax et al. 2022, parabolic flights and a centrifuge), and the only molten-salt reduced-gravity work is a single-bubble CFD study (Burke et al. 2024) that computes detachment volumes but not coverage or voltage. ESA has started an FFC campaign in the Large Diameter Centrifuge at ESTEC (Nizet 2026, poster abstract), but no results are public.</p>
+
+<p>My question is therefore narrow and quantitative: for the ESA cell as it is operated today, how much does lunar or Martian gravity change the cell voltage, the current and the oxygen rate, which unknowns dominate that answer, and what measurement would remove them? I answer it with a chain of published relations, calibrated where it must be against the water data, and I carry the uncertainty to the end. Two side analyses on the same ESA datasets came out of building the model and are reported because they constrain the operating window: the thermodynamics of competing cathode reactions, and the kinetics of the pellet reduction.</p>
+
+<div class="box">
+<p class="t">What is new here, and what is not</p>
+<ul>
+<li><strong>New, modestly:</strong> a first-order chain from gravity to anode coverage, voltage and oxygen rate for molten CaCl<sub>2</sub>, calibrated on the only reduced-gravity electrolysis data and stated with an uncertainty band. Its value is the ranking of unknowns and the measurement priorities, not the number itself.</li>
+<li><strong>New, modestly:</strong> decomposition potentials for real regolith minerals and Ca-intermediates rather than simple oxides (Meurisse et al. 2022, Fig. 5, used simple oxides "due to the availability of the thermodynamic data"), and their dependence on dissolved CaO activity. The content is the CaO dependence, not the ordering.</li>
+<li><strong>New, small:</strong> a quantitative test of the staged mechanism that Lomax et al. 2025 propose qualitatively, a geometric null model, and the experiment that would discriminate between them. The result is inconclusive.</li>
+<li><strong>Not new:</strong> iron reduces first and MgO last (Lomax et al. 2025 state both, and the simple-oxide ladder of Meurisse et al. 2022 implies them); bubbles grow larger at low gravity (Lomax et al. 2022; Burke et al. 2024); the vacuum evaporation estimate and the lunar-night heat balance, which are textbook calculations and appear only as design notes.</li>
+</ul>
+</div>
+
+<!-- ============================================================ 2 -->
+<h2 id="s2"><span class="sn">2</span>The FFC process and the ESA/Glasgow datasets used</h2>
+
+<h3><span class="sn">2.1</span>The process in one paragraph</h3>
+<p>In the cell of Meurisse et al. (2022) and Lomax et al. (2025), a 24 g LMS-1 pellet (about 46 mm diameter, 10 mm thick) sits in a perforated stainless-steel basket that serves as the cathode. The basket is immersed in 800 g of CaCl<sub>2</sub> at 950 &deg;C in an alumina crucible inside a sealed Inconel vessel purged with argon. A constant voltage of 3.2 V is applied between the basket and a graphite rod anode. Reduction starts where the oxide touches the metal basket, at the three-phase interline (3PI) of metal, oxide and melt; the reduced metal becomes new cathode surface and the front propagates into the pellet (Lomax et al. 2025, Fig. 7). Oxygen leaves the pellet as O<sup>2&minus;</sup> into the pore electrolyte and the bulk melt, and is discharged at the anode. The off-gas is analysed by mass spectrometry, which gives the cumulative oxygen extraction used throughout Section 5.</p>
+
+<figure class="mid">
+<img loading="lazy" src="img/real_lomax25_fig7_3pi.jpg" alt="Lomax et al. 2025 Figure 7: schematic stages of pellet reduction by the three-phase interline model">
+<figcaption><b>Figure 1.</b> Stages of pellet reduction described by the three-phase interline (3PI) model: (i) oxide pellet on a metal cathode; (ii) reduction begins at the contact surface; (iii) metallised regolith becomes new cathodic surface; (iv) metallisation of the pellet surface; (v) the unreduced core shrinks as reduction propagates inwards; (vi) complete reduction. Reproduced unmodified from Lomax et al. 2025, Acta Astronautica 234, Fig. 7, under CC BY-NC-ND 4.0.</figcaption>
+</figure>
+
+<h3><span class="sn">2.2</span>Datasets</h3>
+<p>Table 1 lists every experimental or numerical dataset I use, with the conditions that matter for the model. I read the papers' text directly; where a value is only in a figure, I digitised it (Section 5.1).</p>
+
+<div class="tbl"><table>
+<caption>Table 1. Datasets used, with experimental conditions and the role each plays in this work.</caption>
+<thead><tr><th>Source</th><th>System and conditions</th><th>What I use it for</th></tr></thead>
+<tbody>
+<tr><td>Lomax et al. 2020, PSS 180</td><td>30 g JSC-2A loose powder (&gt;53 &micro;m) in a mesh-lined steel basket; 1600 g CaCl<sub>2</sub> with about 0.4 wt% CaO; 950 &deg;C; SnO<sub>2</sub>-based anode; <strong>constant current 4 A</strong>. About 76 % of the oxygen extracted at 16 h (current efficiency 49 %), 96 % after about 50 h (23 %).</td><td>Context only. Because the run was galvanostatic, its extraction curve mainly reflects current efficiency, not solid-state kinetics, so I did not fit kinetics to it (the original plan in my specification).</td></tr>
+<tr><td>Lomax et al. 2022, Nat. Commun. 13:583</td><td>Water electrolysis, 0.75 M H<sub>2</sub>SO<sub>4</sub>, gold foil anode 1.56 cm&sup2; on a vertical holder, three-electrode cell, potentials vs Ag/AgCl without iR compensation. Galvanostatic 50, 75, 100 mA/cm&sup2;; potentiostatic 2.075 V. Hypergravity 1 to 8 g on a 25 cm centrifuge in the lab; 0.166 to 1 g on the same centrifuge during parabolic flights (three flights of 30 parabolas, 18 s per experiment).</td><td>The calibration target for the bubble chain (Section 8): the logarithmic fits of potential change versus g (Fig. 7), and the potentiostatic versus galvanostatic comparison (11 % less product versus about 1 % more power at lunar g).</td></tr>
+<tr><td>Meurisse et al. 2022, PSS 211</td><td>LMS-1 pellets, 24 g, sintered 2 h at 1135 &deg;C in Ar, about 46 mm &times; 10 mm. 800 g CaCl<sub>2</sub>, 2.3 L Inconel 600 vessel, 0.5 L alumina crucible, &Oslash;47 mm SS316 basket, graphite rod &Oslash;12.7 mm &times; 100 mm, two-electrode, <strong>3.2 V for 24 h</strong>. About 85 % extraction and 48 % current efficiency at 950 &deg;C; 50 % at 850 &deg;C. Table 2 gives the bulk chemistry of the lab's LMS-1 batch.</td><td>Cell geometry (pellet, anode), the lab's own LMS-1 composition for the oxygen staircase (Section 5.5), the simple-oxide ladder that my mineral ladder extends (Section 4).</td></tr>
+<tr><td>Lomax et al. 2025, Acta Astronaut. 234</td><td>Same cell and method, 24 g loosely sintered pellets of LMS-1 and LHS-1, 800 g CaCl<sub>2</sub> plus 0.7 wt% CaO, 950 &deg;C, <strong>3.2 V</strong>, Ar purge, graphite or SnO<sub>2</sub> anodes. Sixteen interrupted runs: LMS-Graphite 1 (5, 10, 16, 24, 30 h), LMS-Graphite 2 (5, 10, 13, 16, 24 h), LMS-SnO<sub>2</sub> (5, 10, 24, 48 h), LHS-Graphite (15, 30 h). Residual oxygen by inert gas fusion: 41.60 wt% in the fresh LMS-1.</td><td>Cumulative extraction (Fig. 2) and hourly rates (Fig. 3), digitised, for the kinetics (Section 5); Ca uptake and Fe metallisation for the thermodynamics (Section 4); the 1 g extraction curve that converts a rate loss into hours (Section 9).</td></tr>
+<tr><td>Burke et al. 2024, Front. Space Technol. 5:1304579</td><td>CFD (OpenFOAM 9, interFoam volume-of-fluid, isothermal), one bubble grown from a 2 mm radius nucleation site modelled as a gas inlet at 7.16 &times; 10<sup>&minus;7</sup> m&sup3;/s, in a 15 &times; 10 &times; 10 cm chamber; water, molten regolith and molten CaCl<sub>2</sub>; 1 g, Mars (3.68 m/s&sup2;), Moon; horizontal and vertical electrodes; constant contact angle boundary condition.</td><td>An independent, dynamic estimate of how detachment volume scales with g in CaCl<sub>2</sub> (Section 6.6). No coverage or voltage is computed there.</td></tr>
+</tbody></table></div>
+
+<figure>
+<img loading="lazy" src="img/real_lomax25_fig6_pellets.jpg" alt="Lomax et al. 2025 Figure 6: solid product at various stages of oxygen extraction">
+<figcaption><b>Figure 2.</b> The solid product collected as a pellet and/or powder at various stages of oxygen extraction from LMS-1. The pellet powders progressively from the outside in, which matters for the geometric interpretation of the kinetics in Section 5. Reproduced unmodified from Lomax et al. 2025, Acta Astronautica 234, Fig. 6, under CC BY-NC-ND 4.0.</figcaption>
+</figure>
+
+<!-- ============================================================ 3 -->
+<h2 id="s3"><span class="sn">3</span>Model architecture</h2>
+
+<p>The gravity model is a chain in which each link is a published relation with its own parameters:</p>
+
+$$ g \;\longrightarrow\; d_{\rm dep}(g) \;\longrightarrow\; \Theta(g) \;\longrightarrow\; \Delta V(g)-\Delta V(g_E) \;\longrightarrow\; \frac{\Delta I}{I}\ \text{at fixed }V \;\longrightarrow\; \dot m_{\rm O_2},\ t_X . $$
+
+<ol>
+<li><strong>Departure size</strong> $d_{\rm dep}$: the diameter of the bubble when it leaves the anode. Three descriptions are used: the Fritz law for a spreading contact line, the pinned-contact-line law of Angulo et al. (2020), and my own Young-Laplace integration of static bubble shapes, which gives absolute sizes and checks the pinned scaling (Section 6).</li>
+<li><strong>Coverage</strong> $\Theta$: the fraction of anode area shaded by attached gas. At 1 g it comes from the Vogt-Balzer correlation; its change with g comes from the change in bubble footprint, combined with Poisson overlap (Section 7.2).</li>
+<li><strong>Voltage penalty</strong>: an ohmic term for the resistive gas-laden layer (Hyde and Welch) plus an activation term from the higher local current density on the uncovered area (Section 7.3 and 7.4). Only the change relative to Earth is reported, which cancels part of the unknowns.</li>
+<li><strong>Operating consequence</strong>: at fixed cell voltage (ESA's mode), the penalty becomes a lower current; at fixed current it becomes extra energy per kilogram of oxygen (Section 9.3).</li>
+</ol>
+
+<p>The uncertain mechanism parameters (detachment law, pinning radius, coverage exponent, transfer coefficient, layer thickness factor) are sampled from broad priors and weighted by agreement with the water data of Lomax et al. 2022 (Section 8); the weighted samples are then evaluated with molten-salt properties. Two side analyses use the same ESA datasets but are not inputs to the gravity chain: Module A (thermodynamics, Section 4) and Module B (kinetics of the pellet, Section 5). Module D (environment, Section 10) is a pair of design estimates.</p>
+
+<div class="tbl"><table>
+<caption>Table 2. Code map. All scripts are in the <code>code/</code> folder of this site's repository; the numbers in this paper were produced by running them unchanged.</caption>
+<thead><tr><th>File</th><th>Content</th></tr></thead>
+<tbody>
+<tr><td class="num">thermo.py</td><td>Reversible potentials of 22 cathode steps, CaO activity correction, Monte Carlo over Gibbs energies and CaO activity, predominance curves.</td></tr>
+<tr><td class="num">stages.py</td><td>Oxygen bound to each element for five simulant compositions; stage-1 share on two oxygen bases.</td></tr>
+<tr><td class="num">knee.py</td><td>Geometric null model of the pellet, fitted to the digitised cumulative curve; comparison of its rate with the digitised hourly rates.</td></tr>
+<tr><td class="num">kinetics.py</td><td>Shrinking-core fits to Lomax 2020 (set aside, see Table 1).</td></tr>
+<tr><td class="num">bubble_shape.py</td><td>Young-Laplace integration and maximum-volume departure criterion; departure-size sweep 0.05 to 20 g.</td></tr>
+<tr><td class="num">bubble_growth.py</td><td>Sequence of static shapes up to departure, for the 3D view on the main page.</td></tr>
+<tr><td class="num">bubbles.py</td><td>The chain (departure, coverage, ohmic and activation terms), the energy conversion, and the original uncalibrated Monte Carlo.</td></tr>
+<tr><td class="num">bubble_calib.py</td><td>First implementation of the calibration on the water data (loop form, 40,000 draws).</td></tr>
+<tr><td class="num">sim_table.py</td><td>Vectorised calibration (60,000 draws, seed 11) and the tables of extra voltage and coverage versus g and j. <strong>All gravity results in this paper come from this script.</strong></td></tr>
+<tr><td class="num">prior_sens.py</td><td>Repeats the calibration with widened prior ranges and error widths (Section 8.7, Table S1).</td></tr>
+<tr><td class="num">headroom.py</td><td>Three estimates of the voltage headroom at fixed 3.2 V: thermodynamic chord, electrolyte ohmic drop, and the tin oxide against graphite comparison (Section 9.3, Table S2).</td></tr>
+<tr><td class="num">environment.py</td><td>Hertz-Knudsen evaporation into vacuum; lunar-night hold versus remelt energies.</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ 4 -->
+<h2 id="s4"><span class="sn">4</span>Thermodynamics of the cathode reactions</h2>
+
+<h3><span class="sn">4.1</span>Reversible potentials</h3>
+<p>Each candidate cathode process is written as a full cell reaction with O<sub>2</sub> evolved at an inert anode at 1 bar. Its reversible potential is</p>
+$$ E = \frac{\Delta G_r(T)}{zF}, \qquad \Delta G_r = \sum_{\rm products}\nu_i\,\Delta_f G_i(T) \;-\; \sum_{\rm reactants}\nu_i\,\Delta_f G_i(T), \tag{1}$$
+<p>where $z$ is the number of electrons transferred per formula unit as written, $F = 96485.33$ C/mol, and elements in their reference states and O<sub>2</sub> have $\Delta_f G = 0$. For a simple oxide MO<sub>x</sub> reduced to the element this reduces to $E = -\Delta_f G({\rm MO}_x)/(2xF)$. Gibbs energies of formation are tabulated at 1200 and 1300 K (Table 4) and linearly interpolated to 1223 K. I checked the electron count of every step; an independent hand recomputation in the review agrees with the code to better than 1 mV (for example SiO<sub>2</sub> &rarr; Si 1.792 V, CaSiO<sub>3</sub> &rarr; Si + CaO 2.021 V, CaO &rarr; Ca 2.626 V).</p>
+
+<h3><span class="sn">4.2</span>CaO activity</h3>
+<p>CaO produced or consumed by a step is dissolved in the melt, not present as pure solid. With activities $a_i$ (pure solid CaO = 1) and O<sub>2</sub> at 1 bar,</p>
+$$ E(a) = E^\circ + \frac{RT}{zF}\,\ln\frac{\prod_{\rm prod} a_i^{\nu_i}}{\prod_{\rm reac} a_i^{\nu_i}}. \tag{2}$$
+<p>Dissolved CaO released as a product makes a step easier (lower $E$); dissolved CaO consumed as a reactant makes it harder. This sign is the whole content of the calcium result below.</p>
+
+<h3><span class="sn">4.3</span>Routes: simple oxides, minerals, Ca-intermediates, alloys</h3>
+<p>The ladder contains four kinds of step, kept side by side so that each correction is visible: simple oxides to elements (the Meurisse et al. 2022 basis); real regolith minerals (ilmenite, fayalite, forsterite, diopside, anorthite, spinel) with Robie and Hemingway (1995) data; reduction through the Ca-intermediates that the FFC literature observes (CaSiO<sub>3</sub>: Xiao et al. 2012; CaTiO<sub>3</sub>: Schwandt et al. 2010); and products that are alloys rather than pure metals (FeSi, Mg<sub>2</sub>Si, CaSi<sub>2</sub>, CaSi). The ceiling is the decomposition of the salt itself, CaCl<sub>2</sub> &rarr; Ca + Cl<sub>2</sub>.</p>
+
+<div class="tbl"><table>
+<caption>Table 3. Reversible potentials at 1223 K versus an O<sub>2</sub> anode (1 bar). Column 2: unit activities. Column 3: Monte Carlo median and 5 to 95 % range with $\Delta_f G$ drawn from normal distributions and $a_{\rm CaO}$ log-uniform over 0.02 to 0.5 (5000 draws). Steps involving CaO shift with its activity; the others only reflect data uncertainty.</caption>
+<thead><tr><th>Step</th><th class="r">E, unit act. (V)</th><th class="r">MC median [5 %, 95 %] (V)</th></tr></thead>
+<tbody>
+<tr><td>FeO &rarr; Fe</td><td class="num r">0.999</td><td class="num r">0.999 [0.982, 1.016]</td></tr>
+<tr><td>Fayalite Fe<sub>2</sub>SiO<sub>4</sub> &rarr; 2Fe + SiO<sub>2</sub></td><td class="num r">1.010</td><td class="num r">1.010 [0.993, 1.028]</td></tr>
+<tr><td>Ilmenite FeTiO<sub>3</sub> &rarr; Fe + TiO<sub>2</sub></td><td class="num r">1.059</td><td class="num r">1.059 [1.032, 1.085]</td></tr>
+<tr><td>MnO &rarr; Mn</td><td class="num r">1.529</td><td class="num r">1.529 [1.512, 1.546]</td></tr>
+<tr><td>SiO<sub>2</sub> + Fe &rarr; FeSi</td><td class="num r">1.614</td><td class="num r">1.614 [1.581, 1.648]</td></tr>
+<tr><td>SiO<sub>2</sub> &rarr; Si (simple oxide)</td><td class="num r">1.792</td><td class="num r">1.791 [1.787, 1.796]</td></tr>
+<tr><td>TiO<sub>2</sub> &rarr; Ti (simple oxide)</td><td class="num r">1.873</td><td class="num r">1.873 [1.869, 1.878]</td></tr>
+<tr><td>Diopside &rarr; Si + CaSiO<sub>3</sub> + MgO</td><td class="num r">1.909</td><td class="num r">1.909 [1.887, 1.931]</td></tr>
+<tr><td>Forsterite Mg<sub>2</sub>SiO<sub>4</sub> &rarr; Si + 2MgO</td><td class="num r">1.938</td><td class="num r">1.938 [1.919, 1.957]</td></tr>
+<tr><td>Anorthite &rarr; 2Si + CaO + Al<sub>2</sub>O<sub>3</sub></td><td class="num r">1.960</td><td class="num r">1.929 [1.907, 1.952]</td></tr>
+<tr><td>CaSiO<sub>3</sub> &rarr; Si + CaO</td><td class="num r">2.021</td><td class="num r">1.959 [1.920, 2.000]</td></tr>
+<tr><td>CaO + 2Si &rarr; CaSi<sub>2</sub></td><td class="num r">2.038</td><td class="num r">2.160 [1.974, 2.338]</td></tr>
+<tr><td>CaTiO<sub>3</sub> &rarr; Ti + CaO</td><td class="num r">2.101</td><td class="num r">2.039 [1.999, 2.081]</td></tr>
+<tr><td>CaO + Si &rarr; CaSi</td><td class="num r">2.112</td><td class="num r">2.235 [2.097, 2.373]</td></tr>
+<tr><td>Al<sub>2</sub>O<sub>3</sub> &rarr; 2Al (simple oxide)</td><td class="num r">2.224</td><td class="num r">2.224 [2.220, 2.228]</td></tr>
+<tr><td>2MgO + Si &rarr; Mg<sub>2</sub>Si</td><td class="num r">2.245</td><td class="num r">2.245 [2.233, 2.257]</td></tr>
+<tr><td>Spinel MgAl<sub>2</sub>O<sub>4</sub> &rarr; 2Al + MgO</td><td class="num r">2.284</td><td class="num r">2.285 [2.273, 2.296]</td></tr>
+<tr><td>MgO &rarr; Mg (simple oxide)</td><td class="num r">2.421</td><td class="num r">2.421 [2.413, 2.430]</td></tr>
+<tr><td>Forsterite &rarr; 2Mg + SiO<sub>2</sub></td><td class="num r">2.568</td><td class="num r">2.568 [2.550, 2.585]</td></tr>
+<tr><td>CaO &rarr; Ca (pure metal)</td><td class="num r">2.626</td><td class="num r">2.748 [2.671, 2.824]</td></tr>
+<tr><td>Diopside &rarr; Mg + CaSiO<sub>3</sub> + SiO<sub>2</sub></td><td class="num r">2.656</td><td class="num r">2.656 [2.612, 2.702]</td></tr>
+<tr><td>CaCl<sub>2</sub> &rarr; Ca + Cl<sub>2</sub> (salt ceiling, $p_{\rm Cl_2}$ = 1 bar)</td><td class="num r">3.178</td><td class="num r">3.178 [3.170, 3.187]</td></tr>
+</tbody></table></div>
+
+<p>Three observations. First, the order Fe, then Si and Ti, then Al, then Mg, then Ca is the same as for simple oxides; the mineral routes do not change it. Second, the mineral and intermediate routes <em>narrow</em> the gap between the Si/Ti group and the Al/Mg group: CaTiO<sub>3</sub> &rarr; Ti at 2.04 V (Monte Carlo median) against Al<sub>2</sub>O<sub>3</sub> at 2.22 V is 0.18 V, and 0.12 V at unit CaO activity, against 0.35 V between TiO<sub>2</sub> and Al<sub>2</sub>O<sub>3</sub>. That weakens, rather than supports, the idea of a clean voltage-selected stage. Third, the ladder lists alternative routes for the same atoms (for example Mg from MgO, from forsterite and into Mg<sub>2</sub>Si); they are not independent sequential steps. Once Si has left forsterite, Mg is reduced from MgO (2.42 V) or into Mg<sub>2</sub>Si (2.25 V), not from forsterite (2.57 V).</p>
+
+<h3><span class="sn">4.4</span>Monte Carlo</h3>
+<p>Each $\Delta_f G_i$ is drawn from $\mathcal N(\Delta_f G_i, s_i^2)$ with the 1-sigma $s_i$ of Table 4, which I assigned from source quality: 1 to 2 kJ/mol for JANAF oxides, 3 to 5 kJ/mol for Robie and Hemingway minerals, 8 kJ/mol for FeSi, and 13 to 19 kJ/mol for the Ca silicides. $a_{\rm CaO}$ is drawn log-uniformly over 0.02 to 0.5; temperature is fixed at 1223 K. The JANAF and Robie-Hemingway databases differ by 3 to 5 kJ/mol for the same phase (forsterite: 1691.8 versus 1697.0 kJ/mol at 1200 K), that is 5 to 10 mV for a two-electron step, which can reorder steps lying within about 20 mV of each other.</p>
+
+<h3><span class="sn">4.5</span>The calcium result: a predominance view</h3>
+<p>The Si step through the intermediate, CaSiO<sub>3</sub> &rarr; Si + CaO + O<sub>2</sub> ($z = 4$), releases CaO; calcium-silicide formation, CaO + 2Si &rarr; CaSi<sub>2</sub> + &frac12;O<sub>2</sub> ($z = 2$), consumes it. From Eq. (2) their difference is</p>
+$$ E_{\rm CaSi_2} - E_{\rm Si/CaSiO_3} \;=\; 0.017\ {\rm V} \;-\; \frac{3RT}{4F}\,\ln a_{\rm CaO}, \tag{3}$$
+<p>with $3RT/4F = 0.079$ V per e-fold, or 0.182 V per decade, at 1223 K. The gap is <strong>17 mV at $a_{\rm CaO} = 1$, 0.20 V at 0.1 and 0.38 V at 0.01</strong>. An earlier version of this work quoted a "0.2 V window" and a 5.6 % probability of overlap; both came from the prior on $a_{\rm CaO}$ (log-uniform 0.02 to 0.5, geometric mean 0.1), not from the system, and I no longer use them. Inside a reducing pellet, O<sup>2&minus;</sup> is released into the pore electrolyte, and Ca-intermediates form precisely because the local CaO activity is high. Near $a_{\rm CaO} = 1$ the window closes: silicide formation is roughly coincident with Si reduction. That is consistent with calcium appearing in all reported products (a Ca-Al-Si alloy in Lomax et al. 2020; Al<sub>2</sub>Si<sub>2</sub>Ca and AlSiCa in the Schild et al. 2025 abstract). CaO activity is a two-sided knob: too low and the salt itself is decomposed to supply Ca for the intermediates, with Cl<sub>2</sub> evolution (Lomax et al. 2025 make this point); too high and Ca alloys into the product.</p>
+
+<figure>
+<img loading="lazy" src="img/fig_calcium.png" alt="Reversible potential of selected steps versus dissolved CaO activity">
+<figcaption><b>Figure 3.</b> Reversible potentials at 1223 K (versus an O<sub>2</sub> anode) of selected steps as a function of dissolved CaO activity, from <code>thermo.py</code> (data in <a href="data/predominance.json">predominance.json</a>). Si via CaSiO<sub>3</sub> rises and CaSi<sub>2</sub> formation falls with $a_{\rm CaO}$; they meet within 17 mV at $a_{\rm CaO} = 1$. Steps without CaO are horizontal. My plot.</figcaption>
+</figure>
+
+<figure class="mid">
+<img loading="lazy" src="img/real_lomax25_fig9_calcium.jpg" alt="Lomax et al. 2025 Figure 9: calcium mass in the solid product versus extraction">
+<figcaption><b>Figure 4.</b> Mass of calcium in the solid product as a percentage of the calcium in the original LMS-1 sample. It peaks at about 500 % near one third of the oxygen removed and returns to the initial level only near 90 %. Reproduced unmodified from Lomax et al. 2025, Acta Astronautica 234, Fig. 9, under CC BY-NC-ND 4.0. The late return (well after any proposed end of a Si/Ti stage) suggests that Ca is also held in Al-bearing intermediates or Ca-Al-Si alloys; the figure is "not inconsistent with" the CaSiO<sub>3</sub>/CaTiO<sub>3</sub> routes, and no stronger statement is justified.</figcaption>
+</figure>
+
+<h3><span class="sn">4.6</span>Graphite anode and the salt ceiling</h3>
+<p>Table 3 assumes an inert anode. With graphite, the anodic product is CO<sub>2</sub> or CO, and every step that releases oxygen shifts down by the same amount:</p>
+$$ E_{\rm C} = E_{\rm O_2} + \frac{\Delta_f G({\rm CO_2})}{4F} \quad\text{or}\quad E_{\rm C} = E_{\rm O_2} + \frac{2\,\Delta_f G({\rm CO})}{4F}, \tag{4}$$
+<p>which is &minus;1.026 V for CO<sub>2</sub> and &minus;1.140 V for CO at 1223 K (CO is the Boudouard-favoured product at this temperature). The ordering is preserved. The CaCl<sub>2</sub> line contains no oxygen and does not move, so the gap between the oxide steps and the salt ceiling widens by about 1.1 V. The stage-1 boundary near 2.05 V (inert) becomes about 0.9 to 1.0 V; CaO &rarr; Ca at $a_{\rm CaO} = 0.1$ becomes about 1.5 to 1.6 V. <strong>At 3.2 V with graphite, every step in the ladder, including Ca deposition, has a positive thermodynamic driving force.</strong> The ladder ranks preference; it does not switch steps on or off. Which steps are active depends on the cathode potential inside the pellet, which is not measured in a two-electrode cell at fixed cell voltage, where the split between ohmic drop, anode and cathode is unknown and drifts during a run.</p>
+<p>The ceiling itself is soft. The 3.178 V value assumes $p_{\rm Cl_2}$ = 1 bar. Under an argon purge $p_{\rm Cl_2}$ is small, and</p>
+$$ E_{\rm CaCl_2} = E^\circ_{\rm CaCl_2} + \frac{RT}{2F}\ln p_{\rm Cl_2} \tag{5}$$
+<p>gives about 2.69 V at $p_{\rm Cl_2} = 10^{-4}$ bar. Cl<sub>2</sub> is thus thermodynamically possible below 3.2 V, as Schwandt et al. (2010) state for TiO<sub>2</sub> reduction. This matters for Section 9: raising the voltage to compensate for a gravity penalty pushes further into the region where Cl<sub>2</sub> is possible.</p>
+
+<h3><span class="sn">4.7</span>Caveats</h3>
+<ul>
+<li><strong>Ca silicides:</strong> only 298 K formation enthalpies exist in my sources (Brutti et al. 2001). I set $\Delta_f G(1223\ {\rm K}) \approx \Delta_f H_{298}$ and carry $s = T\times 5$ J/(mol-atom K) &times; atoms, that is 19 kJ/mol for CaSi<sub>2</sub> (about &plusmn;0.1 V for $z=2$). A CALPHAD description (Heyrman and Chartrand 2006) would replace this; I could not access it.</li>
+<li><strong>CaAl<sub>2</sub>Si<sub>2</sub></strong>, the phase the Schild et al. 2025 abstract reports, has no data in my set (Materials Project entry mp-7704 was identified but not retrieved). This is the main thermodynamic gap.</li>
+<li><strong>FeSi:</strong> a fit valid to 1200 K (Pankratz et al. 1984, via Nikolaychuk 2019); the 1300 K value is an extrapolation, and the literature spread at 298 K is about 20 kJ/mol.</li>
+<li><strong>Products:</strong> anorthite &rarr; 2Si + CaO + Al<sub>2</sub>O<sub>3</sub> should end in Ca aluminates (observed intermediates include Ca<sub>12</sub>Al<sub>14</sub>O<sub>33</sub>, quoted by Meurisse et al. 2022), not free CaO + Al<sub>2</sub>O<sub>3</sub>; the review estimates this lowers the step by about 0.05 V, an estimate I have not checked.</li>
+<li><strong>Ti:</strong> CaTiO<sub>3</sub> &rarr; Ti refers to removal to a sub-oxide or Ti(O) solid solution. The last oxygen in Ti(O) needs potentials close to Ca deposition, +0.17 V versus Ca/Ca<sup>2+</sup> at 900 &deg;C (Schwandt et al. 2010). Ti carries only 0.6 to 7 % of the oxygen in these simulants, so the effect on Section 5 is small.</li>
+</ul>
+
+<div class="tbl"><table>
+<caption>Table 4. Standard Gibbs energies of formation from the elements used in the ladder (kJ/mol of formula unit), the 1-sigma used in the Monte Carlo, and the source as recorded in <a href="data/thermo_data.json">thermo_data.json</a>. J = NIST-JANAF table ID; RH = Robie and Hemingway 1995, printed page.</caption>
+<thead><tr><th>Species</th><th class="r">1200 K</th><th class="r">1300 K</th><th class="r">sd</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>CaCl<sub>2</sub> (l)</td><td class="num r">&minus;616.153</td><td class="num r">&minus;603.921</td><td class="num r">1.0</td><td>J Ca-011</td></tr>
+<tr><td>CaO</td><td class="num r">&minus;509.239</td><td class="num r">&minus;498.082</td><td class="num r">1.0</td><td>J Ca-027</td></tr>
+<tr><td>MgO</td><td class="num r">&minus;469.844</td><td class="num r">&minus;458.291</td><td class="num r">1.0</td><td>J Mg-008</td></tr>
+<tr><td>Al<sub>2</sub>O<sub>3</sub> (&alpha;)</td><td class="num r">&minus;1295.228</td><td class="num r">&minus;1262.264</td><td class="num r">1.5</td><td>J Al-096</td></tr>
+<tr><td>TiO<sub>2</sub> (rutile)</td><td class="num r">&minus;727.113</td><td class="num r">&minus;709.265</td><td class="num r">1.0</td><td>J O-043</td></tr>
+<tr><td>SiO<sub>2</sub> (quartz)</td><td class="num r">&minus;695.426</td><td class="num r">&minus;678.114</td><td class="num r">1.0</td><td>J O-039</td></tr>
+<tr><td>FeO (stoichiometric)</td><td class="num r">&minus;194.316</td><td class="num r">&minus;187.947</td><td class="num r">2.0</td><td>J Fe-018</td></tr>
+<tr><td>MnO</td><td class="num r">&minus;296.8</td><td class="num r">&minus;289.4</td><td class="num r">2.0</td><td>RH p.199</td></tr>
+<tr><td>Anorthite CaAl<sub>2</sub>Si<sub>2</sub>O<sub>8</sub></td><td class="num r">&minus;3324.7</td><td class="num r">&minus;3248.0</td><td class="num r">5.0</td><td>RH p.362</td></tr>
+<tr><td>Diopside CaMgSi<sub>2</sub>O<sub>6</sub></td><td class="num r">&minus;2503.8</td><td class="num r">&minus;2445.5</td><td class="num r">4.0</td><td>RH p.347</td></tr>
+<tr><td>Forsterite Mg<sub>2</sub>SiO<sub>4</sub></td><td class="num r">&minus;1691.8</td><td class="num r">&minus;1651.1</td><td class="num r">4.0</td><td>RH p.335 (JANAF: &minus;1697.0)</td></tr>
+<tr><td>Fayalite Fe<sub>2</sub>SiO<sub>4</sub></td><td class="num r">&minus;1088.7</td><td class="num r">&minus;1056.8</td><td class="num r">4.0</td><td>RH p.332</td></tr>
+<tr><td>Ilmenite FeTiO<sub>3</sub></td><td class="num r">&minus;933.0</td><td class="num r">&minus;908.5</td><td class="num r">3.0</td><td>RH p.235</td></tr>
+<tr><td>Wollastonite CaSiO<sub>3</sub></td><td class="num r">&minus;1293.1</td><td class="num r">&minus;1264.4</td><td class="num r">3.0</td><td>RH p.342</td></tr>
+<tr><td>Perovskite CaTiO<sub>3</sub></td><td class="num r">&minus;1323.9</td><td class="num r">&minus;1295.6</td><td class="num r">3.0</td><td>RH p.232</td></tr>
+<tr><td>Spinel MgAl<sub>2</sub>O<sub>4</sub></td><td class="num r">&minus;1799.7</td><td class="num r">&minus;1756.1</td><td class="num r">4.0</td><td>RH p.237</td></tr>
+<tr><td>Gehlenite Ca<sub>2</sub>Al<sub>2</sub>SiO<sub>7</sub></td><td class="num r">&minus;3178.2</td><td class="num r">&minus;3108.3</td><td class="num r">5.0</td><td>RH p.314</td></tr>
+<tr><td>Mg<sub>2</sub>Si</td><td class="num r">&minus;68.536</td><td class="num r">&minus;66.095</td><td class="num r">2.0</td><td>J Mg-034</td></tr>
+<tr><td>FeSi</td><td class="num r">&minus;68.75</td><td class="num r">&minus;67.74</td><td class="num r">8.0</td><td>Pankratz et al. 1984 fit via Nikolaychuk 2019 (1300 K extrapolated)</td></tr>
+<tr><td>CaSi<sub>2</sub></td><td class="num r">&minus;113.4</td><td class="num r">&minus;113.4</td><td class="num r">19.0</td><td>Brutti et al. 2001, $\Delta_f H_{298}$ = &minus;37.8 kJ/mol-atom, $\Delta G \approx \Delta H$ assumed</td></tr>
+<tr><td>CaSi</td><td class="num r">&minus;99.2</td><td class="num r">&minus;99.2</td><td class="num r">13.0</td><td>Brutti et al. 2001, $\Delta_f H_{298}$ = &minus;49.6 kJ/mol-atom, $\Delta G \approx \Delta H$ assumed</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ 5 -->
+<h2 id="s5"><span class="sn">5</span>Kinetics and the 60 % knee</h2>
+
+<p>Lomax et al. (2025) describe a sigmoidal extraction: a moderate rate up to about 20 %, the highest rate between 20 and 60 %, and a falling rate from 60 to 80 %. They recommend 60 % as the endpoint that gives the most oxygen per unit time. They attribute the stages qualitatively to the known reduction mechanisms of the different oxides. I tested one quantitative version of that idea: does the slowdown near 60 % coincide with exhausting the oxygen bound to the easily reduced elements (Fe, Mn, Si, Ti), or can pellet geometry alone produce it?</p>
+
+<h3><span class="sn">5.1</span>Data and digitisation</h3>
+<p>The extraction values are only in Lomax et al. 2025 Figs. 2 and 3. I digitised Fig. 2 (cumulative extraction versus time, LMS-1 with graphite anode, average of the runs) from the image embedded in the PDF by blob detection, with the vertical axis calibrated on the frame (0 to 100 %) and the horizontal axis on the 2 h spacing of the points. An independent pixel-centroid check in the review matched my values to within 0.5 percentage points. I digitised Fig. 3 (hourly rates) for the LMS-1 graphite series and the LHS-1 graphite series; the 10 h LMS point is missing from my file. Integrating the hourly rates gives about 60 % at 17 h and 63 % at 18 h (the exact tenths depend on how the missing 10 h point is interpolated). The rates convert to percentages on an oxygen basis of 24 g &times; 0.445, which is the basis implied by matching Fig. 2 with the integral of Fig. 3 (9.54 g at 89.3 %).</p>
+
+<p>A critical point is that Figs. 2 and 3 average runs of different durations, so the number of runs behind each hour falls with time (Table 5). After 15 h, the LHS-1 curve is a single run.</p>
+
+<div class="tbl"><table>
+<caption>Table 5. Number of LMS-1 graphite runs contributing to each hour of Lomax et al. 2025 Figs. 2 and 3 (from the durations in their Table 1).</caption>
+<thead><tr><th>Hour</th><th class="r">5</th><th class="r">6</th><th class="r">11</th><th class="r">14</th><th class="r">17</th><th class="r">25</th></tr></thead>
+<tbody><tr><td>Runs alive</td><td class="num r">10</td><td class="num r">8</td><td class="num r">6</td><td class="num r">5</td><td class="num r">3</td><td class="num r">1</td></tr></tbody>
+</table></div>
+
+<figure class="mid">
+<img loading="lazy" src="img/real_lomax25_fig2.jpg" alt="Lomax et al. 2025 Figure 2: cumulative oxygen extracted versus time">
+<figcaption><b>Figure 5.</b> Oxygen extracted (from mass spectrometry) from LMS-1 as a function of time, averaged across all LMS-Graphite experiments, with the authors' linear fits per stage. Reproduced unmodified from Lomax et al. 2025, Acta Astronautica 234, Fig. 2, under CC BY-NC-ND 4.0. Digitised values: <a href="data/lomax2025_fig2.json">lomax2025_fig2.json</a>.</figcaption>
+</figure>
+
+<figure class="mid">
+<img loading="lazy" src="img/real_lomax25_fig3.jpg" alt="Lomax et al. 2025 Figure 3: hourly rate of oxygen extraction">
+<figcaption><b>Figure 6.</b> Average rate of oxygen extraction in hourly intervals for graphite (blue) and tin oxide (green) LMS experiments and graphite LHS experiments (grey). Reproduced unmodified from Lomax et al. 2025, Acta Astronautica 234, Fig. 3, under CC BY-NC-ND 4.0. Digitised values: <a href="data/lomax2025_fig3_rates.json">lomax2025_fig3_rates.json</a>.</figcaption>
+</figure>
+
+<h3><span class="sn">5.2</span>Linear versus square-root time</h3>
+<p>For extraction $X$ in percent and time $t$ in hours, I fitted, through the origin and over the points up to the knee,</p>
+$$ X = a\,t \qquad\text{and}\qquad X = b\,\sqrt{t}. \tag{6}$$
+<p>Up to 16 h: $a = 3.64$ %/h with rms residual 1.1 %, against 7.8 % for $\sqrt t$; up to 18 h: rms 1.2 % against 8.2 %. A free power law gives an exponent of 1.09 to 1.11. Parabolic growth of a diffusion-limited product layer ($X \propto \sqrt t$) is therefore excluded up to about 60 %. That does not by itself identify control by the reaction front. A cell whose current is limited by the cell (ohmic drop, anode overpotential, basket contact) with a slowly varying current efficiency also gives $X \propto t$. The first 4 h are accelerating, which interface control on a shrinking body would not predict. For the later segments I get 2.56 %/h for 16 to 24 h and 1.55 %/h for 24 to 30 h from the digitised points, against 2.8 and 1.6 %/h from the authors' fitted lines; the 24 to 30 h segment is one run.</p>
+<p>If the front moves inwards from all surfaces of the 46 &times; 10 mm disc (Fig. 1 shows reduction starting at the basket contact and wrapping round the outside), the observed rate corresponds to a front speed of 0.145 mm/h, about 40 nm/s. For comparison, Osarinmwian and Roberts (2023) fit 14 nm/s for a <em>diffusion-controlled</em> 3PI penetration in TiO<sub>2</sub>. A front moving at roughly constant speed can itself be limited by O<sup>2&minus;</sup> diffusion in the pore electrolyte near the 3PI; the linear law only excludes diffusion through a growing product shell. An earlier draft cited that paper the other way round, which was wrong.</p>
+
+<h3><span class="sn">5.3</span>Geometric null model</h3>
+<p>To ask whether geometry alone could make a knee, I modelled a front moving at constant speed $v$ from all surfaces of a disc of radius $R = 23$ mm and thickness $H = 10$ mm, with no chemistry:</p>
+$$ X(t) = 1 - \frac{(R - vt)^2\,(H - 2vt)}{R^2 H}, \qquad R - vt \ge 0,\ H - 2vt \ge 0. \tag{7}$$
+<p>I fitted $v$ by bounded least squares to the digitised cumulative curve over 0 to 30 h. The best fit is $v = 0.145$ mm/h with rms residual 1.9 % and maximum residual about 3 %. So the cumulative data alone do not require a chemical stage. The discriminating observable is the <em>rate</em>. The null model's rate, $\Delta X$ per hour times the oxygen basis, is highest at $t = 0$ and declines smoothly, with a largest one-hour drop of 0.009 g/h. The measured rate rises for about 4 h, plateaus near 0.38 to 0.42 g/h, then drops by 0.078 g/h in one hour between 17 and 18 h (Table 6).</p>
+
+<div class="tbl"><table>
+<caption>Table 6. Hourly oxygen rate: measured (digitised Fig. 3, LMS-1 graphite, interpolated at the 10 h gap) versus the geometric null model (from <code>knee.py</code>, data in <a href="data/knee.json">knee.json</a>).</caption>
+<thead><tr><th>Hour</th><th class="r">1</th><th class="r">3</th><th class="r">5</th><th class="r">10</th><th class="r">15</th><th class="r">17</th><th class="r">18</th><th class="r">20</th><th class="r">24</th><th class="r">30</th></tr></thead>
+<tbody>
+<tr><td>Measured (g/h)</td><td class="num r">0.284</td><td class="num r">0.355</td><td class="num r">0.380</td><td class="num r">0.387</td><td class="num r">0.419</td><td class="num r">0.377</td><td class="num r">0.299</td><td class="num r">0.303</td><td class="num r">0.252</td><td class="num r">0.151</td></tr>
+<tr><td>Null model (g/h)</td><td class="num r">0.440</td><td class="num r">0.423</td><td class="num r">0.406</td><td class="num r">0.365</td><td class="num r">0.327</td><td class="num r">0.312</td><td class="num r">0.304</td><td class="num r">0.290</td><td class="num r">0.261</td><td class="num r">0.221</td></tr>
+</tbody></table></div>
+
+<figure>
+<img loading="lazy" src="img/fig_knee.png" alt="Measured hourly oxygen rate versus geometric null model">
+<figcaption><b>Figure 7.</b> Measured hourly rate (digitised from Lomax et al. 2025 Fig. 3) and the rate of the geometric null model of Eq. (7) fitted to the cumulative curve. The shaded band marks where the oxygen bound to Fe, Si and Ti in the lab's LMS-1 batch would be used up (about 63 %, Section 5.4). The step between 17 and 18 h rests on three runs. My plot.</figcaption>
+</figure>
+
+<p>Where exactly the knee sits depends on how it is read: the best single-break fit to Fig. 2 is at 19 h / 68 % (rms 1.16 %); breaks at 17 to 18 h give rms 1.22 to 1.23 %; the authors' shading puts the change at about 54 % (14 h), rms 1.77 %. I do not quote it more precisely than about 55 to 68 %.</p>
+
+<h3><span class="sn">5.4</span>The oxygen staircase</h3>
+<p>For a composition given as oxide mass fractions $w_k$, the oxygen bound to element $e$ per unit mass of simulant is</p>
+$$ o_e = \sum_{k \in e}\frac{w_k}{\sum_j w_j}\;\frac{m_k M_{\rm O}}{n_k M_e + m_k M_{\rm O}}, \tag{8}$$
+<p>for oxide M<sub>n</sub>O<sub>m</sub>. Stage 1 is the oxygen of Fe, Mn, Si and Ti (with traces of Ni and Cr), all reducible below about 2.05 V with an inert anode. The oxygen of Na, K, P, S and Sr is counted separately as exchangeable: Na<sub>2</sub>O + CaCl<sub>2</sub> &rarr; 2NaCl + CaO puts that oxygen into the melt, from where it is discharged at the anode, so it belongs inside a gas-based extraction percentage. The result depends strongly on which composition and which oxygen basis are used (Table 7).</p>
+
+<div class="tbl"><table>
+<caption>Table 7. Stage-1 oxygen share (Fe, Mn, Si, Ti) and exchangeable share (Na, K, P, S, Sr), from <code>stages.py</code>. "Measured basis" rescales to the 41.6 wt% O measured by Lomax et al. 2025 in fresh LMS-1.</caption>
+<thead><tr><th>Composition</th><th class="r">O (wt%)</th><th class="r">Stage 1</th><th class="r">Exch.</th><th class="r">Sum, own basis</th><th class="r">Sum, measured basis</th></tr></thead>
+<tbody>
+<tr><td>LMS-1, Meurisse 2022 Table 2 (ESA lab batch)</td><td class="num r">43.74</td><td class="num r">60.2 %</td><td class="num r">3.8 %</td><td class="num r">64.0 %</td><td class="num r">67.3 %</td></tr>
+<tr><td>LMS-1, Exolith 2021 sheet</td><td class="num r">43.68</td><td class="num r">65.9 %</td><td class="num r">1.6 %</td><td class="num r">67.5 %</td><td class="num r">70.9 %</td></tr>
+<tr><td>LMS-1, Exolith Dec 2023 sheet</td><td class="num r">44.55</td><td class="num r">65.7 %</td><td class="num r">1.5 %</td><td class="num r">67.2 %</td><td class="num r">71.9 %</td></tr>
+<tr><td>LHS-1, Exolith 2021 sheet</td><td class="num r">45.77</td><td class="num r">59.7 %</td><td class="num r">1.9 %</td><td class="num r">n/a</td><td class="num r">n/a</td></tr>
+<tr><td>LHS-1, Exolith Dec 2023 sheet</td><td class="num r">45.90</td><td class="num r">59.9 %</td><td class="num r">1.8 %</td><td class="num r">n/a</td><td class="num r">n/a</td></tr>
+</tbody></table></div>
+
+<p>With the ESA lab's own batch and the oxygen basis implied by Fig. 2 (about 44.5 wt%), stage 1 plus exchangeable oxygen is about 63 %, which sits on the measured step at 60 to 63 %. Across composition sources and bases, however, the LMS-1 prediction spans 60 to 72 %. The test therefore has a systematic error of about &plusmn;5 points, larger than any agreement it could show. On the lab's batch, Si alone carries 51.8 % of the oxygen, Mg 17.0 %, Al 15.1 %, Ti 4.2 %, Fe 4.0 %, Ca 3.8 % and Na 2.9 %.</p>
+
+<h3><span class="sn">5.5</span>Verdict and the discriminating experiment</h3>
+<p>Status: <strong>inconclusive</strong>. The oxygen bound to Fe, Mn, Si and Ti is 60 to 72 % of the total for LMS-1 depending on composition and basis, which brackets the 55 to 68 % at which the averaged LMS rate drops (n = 3 runs at that time). The LHS-1 comparison rests on a single run after 15 h (its rate falls from 0.38 to 0.10 g/h and then rises again to 0.195 g/h) and cannot test the idea. The geometric null model reproduces the cumulative curve to 1.9 % rms, so only the abruptness of the rate step favours a chemical explanation. Alternatives that would also produce a current drop near 60 %:</p>
+<ol>
+<li>Geometry: the unreduced core vanishes; Lomax et al. note that by 80 % the product is entirely powder.</li>
+<li>Partial reduction behind the front: grain-scale shrinking cores leave MgO and Al-intermediates behind.</li>
+<li>Ca-intermediate release and the melt CaO buffer: 0.7 wt% CaO in 800 g of salt holds about 1.6 g of oxygen, roughly 15 % of the pellet oxygen. Gas-measured rates are anode rates, not cathode rates.</li>
+<li>Graphite-anode effects: carbonate formation, carbon transfer and drift of the CO/CO<sub>2</sub> ratio change the anodic oxygen accounting.</li>
+<li>Current versus current efficiency: the rate is current times efficiency; since the cumulative efficiency is still rising at 60 %, the step is most likely a drop in <em>current</em>. A cathode that needs a more negative potential and a rising cell resistance as the pellet powders both predict that.</li>
+</ol>
+<p>The discriminating experiment is two pellet thicknesses (for example 5 and 10 mm) under identical conditions. A chemical stage keeps the knee at the same percentage extraction; geometric or front control moves it, with the knee time scaling with thickness. Interrupted runs at about 55 % and about 70 %, examined by XRD and SEM-EDX, would show whether Si-bearing phases survive the knee. Per-run current traces, which ESA holds, would separate a current drop from an efficiency drop and give the run-to-run scatter of the knee.</p>
+
+<figure class="mid">
+<img loading="lazy" src="img/real_lomax25_fig10_iron.jpg" alt="Lomax et al. 2025 Figure 10: percentage of iron in the metallic state">
+<figcaption><b>Figure 8.</b> Percentage of iron in the metallic state in the full product, pellet interior and pellet exterior (Mössbauer spectroscopy): about 70 % metallic when 17 % of the oxygen has been removed, and essentially all of the iron in the powdered exterior metallic at 35 %. This supports Fe reducing first, as every ladder predicts. Reproduced unmodified from Lomax et al. 2025, Acta Astronautica 234, Fig. 10, under CC BY-NC-ND 4.0.</figcaption>
+</figure>
+
+<h3><span class="sn">5.6</span>Simulant note</h3>
+<p>The ESA batch of LMS-1 contains 4.92 wt% Na<sub>2</sub>O against 0.41 wt% in Apollo 11 soil 10084 (Meurisse et al. 2022, Table 2). About 2.9 % of its oxygen therefore leaves by Na<sub>2</sub>O + CaCl<sub>2</sub> exchange rather than by reduction, and the salt accumulates NaCl over repeated runs. This is a simulant artefact that lunar feedstock would not show to the same degree.</p>
+
+<!-- ============================================================ 6 -->
+<h2 id="s6"><span class="sn">6</span>Bubble departure</h2>
+
+<h3><span class="sn">6.1</span>Scales</h3>
+<p>Two numbers set the problem: the capillary length, below which surface tension dominates gravity, and the Bond number of a bubble of diameter $d$:</p>
+$$ \lambda_c = \sqrt{\frac{\sigma}{\Delta\rho\, g}}, \qquad {\rm Bo} = \frac{\Delta\rho\, g\, d^2}{\sigma}. \tag{9}$$
+<p>For molten CaCl<sub>2</sub> at 1223 K I use $\sigma = 0.1429$ N/m (Janz et al. 1975 table, linear fit to 1223 K) and $\rho_l = 2009$ kg/m&sup3; (NSRDS-NBS 15 equation); the O<sub>2</sub> density at 1223 K and 1 bar is 0.315 kg/m&sup3;, so $\Delta\rho = \rho_l$ to 0.02 %. With $g$ = 9.80665, 3.71 and 1.62 m/s&sup2;, $\lambda_c$ is <span class="earth">2.69 mm</span> (Earth), <span class="mars">4.38 mm</span> (Mars) and <span class="moon">6.63 mm</span> (Moon). The gas generation rate at the anode, for four electrons per O<sub>2</sub> or CO<sub>2</sub> molecule, is</p>
+$$ \frac{\dot V}{A} = \frac{j\,RT}{4Fp}, \tag{10}$$
+<p>2.63 &times; 10<sup>&minus;7</sup> m&sup3;/s per ampere at 1223 K and 1 bar, or a superficial gas velocity of 0.37 mm/s at $j$ = 0.14 A/cm&sup2;. CO, with two electrons per molecule, doubles the gas volume; the chain does not resolve the anode gas composition.</p>
+
+<h3><span class="sn">6.2</span>Two classical detachment laws</h3>
+<p><strong>Fritz (spreading contact line).</strong> For quasi-static detachment from an upward-facing horizontal surface with a free contact line at angle $\theta$ (degrees),</p>
+$$ d_{\rm F} = 0.0208\,\theta\,\sqrt{\frac{\sigma}{g\,\Delta\rho}} = 0.0208\,\theta\,\lambda_c \;\propto\; g^{-1/2}. \tag{11}$$
+<p>At $\theta = 120°$, a carbon/cryolite analogue, this gives 6.7 mm on Earth, 10.9 mm on Mars and 16.5 mm on the Moon; the Moon/Earth size ratio is 2.46 and the volume ratio 14.9. The lunar Fritz bubble is larger than the 12.7 mm rod anode, which already shows that the plate picture fails there. Demirkır et al. (2024) also show that electrolytic bubbles that spread on the electrode deviate strongly from the Fritz value because of contact-line hysteresis.</p>
+<p><strong>Pinned contact line.</strong> If the contact line is anchored on a site of radius $r_0$, the vertical force balance at detachment (Angulo et al. 2020, Eq. 10) gives</p>
+$$ r_{\rm dep} = \left(\frac{3\, r_0\, \sigma\, \sin\theta}{2\,\Delta\rho\, g}\right)^{1/3} \;\Longleftrightarrow\; V_{\rm dep} = \frac{2\pi r_0\,\sigma \sin\theta}{\Delta\rho\, g}, \qquad d \propto g^{-1/3}. \tag{12}$$
+<p>The second form shows that this is Tate's law: buoyancy $\Delta\rho g V$ balancing the surface-tension force $2\pi r_0 \sigma \sin\theta$ on the pinning circle. Here the Moon/Earth size ratio is $(9.80665/1.62)^{1/3} = 1.82$, independent of $r_0$ and $\theta$, and the volume ratio is 6.05.</p>
+
+<h3><span class="sn">6.3</span>Young-Laplace derivation</h3>
+<p>The force balance of Eq. (12) ignores the shape of the bubble. To get absolute sizes and to check the scaling, I computed the static shapes. Consider an axisymmetric gas bubble sitting on an upward-facing electrode, with the contact line pinned on a circle of radius $r_0$. Let $z$ be measured downward from the apex towards the electrode and $x$ the radial coordinate. The gas pressure is uniform; the liquid pressure increases with depth. The Young-Laplace equation states that the pressure jump across the interface equals surface tension times the sum of principal curvatures:</p>
+$$ p_g - p_l(z) = \sigma\left(\frac{1}{R_1} + \frac{1}{R_2}\right), \qquad p_g - p_l(z) = \frac{2\sigma}{b} - \Delta\rho\, g\, z, \tag{13}$$
+<p>where $b$ is the radius of curvature at the apex (where $R_1 = R_2 = b$). Parametrise the meridian profile by arc length $s$ from the apex and let $\varphi$ be the angle of the tangent to the horizontal. Then $dx/ds = \cos\varphi$, $dz/ds = \sin\varphi$, the meridional curvature is $1/R_1 = d\varphi/ds$, and the azimuthal curvature is $1/R_2 = \sin\varphi / x$. Substituting into Eq. (13):</p>
+$$ \frac{dx}{ds} = \cos\varphi, \qquad \frac{dz}{ds} = \sin\varphi, \qquad \frac{d\varphi}{ds} = \frac{2}{b} - \frac{\Delta\rho\, g}{\sigma}\,z - \frac{\sin\varphi}{x}. \tag{14}$$
+<p>Scaling lengths by $b$ ($X = x/b$, $Z = z/b$, $S = s/b$) leaves a single parameter, the Bond number built on the apex radius:</p>
+$$ \frac{dX}{dS} = \cos\varphi, \qquad \frac{dZ}{dS} = \sin\varphi, \qquad \frac{d\varphi}{dS} = 2 - \beta Z - \frac{\sin\varphi}{X}, \qquad \beta = \frac{\Delta\rho\, g\, b^2}{\sigma}. \tag{15}$$
+<p>This is the same equation as for a pendant drop, with the roles of the two fluids exchanged.</p>
+
+<p><strong>Boundary conditions.</strong> At the apex $X = Z = \varphi = 0$, and $\sin\varphi / X \to d\varphi/dS = 1$ by symmetry, which removes the singularity. I start the integration at $S_0 = 10^{-6}$ with the series values $X = S_0$, $Z = S_0^2/2$, $\varphi = S_0$. The profile is integrated past the equator ($\varphi = \pi/2$) until it necks back to the pinning radius, $X = r_0/b$ with $\varphi > \pi/2$ and $X$ decreasing. That point is where the interface meets the electrode. The volume is</p>
+$$ V(b) = \int_0^{z_c} \pi\, x(z)^2\, dz, \tag{16}$$
+<p>evaluated by the trapezoidal rule on the computed profile, and the equivalent diameter is $d_{\rm eq} = (6V/\pi)^{1/3}$.</p>
+
+<p><strong>Numerical integration.</strong> <code>scipy.integrate.solve_ivp</code> (default explicit Runge-Kutta 4(5)) with relative tolerance 10<sup>&minus;8</sup>, absolute tolerance 10<sup>&minus;10</sup>, maximum step 0.01 in $S$, maximum arc length 12, and a terminal event function $X - r_0/b$ armed only when $\varphi > \pi/2$, with negative crossing direction. Profiles that never return to $r_0$ within the arc length are discarded.</p>
+
+<p><strong>Detachment criterion.</strong> As gas is added slowly, the bubble passes through a sequence of static shapes of increasing $b$. For a given $g$ and $r_0$, $V(b)$ has a maximum: no static shape with the contact line on the pinning circle exists for a larger volume, so the bubble must leave. I take that maximum as the departure volume. I locate it by evaluating $V$ on 220 values of $b$ between $0.05\lambda_c$ and $3\lambda_c$, then refining with bounded scalar minimisation of $-V(b)$ between the neighbouring grid points. At $g = 0$ there is no maximum: the bubble keeps growing on the electrode until it merges with its neighbours. This quasi-static criterion neglects inertia, the growth rate and the liquid flow; it is appropriate when growth is slow compared with capillary times.</p>
+
+<figure>
+<img loading="lazy" src="img/fig_method.png" alt="Static bubble shapes on Earth and bubble volume versus apex radius for Earth, Mars and Moon">
+<figcaption><b>Figure 9.</b> The departure method. Left: static Young-Laplace shapes on Earth as gas flows in, with the contact line pinned on a 0.1 mm site; the bold outline is the last shape that can exist. Right: bubble volume against apex radius of curvature for Earth, Mars and Moon; each curve ends at its departure bubble (maximum volume). From <code>bubble_shape.py</code>. My plot.</figcaption>
+</figure>
+
+<h3><span class="sn">6.4</span>Results and checks</h3>
+
+<div class="tbl"><table>
+<caption>Table 8. Young-Laplace departure bubbles in molten CaCl<sub>2</sub> at 1223 K for three pinning radii: equivalent diameter, height &times; width (mm) and volume (mm&sup3;). From <code>bubble_shape.py</code>; profiles in <a href="data/bubble_shapes.json">bubble_shapes.json</a>.</caption>
+<thead><tr><th>$r_0$</th><th>Earth</th><th>Mars</th><th>Moon</th><th class="r">Moon/Earth size</th></tr></thead>
+<tbody>
+<tr><td class="num">0.05 mm</td><td class="num">1.60 mm; 1.78 &times; 1.58; 2.15</td><td class="num">2.22 mm; 2.41 &times; 2.19; 5.72</td><td class="num">2.94 mm; 3.15 &times; 2.91; 13.27</td><td class="num r">1.84</td></tr>
+<tr><td class="num">0.1 mm</td><td class="num">1.99 mm; 2.30 &times; 1.94; 4.13</td><td class="num">2.78 mm; 3.12 &times; 2.73; 11.19</td><td class="num">3.68 mm; 4.06 &times; 3.63; 26.15</td><td class="num r">1.85</td></tr>
+<tr><td class="num">0.2 mm</td><td class="num">2.47 mm; 2.98 &times; 2.37; 7.86</td><td class="num">3.45 mm; 4.03 &times; 3.36; 21.50</td><td class="num">4.59 mm; 5.24 &times; 4.49; 50.62</td><td class="num r">1.86</td></tr>
+</tbody></table></div>
+
+<p>At $r_0 = 0.1$ mm the departure bubble is <span class="earth">1.99 mm</span> on Earth, <span class="mars">2.78 mm</span> on Mars and <span class="moon">3.68 mm</span> on the Moon; the Moon/Earth volume ratio is 6.3. Halving or doubling $r_0$ changes the Earth size to 1.6 or 2.5 mm but leaves the Moon/Earth ratio at 1.84 to 1.86. Three checks:</p>
+<ul>
+<li><strong>Scaling.</strong> A log-log fit of the sweep from 0.05 to 20 g gives $d \propto g^{-0.344}$ (&minus;0.340 below 1 g, &minus;0.349 above); the Moon/Earth ratio corresponds to an exponent of 0.342. The pinned law's 1/3 is recovered to within a few percent, so the static shape adds little to the scaling and mainly fixes the absolute size.</li>
+<li><strong>Tate bound.</strong> Tate's ideal volume $2\pi r_0 \sigma / (\Delta\rho g)$ is 4.56, 12.05 and 27.59 mm&sup3; for the three gravities at $r_0$ = 0.1 mm. The Young-Laplace maxima are 0.905, 0.929 and 0.948 of these: slightly below, as for pendant drops, and approaching the ideal as the bubble becomes larger relative to the neck.</li>
+<li><strong>Bond numbers.</strong> At departure, Bo = 0.55 (Earth), 0.40 (Mars) and 0.31 (Moon): the bubbles are near-spherical caps dominated by surface tension, and become more so at low g, consistent with the shapes in Fig. 9.</li>
+</ul>
+
+<figure>
+<img loading="lazy" src="img/fig_round.png" alt="Departure bubble sizes on Earth, Mars and Moon drawn to scale">
+<figcaption><b>Figure 10.</b> Departure size in molten CaCl<sub>2</sub> at 950 &deg;C, drawn to scale as the sphere each bubble becomes after it leaves ($r_0$ = 0.1 mm). My plot.</figcaption>
+</figure>
+
+<h3><span class="sn">6.5</span>Relations between the variables</h3>
+<p>Combining Eqs. (9), (11) and (12): with a free contact line $d/\lambda_c$ is fixed by $\theta$, so $d$ follows $\lambda_c \propto g^{-1/2}$ and Bo at departure is independent of $g$. With a pinned contact line $d \propto (r_0\lambda_c^2)^{1/3}$, so the bubble becomes smaller relative to $\lambda_c$ as $g$ falls and Bo at departure decreases as $g^{1/3}$, as found. The contact angle enters the pinned law only through $\sin\theta$, which varies by 0.77 to 0.97 over 105 to 130&deg;, and cancels in the ratio to Earth. That "contact angle barely matters" is therefore a property of the chosen law, not a finding.</p>
+
+<h3><span class="sn">6.6</span>Comparison with CFD (Burke et al. 2024)</h3>
+<p>Burke et al. (2024) grew single bubbles in CaCl<sub>2</sub> from a gas inlet. For a horizontal electrode they report detachment volumes of 0.0895, 0.1791 and 0.3402 mL at 1 g, Mars (0.375 g) and Moon (0.165 g), unchanged between electrode contact angles of 5&deg; and 30&deg;. The Moon/Earth volume ratio is 3.8 (they write that bubbles are "3.8 times larger in Lunar gravity than they are in 1 g"), a size ratio of 1.56, which corresponds to $d \propto g^{-0.25}$ (0.24 from the Mars point). Their bubbles are larger in absolute terms (equivalent diameters 5.5, 7.0 and 8.7 mm) because the nucleation site has a 2 mm radius. The ratio is weaker than both of my branches (1.82 pinned, 2.46 Fritz). Their detachment volume equals the inlet flow times the detachment time, quantised in 0.025 s steps, so the dynamic growth (inertia and wake) reduces the gravity sensitivity relative to a quasi-static bubble. I therefore read my static solution as an <strong>upper bound</strong> on the gravity effect on size and Burke's as a lower estimate. For vertical electrodes, which is the orientation of the ESA anode, their Table 4 gives Moon/Earth volume ratios of 3.3, 4.0 and 4.3 at contact angles of 5&deg;, 30&deg; and 75&deg; (0.1253 to 0.4118 mL, 0.1074 to 0.4297 mL, 0.0716 to 0.3044 mL), that is size ratios of 1.49 to 1.62, still below the pinned law's 1.82.</p>
+<p>Their CaCl<sub>2</sub> input set uses a kinematic viscosity of 1.258 &times; 10<sup>&minus;7</sup> m&sup2;/s, about nine times below the Janz (1975) value at 1223 K (about 1.1 &times; 10<sup>&minus;6</sup> m&sup2;/s), and gas properties of air at 25 &deg;C. At Morton numbers of order 10<sup>&minus;11</sup> and with $\Delta\rho \approx \rho_l$, I would not expect either to change the detachment volume much; I note it for completeness, not as a criticism of the result.</p>
+
+<figure>
+<img loading="lazy" src="img/fig_size_vs_g.png" alt="Departure diameter versus gravity from 0.17 to 20 g with Burke et al. CFD ratios">
+<figcaption><b>Figure 11.</b> Departure diameter against gravity from the Young-Laplace model ($r_0$ = 0.1 mm; band for 0.05 to 0.2 mm), with the gravity ranges reachable by parabolic flight and by the ESA Large Diameter Centrifuge (up to 20 g). Open circles: Burke et al. 2024 CFD volume ratios for CaCl<sub>2</sub>, converted to diameter ratios and anchored to my Earth value. Data in <a href="data/bubble_shapes.json">bubble_shapes.json</a>. My plot.</figcaption>
+</figure>
+
+<figure class="tall">
+<img loading="lazy" src="img/real_burke24_fig5_water_moon.jpg" alt="Burke et al. 2024 Figure 5: CFD of water electrolysis bubble at lunar gravity, horizontal electrode">
+<figcaption><b>Figure 12.</b> CFD result for water electrolysis at lunar gravity on a horizontal electrode. Burke et al. 2024, Front. Space Technol. 5:1304579, Fig. 5, CC BY 4.0.</figcaption>
+</figure>
+
+<figure class="tall">
+<img loading="lazy" src="img/real_burke24_fig7_mse1g.jpg" alt="Burke et al. 2024 Figure 7: CFD of an electrolysis bubble at 1 g, horizontal electrode">
+<figcaption><b>Figure 13.</b> CFD result at 1 g on a horizontal electrode, showing the neck before pinch-off. The published caption of this figure reads "Visual CFD model results for MRE in 1 g using a horizontal electrode", that is molten regolith electrolysis, not molten salt. Burke et al. 2024, Front. Space Technol. 5:1304579, Fig. 7, CC BY 4.0.</figcaption>
+</figure>
+
+<figure>
+<img loading="lazy" src="img/real_burke24_fig8_mars.jpg" alt="Burke et al. 2024 Figure 8: molten salt electrolysis bubble at Martian gravity, time sequence">
+<figcaption><b>Figure 14.</b> CFD result for molten-salt (CaCl<sub>2</sub>) electrolysis at Martian gravity on a horizontal electrode at (A) 0.05 s, (B) 0.15 s, (C) 0.225 s and (D) 0.25 s: growth, necking, detachment and the next bubble. Burke et al. 2024, Front. Space Technol. 5:1304579, Fig. 8, CC BY 4.0.</figcaption>
+</figure>
+
+<h3><span class="sn">6.7</span>Geometry caveat</h3>
+<p>Both detachment laws and my Young-Laplace solution describe a bubble on an upward-facing horizontal surface. The ESA anode is a vertical 12.7 mm graphite rod, on which bubbles slide, coalesce and leave by sliding. In a see-through cryolite cell, Stanic et al. (2021) measured detachment diameters of about 7.2 to 5.7 mm under a horizontal downward-facing anode over 0.2 to 1.0 A/cm&sup2;, but 3.7 to 1.5 mm on a vertical anode over 0.1 to 2.0 A/cm&sup2;. The Lomax et al. (2022) water electrodes were also mounted on vertical holders, so the calibration in Section 8 is on vertical electrodes, which partly absorbs the geometric mismatch into the fitted parameters; it does not remove it.</p>
+
+<figure class="tall">
+<img loading="lazy" src="img/real_lomax22_fig4.jpg" alt="Lomax et al. 2022 Figure 4: bubbles on the electrode at various gravity levels">
+<figcaption><b>Figure 15.</b> Bubbles on the 1 cm&sup2; electrode surface after 14 s at 50 mA/cm&sup2;: (a) laboratory centrifuge, 1 to 8 g; (b) parabolic flight with the centrifuge, 0 to 1 g. Bubbles appear larger and a froth of small bubbles more prevalent at lower g. Lomax et al. 2022, Nat. Commun. 13:583, Fig. 4, CC BY 4.0, cropped.</figcaption>
+</figure>
+
+<!-- ============================================================ 7 -->
+<h2 id="s7"><span class="sn">7</span>Coverage and voltage penalty</h2>
+
+<h3><span class="sn">7.1</span>Earth coverage</h3>
+<p>For the coverage at 1 g I use the simple form of the Vogt-Balzer (2005) correlation for stagnant electrolyte,</p>
+$$ \Theta_E = 0.023\, j^{0.3}, \qquad j\ \text{in A/m}^2, \tag{17}$$
+<p>capped at 0.95 in the code. At $j$ = 0.14 A/cm&sup2; (1400 A/m&sup2;) this gives 0.20; at 0.05 and 0.5 A/cm&sup2;, 0.15 and 0.30. The correlation is aqueous-derived and contains no gravity; the general Vogt-Balzer relation, which includes the break-off diameter, was not available to me. Molten-salt evidence points to higher coverage: industrial aluminium cells show 40 to 80 % (Tabereaux and Peterson, quoted by Stanic et al. 2021), and Stanic et al. found their anode "never free of bubbles". This is the least constrained input of the chain (Section 8.7).</p>
+
+<h3><span class="sn">7.2</span>Gravity scaling of coverage: footprint and Poisson overlap</h3>
+<p>Suppose bubbles sit on nucleation sites distributed randomly (Poisson) with mean number $\lambda$ of bubble footprints overlapping any point. The fraction of area covered is then $1 - e^{-\lambda}$. At fixed site density and residence fraction, $\lambda$ scales with the projected footprint, $\propto d^2$. I allow a weaker scaling with an exponent $m \in [1, 2]$ to absorb changes in site activity and residence time, and anchor $\lambda$ at Earth:</p>
+$$ \lambda_E = -\ln(1-\Theta_E), \qquad \Theta(g) = 1 - \exp\!\left[-\lambda_E\left(\frac{d(g)}{d(g_E)}\right)^{m}\right]. \tag{18}$$
+<p>Poisson overlap keeps $\Theta < 1$ however large the bubbles become. In the pinned branch, $d/d_E = (g_E/g)^{1/3}$ is independent of $r_0$ and $\theta$, so the coverage ratio depends only on $m$ and $\Theta_E$.</p>
+
+<h3><span class="sn">7.3</span>Ohmic term of the bubble layer</h3>
+<p>From aluminium-electrolysis practice (Hyde and Welch 1997, as quoted by Stanic et al. 2021), a gas-laden layer of thickness $\delta_b$ over a fraction $\Theta$ of the anode adds</p>
+$$ \Delta V_{\Omega} = \frac{j}{\kappa}\,\delta_b\left(\frac{1}{1-\Theta} - 1\right), \qquad \delta_b = f_L\, d, \tag{19}$$
+<p>where $\kappa$ is the electrolyte conductivity and $f_L$ a layer thickness factor of order one. For CaCl<sub>2</sub> at 1223 K, $\kappa$ = 278 S/m (NSRDS-NBS 15 equation). This model was derived for the gas layer under horizontal anodes; for a rod, a void-fraction model with a Bruggeman conductivity in the bubble curtain (planned in my specification) is closer to the physics and was not implemented.</p>
+
+<h3><span class="sn">7.4</span>Activation term</h3>
+<p>If the current is carried only by the uncovered area, the local current density is $j/(1-\Theta)$. With Tafel kinetics $\eta = (RT/\alpha F)\ln(j/j_0)$, the extra overpotential is</p>
+$$ \Delta V_{\rm act} = \frac{RT}{\alpha F}\,\ln\frac{1}{1-\Theta}, \tag{20}$$
+<p>with $\alpha$ an effective transfer coefficient (Angulo et al. 2020 give the low-current form with $\alpha = 1$). The exchange current density cancels. At 1223 K, $RT/F$ = 105 mV, four times its room-temperature value (25.7 mV), so the same coverage costs four times more activation voltage in the melt than in water.</p>
+
+<h3><span class="sn">7.5</span>Penalty relative to Earth</h3>
+$$ \Delta V_b(g) = \Delta V_{\Omega}(g) + \Delta V_{\rm act}(g), \qquad \delta V(g) = \Delta V_b(g) - \Delta V_b(g_E). \tag{21}$$
+<p>Only $\delta V$ is reported. It is the extra anode-side voltage at fixed current. The bubble penalty already present on Earth (part of the 3.2 V today) is not claimed.</p>
+
+<div class="tbl"><table>
+<caption>Table 9. Symbols and values. Medium properties are fixed; mechanism parameters are sampled (Section 8).</caption>
+<thead><tr><th>Symbol</th><th>Meaning</th><th>Water (Lomax 2022 cell)</th><th>Molten CaCl<sub>2</sub></th></tr></thead>
+<tbody>
+<tr><td>$\rho_l$</td><td>liquid density</td><td class="num">1000 kg/m&sup3;</td><td class="num">2009 kg/m&sup3;</td></tr>
+<tr><td>$\sigma$</td><td>surface tension</td><td class="num">0.072 N/m</td><td class="num">0.1429 N/m</td></tr>
+<tr><td>$\kappa$</td><td>conductivity</td><td class="num">30 S/m</td><td class="num">278 S/m</td></tr>
+<tr><td>$T$</td><td>temperature</td><td class="num">298 K</td><td class="num">1223 K</td></tr>
+<tr><td>$\theta$</td><td>contact angle (sampled)</td><td class="num">30 to 50&deg;</td><td class="num">105 to 130&deg; (cryolite/carbon proxy)</td></tr>
+<tr><td>$j$</td><td>anode current density</td><td class="num">0.05, 0.075, 0.1 A/cm&sup2;</td><td class="num">0.05 to 0.5 A/cm&sup2; grid; 0.14 central</td></tr>
+<tr><td>law</td><td>Fritz or pinned</td><td colspan="2">Bernoulli, prior 0.5 each</td></tr>
+<tr><td>$r_0$</td><td>pinning radius</td><td colspan="2">log-uniform 10 to 200 &micro;m</td></tr>
+<tr><td>$m$</td><td>coverage exponent, Eq. (18)</td><td colspan="2">uniform 1 to 2</td></tr>
+<tr><td>$\alpha$</td><td>transfer coefficient, Eq. (20)</td><td colspan="2">uniform 0.5 to 1</td></tr>
+<tr><td>$f_L$</td><td>layer thickness factor, Eq. (19)</td><td colspan="2">uniform 0.7 to 1.5</td></tr>
+</tbody></table></div>
+
+<p>The water conductivity of 30 S/m and the contact-angle ranges are model assumptions; the contact angle of O<sub>2</sub> or CO<sub>2</sub> bubbles in molten CaCl<sub>2</sub> on graphite was not found in the literature, so I use the cryolite/carbon range at detachment (110 to 130&deg; Xue and Øye, 120 to 130&deg; Cassayre et al., both quoted by Stanic et al. 2021).</p>
+
+<!-- ============================================================ 8 -->
+<h2 id="s8"><span class="sn">8</span>Calibration and uncertainty</h2>
+
+<h3><span class="sn">8.1</span>The target data</h3>
+<p>Lomax et al. (2022) fitted the galvanostatic potential change relative to 1 g with a logarithm of g over 0.166 to 8 g (their Fig. 7): % change $= -a\ln g + c$ with $a$ = 0.410, 0.784 and 0.594 % at 50, 75 and 100 mA/cm&sup2;. The 1 g potentials are about 2.06, 2.13 and 2.19 V versus Ag/AgCl (their Fig. 3). The lunar-minus-1 g potential is therefore</p>
+$$ \delta V_{\rm meas} = \frac{a}{100}\,\ln\frac{1}{0.166}\;V_{1g} = 15.2,\ 30.0,\ 23.4\ \text{mV}. \tag{22}$$
+<p>Three properties of these data matter. They are working-electrode potentials in a three-electrode cell without iR compensation, so they capture the anode overpotential and the part of the ohmic drop between the anode and the reference, which is the anode-side quantity my chain computes. They are non-monotonic in current density (75 mA/cm&sup2; above 100 mA/cm&sup2;), which indicates scatter; the combined fits have R&sup2; of 0.760, 0.955 and 0.942, and the reduced-gravity trends alone 0.848, 0.868 and 0.496. They are values of fitted curves dominated by the more numerous hypergravity points: in Fig. 16 the reduced-gravity points at 50 mA/cm&sup2; sit near +0.1 %, below the fitted +0.6 % at 0.166 g, while at 75 and 100 mA/cm&sup2; they follow the fit more closely. The calibration target therefore carries the assumption, made by Lomax et al. themselves, that one logarithm describes both sides of 1 g. And their printed Eq. 3 ($E_g = 0.04\log g + 2.19$) has a sign that contradicts their own plotted fit ($-0.016\ln g + 2.187$ V at 100 mA/cm&sup2;); I use the plotted fits. An earlier draft of my work used +18, +40 and +29 mV; I replaced these with Eq. (22), computed directly from the printed coefficients.</p>
+
+<figure>
+<img loading="lazy" src="img/real_lomax22_fig7.jpg" alt="Lomax et al. 2022 Figure 7: gravity dependent electrolysis efficiency">
+<figcaption><b>Figure 16.</b> Influence of gravity (0.166 to 8 g) on electrolysis efficiency, as % change relative to 1 g, at 50, 75 and 100 mA/cm&sup2; (galvanostatic) and 2.075 V (potentiostatic), with logarithmic fits. Lomax et al. 2022, Nat. Commun. 13:583, Fig. 7, CC BY 4.0, cropped.</figcaption>
+</figure>
+
+<h3><span class="sn">8.2</span>Approximate Bayesian weighting</h3>
+<p>I drew $N$ = 60,000 parameter sets $\psi_i$ = (law, $r_0$, $m$, $\alpha$, $f_L$, $\theta_w$) from the priors of Table 9 (random seed 11). For each, the chain of Section 7 evaluated with water properties at 0.166 g and 1 g gives a predicted $\delta V_{\rm pred}$ at each of the three current densities. With a log-normal error model of width $\sigma_{\ln}$,</p>
+$$ \ln L_i = -\sum_{k=1}^{3}\frac{\left[\ln\big(\delta V_{{\rm pred},k}(\psi_i)/\delta V_{{\rm meas},k}\big)\right]^2}{2\sigma_{\ln}^2}, \qquad \sigma_{\ln} = 0.4, \tag{23}$$
+<p>(predictions below 10<sup>&minus;6</sup> V are floored there) and normalised weights</p>
+$$ w_i = \frac{L_i}{\sum_j L_j}, \qquad N_{\rm eff} = \frac{1}{\sum_i w_i^2}. \tag{24}$$
+<p>This is importance sampling from the prior; the weighted sample approximates the posterior. Weighted quantiles are read from the cumulative weights of the sorted outputs, by linear interpolation. The effective sample size is about 10,400 of 60,000. The error width $\sigma_{\ln} = 0.4$ (roughly &plusmn;40 % per point) is chosen, not estimated; it reflects the scatter visible in the non-monotonic data and the structural error of a four-link chain. A smaller value would make the posterior narrower without making it more correct.</p>
+
+<h3><span class="sn">8.3</span>What the calibration ruled out</h3>
+<ul>
+<li><strong>The Fritz branch is rejected within the ranges of Table 9</strong>: posterior probability 0.000 (3.6 &times; 10<sup>&minus;5</sup>, from a prior of 0.5). This holds only while the coverage exponent is kept at 1 or above (Section 8.7). Its prior median predictions for water are 93, 157 and 232 mV, against 26, 40 and 57 mV for the pinned branch and 15 to 30 mV measured. The spreading contact line makes coverage grow far too fast at low g.</li>
+<li><strong>Coverage exponent</strong>: posterior mean $m$ = 1.27 (median 1.22, 90 % range 1.02 to 1.66) against a prior mean of 1.5. A footprint scaling of $d^2$ ($m$ = 2) is disfavoured; the data prefer a nearly linear dependence on size.</li>
+<li><strong>Transfer coefficient and layer factor</strong>: posterior means $\alpha$ = 0.77 (90 %: 0.54 to 0.98) and $f_L$ = 1.00 (0.72 to 1.41). Both are close to their priors; three data points do not constrain them separately.</li>
+<li><strong>Pinning radius</strong>: posterior median 23 &micro;m (90 %: 11 to 108 &micro;m), pressed against the 10 &micro;m lower prior bound. Small $r_0$ means small bubbles and a small ohmic term in water. This parameter is prior-sensitive; Section 8.7 measures by how much (lowering the bound to 1 &micro;m raises the lunar median from 41 to 48 mV).</li>
+</ul>
+<p>Three data points cannot identify five parameters. The calibration constrains a combination (the low-g growth of coverage and its voltage cost), and the transferred predictions inherit the remaining correlations.</p>
+
+<h3><span class="sn">8.4</span>Posterior predictive check</h3>
+<div class="tbl"><table>
+<caption>Table 10. Water at lunar gravity minus 1 g: measured (Eq. 22) versus the chain before (prior median) and after calibration (posterior median and 90 % range), from <a href="data/sim_table.json">sim_table.json</a>.</caption>
+<thead><tr><th>$j$ (mA/cm&sup2;)</th><th class="r">Measured (mV)</th><th class="r">Prior median (mV)</th><th class="r">Posterior median [90 %] (mV)</th></tr></thead>
+<tbody>
+<tr><td class="num">50</td><td class="num r">15.2</td><td class="num r">47</td><td class="num r">16.8 [12.6, 23.3]</td></tr>
+<tr><td class="num">75</td><td class="num r">30.0</td><td class="num r">77</td><td class="num r">25.8 [18.9, 36.1]</td></tr>
+<tr><td class="num">100</td><td class="num r">23.4</td><td class="num r">111</td><td class="num r">35.9 [25.9, 50.8]</td></tr>
+</tbody></table></div>
+<p>The chain is monotonic in $j$, so it cannot follow the non-monotonic data; it splits the difference and over-predicts the 100 mA/cm&sup2; point. That is the expected behaviour of a smooth model on scattered data, and the reason for not tightening $\sigma_{\ln}$.</p>
+
+<figure>
+<img loading="lazy" src="img/fig_calibration.png" alt="Calibration check: water electrolysis at lunar gravity, measured versus model">
+<figcaption><b>Figure 17.</b> Extra potential at 0.166 g versus 1 g for water electrolysis: measured (Lomax et al. 2022, Fig. 7 fits), the chain before calibration, and after calibration (median and 90 % range). My plot, data in <a href="data/sim_table.json">sim_table.json</a>.</figcaption>
+</figure>
+
+<h3><span class="sn">8.5</span>Out of sample: Mars and hypergravity</h3>
+<p>At Martian gravity (0.376 g) the calibrated chain predicts 6.7 mV at 50 mA/cm&sup2; and 13.6 mV at 100 mA/cm&sup2;, against 8.3 and 12.7 mV from the same logarithmic fits. Those fits combine all gravity levels, so this is a check of interpolation, not independent validation.</p>
+<p>In hypergravity the chain fails. At 8 g it predicts &minus;5.8 mV (90 %: &minus;7.4 to &minus;4.7) at 50 mA/cm&sup2; and &minus;10.7 mV (&minus;14.2 to &minus;8.3) at 100 mA/cm&sup2;. The logarithmic fits give &minus;17.6 and &minus;27.1 mV, and the absolute potential fit at 100 mA/cm&sup2; ($-0.016\ln g$ V) gives about &minus;33 mV. The chain under-predicts the hypergravity benefit by a factor of about 2.5 to 3. The reason is structural: as $g$ rises, bubbles shrink and coverage tends to zero, so the benefit is bounded by the bubble penalty present at 1 g, whereas the data follow a logarithm that is symmetric about 1 g. Below 1 g the two agree because that is where the chain was calibrated. Consequence: <strong>I do not use this chain to translate centrifuge results to lunar gravity.</strong> Lomax et al. (2022) found that their hypergravity trends extrapolate to reduced gravity empirically; for the ESA centrifuge campaign, the empirical logarithmic extrapolation is the better tool, and my chain is only useful for asking which mechanism parameters would explain a measured lunar-g penalty.</p>
+
+<h3><span class="sn">8.6</span>Transfer to molten CaCl<sub>2</sub></h3>
+<p>The weighted parameter sets are re-evaluated with the CaCl<sub>2</sub> properties of Table 9 and contact angles drawn from 105 to 130&deg;, on a grid of 13 gravities (0.1 to 1 g, log-spaced) and five current densities (0.05, 0.08, 0.14, 0.25, 0.5 A/cm&sup2;). Results at lunar (0.165 g) and Martian (0.378 g) gravity are interpolated in $\ln g$ between grid points. The transfer rests on five assumptions, each of which could fail:</p>
+<ol>
+<li>The mechanism parameters (law, $m$, $\alpha$, $f_L$, $r_0$) are properties of gas-evolving electrodes in general, not of water. In particular, an effective transfer coefficient calibrated for oxygen evolution on gold in acid is applied to CO/CO<sub>2</sub> evolution on graphite in a chloride melt.</li>
+<li>Earth coverage follows the aqueous Vogt-Balzer correlation (0.15 to 0.30 over the grid).</li>
+<li>The contact angle is in the cryolite/carbon range.</li>
+<li>The horizontal-plate detachment picture applies to a vertical rod (Section 6.7).</li>
+<li>The anode gas is O<sub>2</sub>-equivalent in volume (four electrons per molecule); CO would double the gas volume.</li>
+</ol>
+<p>Assumption 2 is the most consequential. The review computed, for $j$ = 0.2 A/cm&sup2; and $\alpha$ = 0.5, how the Moon-minus-Earth penalty grows with Earth coverage: with the pinned law and $m$ = 1 it is 0.08 V at $\Theta_E$ = 0.22, 0.19 V at 0.40 and 0.30 V at 0.50; with the Fritz law and $m$ = 2 it reaches 3.0 V at $\Theta_E$ = 0.40, which means lunar coverage near one, a gas film, and a regime the model does not describe. If molten-salt Earth coverage is near aluminium-cell values (40 % or more), the model is outside its validity, and that case cannot be excluded. $\Theta_E$ is not sampled in the present calibration; every band in Section 9 is conditional on Eq. (17).</p>
+
+<h3><span class="sn">8.7</span>Prior sensitivity (added 22 November 2026)</h3>
+<p>Two posteriors sit near a bound of their prior: the pinning radius (median 23 &micro;m against a 10 &micro;m bound) and the coverage exponent (mean 1.27 against a bound of 1). A result that leans on a bound is partly a statement about the bound, so I repeated the calibration with each range widened in turn, then all together, and with a tighter and a looser error width. Table S1 gives the molten-salt prediction at 0.14 A/cm&sup2; for each case (<code>prior_sens.py</code>, 400,000 draws per case; an independent re-implementation with a different seed and rejection sampling instead of weighted quantiles reproduces every entry to within 0.2 mV).</p>
+<div class="tbl"><table>
+<caption>Table S1. Sensitivity of the calibrated lunar penalty to the prior ranges. Moon and Mars: extra anode-side voltage relative to Earth in CaCl<sub>2</sub> at 0.14 A/cm&sup2;, posterior median [90 %] in mV. Data in prior_sensitivity.json.</caption>
+<thead><tr><th>Case</th><th>Moon (mV)</th><th>Mars (mV)</th><th>Moon coverage</th><th>mean $m$</th><th>mean $\alpha$</th><th>median $r_0$ (&micro;m)</th><th>P(Fritz)</th></tr></thead>
+<tbody>
+<tr><td>Baseline (Table 9)</td><td class="num">41 [29, 63]</td><td class="num">18</td><td class="num">0.38</td><td class="num">1.27</td><td class="num">0.76</td><td class="num">23</td><td class="num">3 &times; 10<sup>&minus;5</sup></td></tr>
+<tr><td>$r_0$ 1 to 500 &micro;m</td><td class="num">48 [30, 75]</td><td class="num">20</td><td class="num">0.41</td><td class="num">1.43</td><td class="num">0.75</td><td class="num">6</td><td class="num">2 &times; 10<sup>&minus;5</sup></td></tr>
+<tr><td>$r_0$ 0.1 &micro;m to 1 mm</td><td class="num">53 [32, 84]</td><td class="num">22</td><td class="num">0.43</td><td class="num">1.52</td><td class="num">0.74</td><td class="num">3</td><td class="num">2 &times; 10<sup>&minus;5</sup></td></tr>
+<tr><td>$m$ 0.5 to 3</td><td class="num">33 [18, 58]</td><td class="num">15</td><td class="num">0.34</td><td class="num">1.02</td><td class="num">0.75</td><td class="num">36</td><td class="num">0.03</td></tr>
+<tr><td>$m$ 0 to 4</td><td class="num">29 [15, 54]</td><td class="num">13</td><td class="num">0.31</td><td class="num">0.76</td><td class="num">0.75</td><td class="num">41</td><td class="num">0.31</td></tr>
+<tr><td>$\alpha$ 0.25 to 2</td><td class="num">30 [18, 63]</td><td class="num">12</td><td class="num">0.38</td><td class="num">1.31</td><td class="num">1.23</td><td class="num">25</td><td class="num">8 &times; 10<sup>&minus;5</sup></td></tr>
+<tr><td>$f_L$ 0.3 to 3</td><td class="num">45 [30, 73]</td><td class="num">19</td><td class="num">0.39</td><td class="num">1.36</td><td class="num">0.76</td><td class="num">28</td><td class="num">0.01</td></tr>
+<tr><td>water contact angle 20 to 70&deg;</td><td class="num">41 [29, 63]</td><td class="num">18</td><td class="num">0.38</td><td class="num">1.27</td><td class="num">0.77</td><td class="num">23</td><td class="num">7 &times; 10<sup>&minus;4</sup></td></tr>
+<tr><td>$\sigma_{\ln}$ = 0.25</td><td class="num">40 [28, 57]</td><td class="num">17</td><td class="num">0.37</td><td class="num">1.23</td><td class="num">0.76</td><td class="num">21</td><td class="num">8 &times; 10<sup>&minus;9</sup></td></tr>
+<tr><td>$\sigma_{\ln}$ = 0.6</td><td class="num">44 [29, 73]</td><td class="num">19</td><td class="num">0.39</td><td class="num">1.32</td><td class="num">0.76</td><td class="num">26</td><td class="num">0.002</td></tr>
+<tr><td>All five widened together</td><td class="num">34 [14, 77]</td><td class="num">14</td><td class="num">0.37</td><td class="num">1.25</td><td class="num">1.14</td><td class="num">9</td><td class="num">0.09</td></tr>
+<tr><td>All widened, $\sigma_{\ln}$ = 0.6</td><td class="num">34 [14, 85]</td><td class="num">14</td><td class="num">0.37</td><td class="num">1.26</td><td class="num">1.16</td><td class="num">10</td><td class="num">0.11</td></tr>
+</tbody></table></div>
+<p>Three things follow.</p>
+<ol>
+<li><strong>The central value is not pinned down to better than about &plusmn;30 %.</strong> Single-range changes move the lunar median between 29 and 53 mV. A smaller pinning radius raises it (the ohmic term shrinks in water, so the calibration assigns more of the measured penalty to coverage growth, which transfers at full strength to the salt). A transfer coefficient above 1 or a coverage exponent below 1 lowers it. With everything widened the median is 34 mV and the 90 % range 14 to 77 mV. The sign, and the order of magnitude of a few tens of millivolts, hold in every case; the 29 to 63 mV band of Section 9 is conditional on the ranges of Table 9 and should be read that way.</li>
+<li><strong>The rejection of the Fritz law is conditional on $m \ge 1$.</strong> The water data constrain the product of two things, how much larger the bubbles get and how strongly coverage responds to size. A Fritz bubble grows by 2.45 times at lunar g against 1.82 for a pinned one; if coverage is allowed to respond weakly to size ($m$ well below 1), Fritz fits again. Its posterior probability rises from about 3 &times; 10<sup>&minus;5</sup> to 0.03 for $m$ down to 0.5, to about 0.1 with all ranges widened and to 0.31 for $m$ down to 0. I kept $m \ge 1$ in the baseline for this reason: at fixed site density the footprint argument gives $m$ = 2, and if instead the gas flux is fixed and the growth time scales as $d^2$ (diffusion-controlled growth), the number of attached bubbles falls as $1/d$ and $m$ = 1. Below 1 the coverage would have to respond less than linearly to size, for which I have no mechanism, but I cannot exclude one. The honest statement is that Fritz is strongly disfavoured, not excluded, and that the direct evidence against it for this cell is geometric (the lunar Fritz bubble is larger than the anode, Section 6.2).</li>
+<li><strong>The error width and the water contact angle matter little.</strong> $\sigma_{\ln}$ between 0.25 and 0.6 moves the median by 4 mV; the water contact angle range by nothing.</li>
+</ol>
+<p>None of this changes the limits of Section 8.6: every row still assumes that the mechanism parameters carry over from water to the melt and that Earth coverage follows the aqueous correlation.</p>
+
+<!-- ============================================================ 9 -->
+<h2 id="s9"><span class="sn">9</span>Results</h2>
+
+<h3><span class="sn">9.1</span>Moon and Mars at the estimated ESA operating point</h3>
+<p>The anode current density of the ESA cell is not published. From Fig. 3 of Lomax et al. 2025 (about 0.4 g of oxygen per hour at the plateau) and current efficiencies of 0.4 to 0.6, the current is about 2.2 to 3.4 A; on a 12.7 mm rod immersed 3 to 6 cm this gives 0.09 to 0.25 A/cm&sup2;. I take 0.14 A/cm&sup2; as the central estimate. The immersion depth would fix it.</p>
+
+<div class="tbl"><table>
+<caption>Table 11. Calibrated results for molten CaCl<sub>2</sub> at 1223 K and $j$ = 0.14 A/cm&sup2;: posterior median and 90 % range. Departure sizes are the Young-Laplace values at $r_0$ = 0.1 mm (Section 6); the chain itself uses the pinned law with the posterior $r_0$.</caption>
+<thead><tr><th></th><th class="r"><span class="earth">Earth</span></th><th class="r"><span class="mars">Mars</span></th><th class="r"><span class="moon">Moon</span></th></tr></thead>
+<tbody>
+<tr><td>Departure diameter (Young-Laplace)</td><td class="num r">1.99 mm</td><td class="num r">2.78 mm</td><td class="num r">3.68 mm</td></tr>
+<tr><td>Anode coverage $\Theta$</td><td class="num r">0.20</td><td class="num r">0.29</td><td class="num r">0.38</td></tr>
+<tr><td>Extra anode-side voltage $\delta V$</td><td class="num r">0</td><td class="num r">18 mV [13, 26]</td><td class="num r">41 mV [29, 63]</td></tr>
+<tr><td>Current/oxygen rate loss at fixed 3.2 V (headroom 1.65 V)</td><td class="num r">0</td><td class="num r">about 1.1 %</td><td class="num r">about 2.5 % [1.7, 3.8]</td></tr>
+<tr><td>Extra energy at fixed current ($\eta_F$ = 0.45)</td><td class="num r">0</td><td class="num r">+0.13 kWh/kg O<sub>2</sub></td><td class="num r">+0.31 kWh/kg O<sub>2</sub></td></tr>
+</tbody></table></div>
+
+<p>At the lunar point the penalty is dominated by the activation term: posterior medians of the two components are about 35 mV (activation) and 5.5 mV (ohmic). The high conductivity of the melt (278 S/m against 30 S/m) suppresses the ohmic term, and the high temperature amplifies the activation term (Section 7.4). The molten-salt penalty is therefore not larger than the aqueous one because the bubbles are larger, but because $RT/F$ is four times larger.</p>
+
+<h3><span class="sn">9.2</span>The current-density lever</h3>
+<div class="tbl"><table>
+<caption>Table 12. Extra anode-side voltage versus anode current density, posterior median [90 % range], and lunar coverage. From <a href="data/sim_table.json">sim_table.json</a>, interpolated to 0.165 g and 0.378 g.</caption>
+<thead><tr><th>$j$ (A/cm&sup2;)</th><th class="r">$\Theta_E$</th><th class="r">$\Theta$ Moon</th><th class="r">Moon (mV)</th><th class="r">Mars (mV)</th></tr></thead>
+<tbody>
+<tr><td class="num">0.05</td><td class="num r">0.15</td><td class="num r">0.29</td><td class="num r">26 [18, 42]</td><td class="num r">12 [8, 18]</td></tr>
+<tr><td class="num">0.08</td><td class="num r">0.17</td><td class="num r">0.32</td><td class="num r">32 [22, 50]</td><td class="num r">14 [10, 21]</td></tr>
+<tr><td class="num">0.14</td><td class="num r">0.20</td><td class="num r">0.38</td><td class="num r">41 [29, 63]</td><td class="num r">18 [13, 26]</td></tr>
+<tr><td class="num">0.25</td><td class="num r">0.24</td><td class="num r">0.44</td><td class="num r">56 [40, 84]</td><td class="num r">24 [17, 34]</td></tr>
+<tr><td class="num">0.5</td><td class="num r">0.30</td><td class="num r">0.52</td><td class="num r">92 [68, 133]</td><td class="num r">37 [28, 51]</td></tr>
+</tbody></table></div>
+
+<p>Over a decade of current density the lunar penalty rises from 26 to 92 mV, roughly as $j^{0.55}$ (a least-squares fit over the five points gives 0.54). Two effects compound: Earth coverage grows as $j^{0.3}$ through Eq. (17), and the ohmic term is proportional to $j$. Spreading the same current over a larger anode is therefore a design lever: doubling the anode area lowers the penalty by a factor of about $2^{0.55} \approx 1.46$. Anode area matters for reasons beyond bubbles too: at 850 &deg;C a tenfold larger graphite anode area lowered the anode potential and cell voltage by about 1.0 V (H. Chen et al. 2014). In this model, the current density is the largest single source of variation, larger than any calibrated parameter. Among the calibrated parameters, the posterior rank correlations with the lunar penalty at 0.14 A/cm&sup2; are +0.71 for $m$, &minus;0.57 for $\alpha$, &minus;0.22 for $r_0$, &minus;0.19 for $f_L$ and &minus;0.01 for the salt contact angle. The negative signs for $r_0$ and $f_L$ reflect compensation inside the calibration (sets with a larger ohmic term in water must have weaker coverage growth), not a direct physical effect.</p>
+
+<figure>
+<img loading="lazy" src="img/fig_jlever.png" alt="Extra cell voltage versus anode current density for Moon and Mars">
+<figcaption><b>Figure 18.</b> Extra anode-side voltage relative to Earth against anode current density for the Moon and Mars (posterior median and 90 % band); the dotted line marks the estimated ESA lab cell. My plot, data in <a href="data/sim_table.json">sim_table.json</a>.</figcaption>
+</figure>
+
+<h3><span class="sn">9.3</span>Fixed voltage versus fixed current</h3>
+<p><strong>Fixed voltage (ESA's mode).</strong> At constant applied voltage $V$, a bubble penalty $\delta V$ lowers the current. Linearising the cell's I-V curve around the operating point with an effective back-EMF $E_{\rm eff}$,</p>
+$$ \frac{\Delta I}{I} \approx \frac{\delta V}{V - E_{\rm eff}} \equiv \frac{\delta V}{H}, \tag{25}$$
+<p>where $H$ is the voltage headroom above the effective decomposition voltage. I assume $H$ = 1.65 V with a range of 1.4 to 1.9 V; it is not measured and should be replaced by the measured slope $dI/dV$ at 3.2 V. Two indirect checks, given after Eq. (26), put it between 1.5 and 2.5 V. On the Moon, $\delta V$ = 41 mV gives 2.5 % less current; the 90 % range of $\delta V$ (29 to 63 mV) gives 1.7 to 3.8 % at $H$ = 1.65 V, and the range of $H$ gives 2.2 to 2.9 % at the median $\delta V$. On Mars, 18 mV gives about 1.1 % (0.8 to 1.6 % over 13 to 26 mV). If the current efficiency is unchanged, the oxygen rate falls by the same fraction and every extraction milestone stretches by</p>
+$$ t_X' = \frac{t_X}{1 - \Delta I/I}. \tag{26}$$
+<p>Using the 1 g curve of Lomax et al. 2025 (Fig. 2, digitised), 60 % extraction at 16.3 h becomes 16.7 h on the Moon, and 80 % at 24.0 h becomes 24.6 h.</p>
+
+<p><strong>Checking the headroom (added 22 November 2026).</strong> Since every rate figure above is inversely proportional to $H$, I tested the assumed 1.65 V in three ways (<code>headroom.py</code>, Table S2).</p>
+<div class="tbl"><table>
+<caption>Table S2. Three estimates of the voltage headroom $H = I\,dV/dI$ of the ESA cell at 3.2 V and 1223 K. Data in headroom.json.</caption>
+<thead><tr><th>Estimate</th><th>How</th><th>Result</th><th>What it is worth</th></tr></thead>
+<tbody>
+<tr><td>A. Thermodynamic chord</td><td>$H = 3.2\ \text{V} - E$, with $E$ from my ladder (Table 3) minus the graphite shift of Section 4.6, 1.03 V (CO<sub>2</sub>) to 1.14 V (CO)</td><td>2.2 to 2.3 V while Si reduces via CaSiO<sub>3</sub>; 2.0 to 2.1 V for Al<sub>2</sub>O<sub>3</sub>; 1.8 to 1.9 V for MgO; 1.6 to 1.7 V for CaO</td><td>Exact only for a purely ohmic cell. Tafel-type overpotentials make the local value smaller, a transport limit in the pellet makes it larger.</td></tr>
+<tr><td>B. Electrolyte ohmic drop</td><td>Coaxial estimate, 12.7 mm rod, counter-surface at 25 to 50 mm, 3 to 6 cm immersed, 278 S/m, 2.2 to 3.4 A</td><td>0.03 to 0.13 V</td><td>A floor only. It shows that the bulk salt takes a few percent of the 3.2 V, so the headroom is set by the electrodes and the pellet, not by the melt.</td></tr>
+<tr><td>C. Tin oxide against graphite</td><td>Lomax et al. 2025 ran the same cell at the same 3.2 V with an O<sub>2</sub>-evolving tin oxide anode. Losing the carbon depolarisation is a step of 1.03 to 1.14 V on the anode side. Mean oxygen rate while 20 to 60 % is extracted: 0.397 g/h on graphite, 0.219 g/h on tin oxide (ratio 0.55; 0.50 over 30 to 50 %)</td><td>1.5 to 2.5 V</td><td>The closest thing to a measured $dI/dV$ in the published data, over a step far larger than 41 mV. Lower end: exponential I-V, $H = \Delta V/\ln(1/r)$; upper end: linear I-V, $H = \Delta V/(1-r)$.</td></tr>
+</tbody></table></div>
+<p>Estimate C deserves its caveats. I digitised the tin oxide points from Fig. 3 (40 of the 48 by pixel extraction, to about &plusmn;0.002 g/h; the other eight overlap other markers and were read by eye). The comparison is made at equal extraction, not equal time, because the tin oxide runs start slowly. Two known differences between the anodes both make the true headroom larger than the table says: the tin oxide anode adds resistance that grows during the run (a calcium stannate layer, as the authors report), so the real voltage step exceeds 1.1 V, and its current efficiency was lower, so the current fell less than the oxygen rate did. An unknown difference in anode kinetics between O<sub>2</sub> on tin oxide and CO/CO<sub>2</sub> on graphite could act in either direction. Comparing the best single hour of each data set instead (0.435 against 0.323 g/h) would give 3.5 to 4.4 V.</p>
+<p>Estimates A and C agree on 1.5 to 2.5 V for the stage in which most of the oxygen is extracted. The assumed 1.65 V lies inside that range, towards its lower end, so the rate losses quoted above are on the cautious (high) side: over 1.5 to 2.5 V the median lunar penalty of 41 mV costs 2.7 to 1.6 % of the current, and the full combination of both ranges (29 to 63 mV, 1.5 to 2.5 V) gives 1.2 to 4.2 %. I keep 1.65 V as the central value so that the headline does not understate the effect. The headroom is still not measured; a &plusmn;50 to 100 mV step during a standard run would settle it (Section 13).</p>
+
+<p><strong>Fixed current.</strong> At constant current the penalty appears as voltage, and the extra energy per kilogram of oxygen is</p>
+$$ \Delta E_{\rm O_2} = \frac{4F}{M_{\rm O_2}}\,\frac{\delta V}{\eta_F} = 3.35\ \frac{\rm kWh}{\rm V\,kg}\times\frac{\delta V}{\eta_F}, \tag{27}$$
+<p>with $\eta_F$ the current (Faradaic) efficiency. With $\eta_F \approx 0.45$, consistent with the mid-run efficiencies of Lomax et al. 2025 and the 48 % of Meurisse et al. 2022, the electrolysis energy at 3.2 V is about 24 kWh/kg O<sub>2</sub>, and the lunar penalty adds about 0.31 kWh/kg (1.3 %), the Martian one about 0.13 kWh/kg. Heat for the melt is not included.</p>
+
+<p><strong>The two modes compared.</strong> The ratio of the potentiostatic product loss to the galvanostatic energy penalty is $(\delta V/H)/(\delta V/V) = V/H \approx 1.9$ for this cell (1.3 to 2.1 over the checked range of $H$). In the Lomax et al. (2022) water cell, the same ratio was about 10 (11 % less product versus about 1.1 % more power at lunar g), because their current rises ten times faster than the potential in relative terms. A graphite FFC cell with a large headroom is, in relative terms, far less sensitive to gravity at fixed voltage than that water cell. Compensating by raising the voltage is limited by the soft Cl<sub>2</sub> ceiling (Section 4.6); at fixed voltage, accepting a few percent less oxygen is the cheaper option.</p>
+
+<h3><span class="sn">9.4</span>Shape of the gravity dependence</h3>
+<p>Between 1 g and 0.1 g, at 0.14 A/cm&sup2;, the calibrated penalty grows faster than logarithmically: per e-fold of reduction in g, the local increment rises from about 15 mV near 1 g to about 35 mV near the Moon (0.15 to 0.18 g) and about 42 mV near 0.1 g (grid values: 9.5 mV at 0.56 g, 22 mV at 0.32 g, 45 mV at 0.15 g, 60 mV at 0.10 g). The driver is the coverage term, $\Theta = 1-\exp[-\lambda_E (g_E/g)^{m/3}]$, whose cost $\ln[1/(1-\Theta)]$ grows as $(g_E/g)^{m/3}$. Toward microgravity the model has no bound and no physics (no departure at $g = 0$), so I do not report values below 0.1 g.</p>
+
+<!-- ============================================================ 10 -->
+<h2 id="s10"><span class="sn">10</span>Environment design notes</h2>
+
+<h3><span class="sn">10.1</span>Vacuum exposure</h3>
+<p>The vapour pressure of CaCl<sub>2</sub>(g) over the liquid was estimated from the JANAF formation constants of the liquid and the monomer gas, fitted between 1200 and 1300 K:</p>
+$$ \ln\frac{p_{\rm sat}}{\rm bar} = 15.58 - \frac{32940}{T}, \tag{28}$$
+<p>which gives 0.37 Pa at 1173 K, 1.17 Pa at 1223 K and 3.38 Pa at 1273 K. The Hertz-Knudsen flux into vacuum,</p>
+$$ J = \alpha_e\, p_{\rm sat}\sqrt{\frac{M}{2\pi R T}}, \tag{29}$$
+<p>with $M$ = 0.11098 kg/mol and $\alpha_e = 1$ (an upper bound), is 1.8, 5.6 and 15.7 kg/m&sup2;/h at the three temperatures. A 10 cm diameter free melt surface would lose the 800 g lab inventory in no less than about 18 h (1099 min) if open to vacuum. Every real cell is sealed and the ESA cell runs under argon near 1 atm; in a leak, evaporation would be limited by diffusion through the cover gas, far below this bound. The dimer Ca<sub>2</sub>Cl<sub>4</sub> and hydrolysis to HCl are ignored. This is one line of design input, not a finding.</p>
+
+<h3><span class="sn">10.2</span>Lunar night: hold molten or freeze and remelt</h3>
+<p>Holding the salt at $T_{\rm op}$ = 1223 K through a night of duration $t_n$ against an environment at 250 K, through insulation of overall coefficient $U$ and outer area $A$, costs $E_{\rm hold} = UA(T_{\rm op} - T_{\rm amb})\,t_n$. Letting it freeze to 300 K and remelting costs</p>
+$$ E_{\rm remelt} = m\left[c_{p,s}(T_m - 300) + \Delta h_{\rm fus} + c_{p,l}(T_{\rm op} - T_m)\right], \tag{30}$$
+<p>with $T_m$ = 1045 K, $\Delta h_{\rm fus}$ = 28.5 kJ/mol and $c_{p,l}$ = 102.5 J/(mol K) from JANAF, and $c_{p,s}$ = 0.75 kJ/(kg K) as an assumed solid value. The ratio is approximately</p>
+$$ \frac{E_{\rm hold}}{E_{\rm remelt}} \approx \frac{t_n}{\tau_{\rm th}}, \qquad \tau_{\rm th} = \frac{m\,\bar c_p}{UA}. \tag{31}$$
+
+<div class="tbl"><table>
+<caption>Table 13. Hold versus remelt energy for one equatorial night (14.8 days), salt only, from <code>environment.py</code>.</caption>
+<thead><tr><th>Salt mass, outer area</th><th class="r">Hold, U = 0.5 W/(m&sup2;K)</th><th class="r">Hold, U = 2</th><th class="r">Remelt</th><th class="r">Ratio</th></tr></thead>
+<tbody>
+<tr><td>0.8 kg, 0.3 m&sup2;</td><td class="num r">51.8 kWh</td><td class="num r">207.4 kWh</td><td class="num r">0.22 kWh</td><td class="num r">238&times; to 952&times;</td></tr>
+<tr><td>100 kg, 3 m&sup2;</td><td class="num r">518.4 kWh</td><td class="num r">2073.7 kWh</td><td class="num r">27.22 kWh</td><td class="num r">19&times; to 76&times;</td></tr>
+<tr><td>1000 kg, 12 m&sup2;</td><td class="num r">2073.7 kWh</td><td class="num r">8294.6 kWh</td><td class="num r">272.21 kWh</td><td class="num r">8&times; to 30&times;</td></tr>
+</tbody></table></div>
+
+<p>At the equator, freezing wins by roughly 8&times; to 950&times; for 1 to 1000 kg (salt-only $\tau_{\rm th}$ = 0.06 d for 0.8 kg and 1.7 d for 1000 kg at U = 0.5). At a polar ridge whose longest continuous darkness is about 1.5 days (Mazarico et al. 2011), holding a tonne costs about 210 kWh against 272 kWh to remelt at U = 0.5, so the two become comparable at tonne scale. An earlier version of my findings quoted "10 to 30 times" for the whole range, which did not match the code; the table above is correct. Three qualifications: the kilowatt-hours are not equivalent, since hold energy at night must come from storage (mass) while remelt energy comes from daytime solar power, which strengthens the case for freezing; the vessel, crucible, electrodes, basket and charge also cool and must be reheated, which at lab scale is many times the salt mass and lowers the ratio; and the freeze-thaw durability of crucibles, baskets and electrodes frozen into CaCl<sub>2</sub>-CaO is the real open question. The volume change on melting is unknown: comparing the 298 K solid density with the liquid at the melting point ignores solid thermal expansion and does not even fix the sign.</p>
+
+<!-- ============================================================ 11 -->
+<h2 id="s11"><span class="sn">11</span>Independent review and how the work changed</h2>
+<p>After a first complete version (19 November 2026) I had the findings reviewed critically from the stance of an electrochemist in an ESA lunar ISRU lab reading them cold. The review checked every headline number it could by importing my modules without changing them. Its verdict was that the arithmetic was mostly right (stoichiometries, electron counts, sign conventions, digitisation, Fritz numbers, Hertz-Knudsen, property values) and that the problems were in interpretation. Table 14 lists its main points and what I did.</p>
+
+<div class="tbl"><table>
+<caption>Table 14. Review findings and responses.</caption>
+<thead><tr><th>Review point</th><th>Change</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>The Ca-silicide "0.2 V window" came from the CaO activity prior; inside the pellet $a_{\rm CaO}$ is high and the window closes.</td><td>Replaced by the predominance view, Eq. (3) and Fig. 3; dropped the overlap probability.</td><td>Done</td></tr>
+<tr><td>The ladder was read as if 3.2 V were a cathode potential; graphite shifts all oxide steps by about 1.1 V; the Cl<sub>2</sub> ceiling is soft.</td><td>Section 4.6 rewritten with the shifts, the soft ceiling and the wording "ranks preference, does not switch steps".</td><td>Done</td></tr>
+<tr><td>Missing routes (Si from forsterite and diopside, Al from spinel, Mg into Mg<sub>2</sub>Si); implausible product assemblages; optimistic Ti stage.</td><td>Routes added to Table 3; caveats in Section 4.7.</td><td>Partly done (Ca aluminates and CaAl<sub>2</sub>Si<sub>2</sub> not modelled)</td></tr>
+<tr><td>Stage-1 share used supplier sheets, not the lab's batch; composition basis spans 60 to 72 %.</td><td>Lab batch (Meurisse Table 2) and measured 41.6 wt% basis added; spread reported as systematic error.</td><td>Done</td></tr>
+<tr><td>The knee rests on n = 3 (LMS) and n = 1 (LHS) runs; a geometric model fits the cumulative curve.</td><td>n stated; LHS no longer used as a test; null model built; verdict changed from "partially supported" to "inconclusive".</td><td>Done</td></tr>
+<tr><td>"Front control" over-claimed; Osarinmwian and Roberts citation reversed; slab front speed.</td><td>Wording now "excludes product-layer diffusion only"; citation corrected; disc front speed 0.145 mm/h.</td><td>Done</td></tr>
+<tr><td>Bubble geometry: Fritz on a horizontal plate versus a vertical rod; Hyde and Welch is a horizontal-anode model.</td><td>Stated in Sections 6.7 and 7.3.</td><td>Open (vertical-electrode model not implemented)</td></tr>
+<tr><td>The headline median (about 110 mV, 3.5 % of 3.2 V, 90 % range 1 to 26 %) mixed a Fritz median (236 mV) and a pinned median (62 mV) with a 50/50 switch.</td><td>Calibration on Lomax 2022 now weights the branches; Fritz rejected within the baseline ranges (Section 8.7); single coherent posterior.</td><td>Done</td></tr>
+<tr><td>Test the chain on Lomax 2022 before using it for molten salt; it under-predicts hypergravity.</td><td>Calibration and posterior predictive check added (Section 8); hypergravity failure stated; no centrifuge predictions.</td><td>Done</td></tr>
+<tr><td>Earth coverage $\Theta_E$ not sampled; molten-salt coverage may be 0.4 or more.</td><td>Stated as conditional; sensitivity quoted in Section 8.6.</td><td>Open</td></tr>
+<tr><td>Current-density range wider than the data allow (0.09 to 0.25 A/cm&sup2;).</td><td>Results reported at 0.14 A/cm&sup2; with the full grid as a design lever.</td><td>Done</td></tr>
+<tr><td>Report the penalty as rate loss at fixed 3.2 V, ESA's operating mode.</td><td>Section 9.3, Eq. (25) and (26).</td><td>Done (headroom checked two ways in Section 9.3, still not measured)</td></tr>
+<tr><td>Burke critique should be softened and their weaker scaling either modelled or justified.</td><td>Reported as a dynamic lower estimate (Section 6.6); viscosity remark kept factual.</td><td>Done (no dynamic branch in the chain)</td></tr>
+<tr><td>Lunar-night ratio misquoted; thermal mass missing; volume change "upper bound" wrong.</td><td>Ratio corrected to 8&times; to 950&times;; $\tau_{\rm th}$ framing; volume change stated as unknown.</td><td>Done (non-salt mass not added)</td></tr>
+<tr><td>Put "what is new" first; phrase forward claims as hypotheses with falsifying experiments.</td><td>Box in Section 1; experiments in Section 13.</td><td>Done</td></tr>
+</tbody></table></div>
+
+<p>The headline number moved from "about 110 mV, 3.5 % of the cell voltage, 90 % range 1 to 26 %" to "41 mV (29 to 63 mV) at 0.14 A/cm&sup2;, about 2.5 % less oxygen at fixed voltage". The narrower band is not more certainty about the physics; it is conditional on the assumptions of Section 8.6, which the old band hid by mixing two models.</p>
+
+<!-- ============================================================ 12 -->
+<h2 id="s12"><span class="sn">12</span>Limitations</h2>
+<ol>
+<li><strong>No molten-salt reduced-gravity data.</strong> The chain is calibrated on aqueous data and transferred. Every molten-salt number is a hypothesis.</li>
+<li><strong>Earth coverage</strong> comes from an aqueous correlation and is not sampled. With aluminium-cell-like coverage the model leaves its range of validity (Section 8.6).</li>
+<li><strong>Geometry.</strong> All detachment relations are for horizontal upward-facing surfaces; the ESA anode is a vertical rod, where bubbles slide and coalesce. The ohmic model is for horizontal anodes.</li>
+<li><strong>Transfer coefficient</strong> calibrated on O<sub>2</sub> evolution on gold in acid, applied to CO/CO<sub>2</sub> evolution on graphite in chloride. The activation term carries most of the lunar penalty, so this is consequential.</li>
+<li><strong>Calibration identifiability.</strong> Three non-monotonic points, five parameters; $\sigma_{\ln}$ chosen; the pinning radius and the coverage exponent sit near their prior bounds. Widening the ranges moves the lunar median between 29 and 53 mV and widens the 90 % range to 14 to 77 mV (Section 8.7).</li>
+<li><strong>Wrong hypergravity shape.</strong> The chain under-predicts the 8 g benefit by about three times, so its g-dependence is not trusted outside 0.1 to 1 g, and it cannot bridge centrifuge results to the Moon.</li>
+<li><strong>Static detachment.</strong> Inertia, growth rate, coalescence and melt convection are ignored; the static departure size is an upper bound on the gravity effect (Burke's dynamic CFD gives a weaker scaling).</li>
+<li><strong>Anode gas.</strong> CO versus CO<sub>2</sub> changes the gas volume by up to two times; not resolved. Dissolved CaO effects on density, viscosity, surface tension and conductivity were not found and are ignored.</li>
+<li><strong>Operating point.</strong> The current density (0.14 A/cm&sup2;) and the voltage headroom (1.65 V) are estimates. The penalty grows roughly as $j^{0.55}$ and the rate loss is inversely proportional to the headroom, which two indirect checks place between 1.5 and 2.5 V (Section 9.3); neither is measured.</li>
+<li><strong>Thermodynamics.</strong> Two-electrode cell, so cathode potential unknown; Ca-silicide $\Delta G \approx \Delta H$; CaAl<sub>2</sub>Si<sub>2</sub> and Ca aluminates missing; no Gibbs energy minimisation of the solid assemblage.</li>
+<li><strong>Kinetics.</strong> Digitised averages of runs with different durations; the knee test has a &plusmn;5 point composition systematic and rests on three runs.</li>
+<li><strong>Literature access.</strong> Several values were read from extracted text, not checked against print (marked in my research notes); Schild et al. 2025 was read as an abstract only; Zheng and Qiao 2022 (Martian regolith in CaCl<sub>2</sub>) was not read. My literature search was not exhaustive, in particular for paywalled and Chinese-language work.</li>
+</ol>
+
+<!-- ============================================================ 13 -->
+<h2 id="s13"><span class="sn">13</span>Proposed experiments, ranked</h2>
+<p>Ranked by how much each would change the conclusions per unit of effort. Each is phrased with the outcome that would falsify the corresponding hypothesis.</p>
+<ol>
+<li><strong>Per-run current and mass-spectrometry traces from the existing Lomax et al. 2025 runs.</strong> No new experiment: the data exist at ESA. They remove the changing-n averaging, separate a current drop from an efficiency drop at the knee, give the knee's run-to-run scatter, and give the I-V operating point needed for Eq. (25). <em>Falsifies</em> the chemical-stage reading if the current does not step in individual runs.</li>
+<li><strong>Measured $dI/dV$ at 3.2 V on Earth.</strong> A short voltage step (for example &plusmn;50 to 100 mV) during a standard run converts any gravity penalty into a rate loss directly, replacing the assumed 1.65 V headroom.</li>
+<li><strong>Bubble departure size and anode coverage versus g in CaCl<sub>2</sub> on the actual anode,</strong> in the ESA Large Diameter Centrifuge campaign (Nizet 2026), with the cell current or voltage logged. In water the measured penalty falls logarithmically with g, while my chain saturates above 1 g. If the molten-salt cell also shows a log-linear hypergravity trend, the empirical extrapolation, not the chain, is the tool for predicting the Moon; the measured bubble sizes and coverage would then test the chain's inputs directly.</li>
+<li><strong>Anode area at fixed cell current</strong> (two rod immersion depths, or a rod versus a larger anode), at 1 g and in the centrifuge. Tests the $j^{0.55}$ lever: if the gravity sensitivity does not fall with $j$, the coverage mechanism is wrong.</li>
+<li><strong>Two pellet thicknesses</strong> (5 and 10 mm), same conditions, plus interrupted runs at about 55 % and 70 % with XRD and SEM-EDX. A knee at the same percentage supports chemistry; a knee shifted with thickness supports geometry.</li>
+<li><strong>A three-electrode run with a pseudo-reference</strong> (for example Mo or Ni/NiO) to bound the cathode potential at 3.2 V, which decides whether voltage-selected staging is accessible at all.</li>
+<li><strong>Earth-gravity coverage on a rod in CaCl<sub>2</sub>,</strong> by imaging if a viewing arrangement is possible (see-through cells have been used in cryolite by Stanic et al. 2021). $\Theta_E$ is the input with the largest leverage on the lunar penalty.</li>
+<li><strong>An LHS-1 time series with at least three runs</strong> past the knee, and a Gibbs energy minimisation (FactSage, or pycalphad with an Al-Ca-Fe-Si assessment) of the solid assemblage versus potential, validated against the phases reported by Schild et al. 2025.</li>
+</ol>
+
+<!-- ============================================================ 14 -->
+<h2 id="s14"><span class="sn">14</span>Data and code</h2>
+<p>The data behind every figure and table are published with this page:</p>
+<ul>
+<li><a href="data/bubble_growth.json">bubble_growth.json</a>: sequence of static Young-Laplace bubble shapes up to departure (14 volumes) for Earth, Mars and Moon at $r_0$ = 0.1 mm, with departure diameter, volume, height and width.</li>
+<li><a href="data/bubble_shapes.json">bubble_shapes.json</a>: departure profiles at $r_0$ = 0.1 mm for the three gravities (60 points each) and the departure-size sweep from 0.05 to 20 g.</li>
+<li><a href="data/knee.json">knee.json</a>: fitted front speed and rms of the geometric null model, measured and null hourly rates for 1 to 30 h, measured and null cumulative extraction.</li>
+<li><a href="data/lomax2025_fig2.json">lomax2025_fig2.json</a>: cumulative oxygen extraction versus time digitised from Lomax et al. 2025 Fig. 2 (LMS-1, graphite, mean of runs), with the digitisation method.</li>
+<li><a href="data/lomax2025_fig3_rates.json">lomax2025_fig3_rates.json</a>: hourly extraction rates digitised from Lomax et al. 2025 Fig. 3 (blue: LMS-1 graphite; grey: LHS-1 graphite).</li>
+<li><a href="data/predominance.json">predominance.json</a>: reversible potentials of eleven steps at 1223 K versus dissolved CaO activity (61 log-spaced values from 0.001 to 1), with the graphite-anode note.</li>
+<li><a href="data/prior_sensitivity.json">prior_sensitivity.json</a>: the twelve prior-sensitivity cases of Table S1.</li>
+<li><a href="data/headroom.json">headroom.json</a>: headroom estimates of Table S2, with the tin oxide rates digitised from Lomax et al. 2025 Fig. 3.</li>
+<li><a href="data/sim_table.json">sim_table.json</a>: calibrated extra voltage (median, 5 %, 95 %) and coverage on 13 gravities (0.1 to 1 g) &times; 5 current densities, Earth coverage per current density, and the water calibration check.</li>
+<li><a href="data/thermo_data.json">thermo_data.json</a>: Gibbs energies of formation at 1200 and 1300 K, Monte Carlo 1-sigma and source for the 21 species of Table 4.</li>
+</ul>
+<p>The scripts of Table 2 (Python 3 with numpy, scipy, PyYAML and matplotlib) reproduce every number when run from the <a href="https://github.com/taurasnienius/taurasnienius.github.io/tree/main/breathing-the-moon/code"><code>code/</code> folder</a> of this site's repository. Random seeds are fixed (thermodynamic Monte Carlo seed 1, calibration seed 11). The research notes that record the source and confidence of every input value are available on request.</p>
+
+<!-- ============================================================ refs -->
+<h2 id="refs">References</h2>
+<ol class="refs">
+<li>Akay et al. (2022). <em>npj Microgravity</em> 8, 56 (review).</li>
+<li>Angulo et al. (2020). Influence of bubbles on the energy conversion efficiency of electrochemical reactors. <em>Joule</em>; arXiv:2002.08167.</li>
+<li>Brutti et al. (2001). <em>J. Alloys Compd.</em> 317-318, 525. doi:10.1016/S0925-8388(00)01381-5.</li>
+<li>Burke, P. A., Nord, M. E., Hibbitts, C. A., Berdis, J. R. (2024). Modeling electrolysis in reduced gravity: producing oxygen from in-situ resources at the Moon and beyond. <em>Front. Space Technol.</em> 5, 1304579. doi:10.3389/frspt.2024.1304579.</li>
+<li>Chase (1998). NIST-JANAF Thermochemical Tables, 4th ed. (tables Ca-011, Ca-027, Mg-008, Al-096, O-043, O-039, Fe-018, Mg-034, Ca-010, Ca-012).</li>
+<li>Chen, H. et al. (2014). <em>J. Solid State Electrochem.</em> 18, 3317.</li>
+<li>Demirk&inodot;r, Wood, Lohse, Krug (2024). Life beyond Fritz: on the detachment of electrolytic bubbles. arXiv:2406.01989.</li>
+<li>Deng, Wang, Xiao, Jin, Hu, Chen (2005). <em>J. Phys. Chem. B</em>. doi:10.1021/jp044604r.</li>
+<li>Fritz (1935). <em>Physik. Z.</em> 36, 379 (as given by Demirk&inodot;r et al. 2024, Eq. 9).</li>
+<li>Heyrman and Chartrand (2006). <em>J. Phase Equilib. Diffus.</em> 27, 220. doi:10.1361/154770306X109755 (not accessed).</li>
+<li>Hyde and Welch (1997), bubble-layer voltage relation as quoted by Stanic et al. (2021).</li>
+<li>Janz et al. (1968). NSRDS-NBS 15.</li>
+<li>Janz et al. (1975). <em>J. Phys. Chem. Ref. Data</em> 4, 871.</li>
+<li>Lomax et al. (2020). Proving the viability of an electrochemical process for the simultaneous extraction of oxygen and production of metal alloys from lunar regolith. <em>Planet. Space Sci.</em> 180, 104748. doi:10.1016/j.pss.2019.104748.</li>
+<li>Lomax, B. A., Just, G. H., McHugh, P. J., Broadley, P. K., Hutchings, G. C., Burke, P. A., Roy, M. J., Smith, K. L., Symes, M. D. (2022). Predicting the efficiency of oxygen-evolving electrolysis on the Moon and Mars. <em>Nat. Commun.</em> 13, 583. doi:10.1038/s41467-022-28147-5.</li>
+<li>Lomax, B. A., Selmeci, A., R&uuml;tzler, R., Schild, T., Symes, M. D., Bonsall, M., Schr&ouml;der, C., Conti, M., Lindner, R., Carpenter, J. (2025). Identifying an efficient endpoint for oxygen extraction from lunar regolith simulant pellets using molten salt electrolysis. <em>Acta Astronaut.</em> 234, 287-295. doi:10.1016/j.actaastro.2025.04.049.</li>
+<li>Mazarico et al. (2011). <em>Icarus</em> 211(2). doi:10.1016/j.icarus.2010.10.030.</li>
+<li>Meurisse, A., Lomax, B., Selmeci, A., Conti, M., Lindner, R., Makaya, A., Symes, M. D., Carpenter, J. (2022). Lower temperature electrochemical reduction of lunar regolith simulants in molten salts. <em>Planet. Space Sci.</em> 211, 105408. doi:10.1016/j.pss.2021.105408.</li>
+<li>Nikolaychuk (2019). Thermodynamic assessment of chemical and electrochemical stability of iron silicides. <em>Chem. Problems</em> 2(17), 155. doi:10.32737/2221-8688-2019-2-155-184.</li>
+<li>Nizet (2026). Poster abstract on an FFC campaign in the ESTEC Large Diameter Centrifuge, ESA Young Professionals Event 2026.</li>
+<li>Osarinmwian and Roberts (2023). Modelling diffusion controlled electro-deoxidation (title as cited in my notes, truncated). <em>J. Solid State Electrochem.</em> 27, 3383.</li>
+<li>Pankratz, Stuve, Gokcen (1984). USBM Bulletin 677.</li>
+<li>Robie and Hemingway (1995). USGS Bulletin 2131. doi:10.3133/b2131.</li>
+<li>Schild et al. (2025). Characterization of metal products from the molten salt electrolysis of lunar highland regolith simulants. <em>Acta Astronaut.</em> 232, 1-13. doi:10.1016/j.actaastro.2025.02.021 (abstract only read).</li>
+<li>Schwandt, Doughty, Fray (2010). The FFC-Cambridge process for titanium metal winning. <em>Key Eng. Mater.</em> 436, 13-25. doi:10.4028/www.scientific.net/KEM.436.13.</li>
+<li>Stanic, Martinez, Einarsrud, Sandnes (2021). <em>Metals</em> 11, 965.</li>
+<li>Vogt and Balzer (2005). <em>Electrochim. Acta</em> 50, 2073-2079. doi:10.1016/j.electacta.2004.09.025.</li>
+<li>Xiao, Wang, Yin, Zhu, Mao, Wang (2012). Verification and implications of the dissolution-electrodeposition process during the electro-reduction of solid silica in molten CaCl<sub>2</sub>. <em>RSC Adv.</em></li>
+</ol>
+
+<footer>
+<p>Tauras Nienius, November 2026. Figures marked "my plot" are produced by the scripts listed in Section 14. Reproduced figures keep their original licences: Lomax et al. 2022 and Burke et al. 2024 under CC BY 4.0; Lomax et al. 2025 under CC BY-NC-ND 4.0, unmodified. <a href="index.html">Back to the main page</a>.</p>
+</footer>
+
+</main>
+</div>
+</div>
+
+<script>
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('aside.toc a'));
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var ids = Object.keys(map);
+  var targets = ids.map(function(id){ return document.getElementById(id); }).filter(Boolean);
+  function update(){
+    var y = window.scrollY + 90, cur = targets[0];
+    for (var i = 0; i < targets.length; i++){ if (targets[i].getBoundingClientRect().top + window.scrollY <= y) cur = targets[i]; }
+    links.forEach(function(a){ a.classList.remove('on'); });
+    if (cur && map[cur.id]) map[cur.id].classList.add('on');
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function(){ if(!ticking){ ticking = true; requestAnimationFrame(function(){ update(); ticking = false; }); } }, {passive:true});
+  update();
+  var det = document.querySelector('details.toc-narrow');
+  if (det) det.addEventListener('click', function(e){ if (e.target.closest('a')) det.removeAttribute('open'); });
+})();
+</script>
+</body>
+</html>

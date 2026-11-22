@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Regolith Oxygen Model: full notes · Tauras Nienius</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a lab notebook. One reading column, each section pairs a short argument with its own controls and chart. */
+:root{
+  --bg:#eef0f1;
+  --paper:#f8f9f9;
+  --ink:#1b2026;
+  --muted:#5b6570;
+  --rule:#cdd3d8;
+  --oxy:#2c4bc4;
+  --oxy-soft:#dfe5fb;
+  --heat:#d0571a;
+  --heat-soft:#f8e3d6;
+  --metal:#6f7a86;
+  --good:#2f7d4f;
+  --warn:#a6670d;
+  --bad:#b23a3a;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b0c0e;--paper:#141518;--ink:#ece8e2;--muted:#9a958e;--rule:#2a2b2f;
+  --oxy:#7fc8ff;--oxy-soft:#13283a;--heat:#ff8a3d;--heat-soft:#3a2214;--metal:#aab0b8;
+  --good:#6cc28f;--warn:#e0a84a;--bad:#ef7d7d;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b0c0e;--paper:#141518;--ink:#ece8e2;--muted:#9a958e;--rule:#2a2b2f;
+  --oxy:#7fc8ff;--oxy-soft:#13283a;--heat:#ff8a3d;--heat-soft:#3a2214;--metal:#aab0b8;
+  --good:#6cc28f;--warn:#e0a84a;--bad:#ef7d7d;color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+.wrap{max-width:980px;margin:0 auto}
+header.top{padding-block:48px 28px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(34px,6vw,58px);line-height:1.02;letter-spacing:-.015em;margin:10px 0 14px;text-wrap:balance}
+h1 .o{color:var(--oxy)}
+h2{font-family:var(--f-display);font-weight:600;font-size:clamp(22px,3vw,28px);line-height:1.15;margin:0 0 10px;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:17px;margin:0 0 6px}
+p{margin:0 0 12px;max-width:68ch}
+.lede{font-size:18px;color:var(--ink);max-width:66ch}
+.byline{font-family:var(--f-mono);font-size:13px;color:var(--muted);margin-top:14px}
+a{color:var(--oxy)}
+sup a{text-decoration:none;font-family:var(--f-mono);font-size:11px}
+section{padding-block:40px;border-bottom:1px solid var(--rule)}
+.sec-head{display:flex;gap:14px;align-items:baseline;margin-bottom:6px}
+.sec-n{font-family:var(--f-mono);font-size:13px;color:var(--muted);min-width:24px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:28px;margin-top:18px}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:18px}
+.ctrl{display:grid;gap:4px;margin-bottom:14px}
+.ctrl:last-child{margin-bottom:0}
+.ctrl label{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:12px}
+.ctrl label b{font-family:var(--f-mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+input[type=range]{width:100%;accent-color:var(--oxy)}
+select{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--rule);border-radius:4px;background:var(--bg);color:var(--ink);width:100%}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--rule);border-radius:4px;background:var(--bg);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--oxy);border-color:var(--oxy);color:var(--paper)}
+.seg button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--oxy);outline-offset:2px}
+.chk{display:flex;gap:8px;align-items:center;font-size:14px}
+.chk input{accent-color:var(--oxy);width:16px;height:16px}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.fig{border-left:3px solid var(--oxy);padding:4px 0 4px 10px}
+.fig.heat{border-color:var(--heat)}
+.fig.metal{border-color:var(--metal)}
+.fig .v{font-family:var(--f-mono);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1.2}
+.fig .k{font-size:12px;color:var(--muted);line-height:1.35}
+.chart{position:relative;height:280px}
+.chart.short{height:150px}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+.assume{display:inline-block;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border-radius:3px;background:var(--heat-soft);color:var(--heat);margin-left:6px;vertical-align:1px}
+.pub{background:var(--oxy-soft);color:var(--oxy)}
+.callout{border-left:3px solid var(--heat);padding:6px 0 6px 14px;margin:16px 0;max-width:68ch}
+.verdict{font-family:var(--f-mono);font-size:13px;padding:8px 10px;border-radius:4px;margin-top:10px;border:1px solid var(--rule)}
+.verdict.good{color:var(--good)}.verdict.warn{color:var(--warn)}.verdict.bad{color:var(--bad)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:16px;min-width:0}
+.card .tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.card p{font-size:14.5px;margin:6px 0 0}
+.tbl{overflow-x:auto;margin-top:16px;border:1px solid var(--rule);border-radius:6px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--rule)}
+th{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+tr:last-child td{border-bottom:0}
+ul.qs{padding-left:20px;max-width:70ch}
+ul.qs li{margin-bottom:10px}
+ol.src{font-size:13.5px;color:var(--muted);padding-left:22px;max-width:80ch}
+ol.src li{margin-bottom:6px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<p style="margin:18px 0 0;padding:12px 14px;border:1px solid var(--rule);border-left:3px solid var(--heat);border-radius:6px;font-size:14px;max-width:none">This is my first, simpler model of the whole plant (18 November 2026). Two of its open questions are taken further in the technical paper: whether reduction can be staged (Section 4 there shows calcium follows silicon into the metal, so a clean first-stage alloy is harder than it looks) and the lunar night (Section 10). The extraction curve in section 04 is a two-point fit to the 2020 constant-current run and is superseded by the 2025 pellet data analysed in the paper.</p>
+<header class="top">
+  <div class="eyebrow">Working model · molten salt electrolysis of lunar regolith</div>
+  <h1>How much Moon do you need to breathe for a year?</h1>
+  <p class="lede">I wanted to understand the numbers behind getting oxygen and metal out of lunar soil, so I built this model of the molten salt (FFC) process that ESA has been developing with Metalysis and the University of Glasgow. Every input you can move is either a published value or an assumption I've labelled as one.</p>
+  <div class="byline">Tauras Nienius · Aerospace engineering, ELISA Aerospace (ISAE Group) · November 2026</div>
+</header>
+
+<!-- 1 -->
+<section id="where">
+  <div class="sec-head"><span class="sec-n">01</span><h2>Where the oxygen actually is</h2></div>
+  <p>Regolith is around 45% oxygen by mass, but almost none of it is in an easy place. It's locked in silicates, mostly in silica. That one fact decides which extraction process is worth building.</p>
+  <div class="grid">
+    <div class="panel">
+      <div class="ctrl">
+        <label for="feed">Feedstock</label>
+        <select id="feed">
+          <option value="LHS1">LHS-1 · lunar highlands (south pole type)</option>
+          <option value="LMS1">LMS-1 · lunar mare</option>
+        </select>
+      </div>
+      <div class="figs" id="feedFigs"></div>
+      <p class="note">Oxide compositions are the XRF values from Exolith's December 2023 spec sheets<sup><a href="#s4">4</a></sup>, normalised to 100% without loss on ignition.</p>
+    </div>
+    <div>
+      <h3>Share of total oxygen, by oxide</h3>
+      <div class="chart" id="c1w"><canvas id="c1" aria-label="Oxygen contribution by oxide"></canvas></div>
+    </div>
+  </div>
+  <div class="callout">
+    <p><b>Why this rules out the "easy" route at the south pole.</b> Hydrogen reduction only frees the oxygen bound to iron, mainly in ilmenite. On a highland simulant, temperature-programmed reduction measured about <span class="mono">0.02 wt%</span> oxygen released, against <span class="mono">1.1 wt%</span> for pure ilmenite<sup><a href="#s5">5</a></sup>. Highland soil has almost no iron. To get at the ~58% of the oxygen sitting in silica, you have to reduce silica, which is what molten salt electrolysis does.</p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="charge">
+  <div class="sec-head"><span class="sec-n">02</span><h2>The charge is fixed. Everything else is a choice.</h2></div>
+  <p>Every oxygen ion pulled out of an oxide carries two electrons, whatever metal it was attached to. So the charge per kilogram of O₂ is set by physics: <span class="mono">1000 / 16.00 × 2 × 96 485 C ≈ 12.1 MC</span>, or about <span class="mono">3 350 Ah</span>. The energy depends on two numbers that are engineering choices, not constants: the cell voltage and how much of the current actually removes oxygen.</p>
+  <div class="grid">
+    <div class="panel">
+      <div class="ctrl"><label for="V">Cell voltage <b id="Vv"></b></label><input id="V" type="range" min="2.4" max="3.4" step="0.05" value="3.0"></div>
+      <div class="ctrl"><label for="eta">Current efficiency <span class="assume">assumption</span> <b id="etav"></b></label><input id="eta" type="range" min="10" max="100" step="1" value="50"></div>
+      <div class="ctrl"><label>Anode</label>
+        <div class="seg" id="anode" role="group" aria-label="Anode type">
+          <button type="button" data-v="inert" aria-pressed="true">Inert (releases O₂)</button>
+          <button type="button" data-v="co2" aria-pressed="false">Carbon → CO₂</button>
+          <button type="button" data-v="co" aria-pressed="false">Carbon → CO</button>
+        </div>
+      </div>
+      <p class="note">The voltage has to stay below the point where the CaCl₂ salt itself starts to decompose. Current efficiency drops when calcium dissolves in the melt and carries current without removing oxygen<sup><a href="#s6">6</a></sup>. Schild et al. measured higher current efficiency on anorthosite than on the full highland simulant<sup><a href="#s2">2</a></sup>, but I haven't found a number I can quote, so it stays a slider.</p>
+    </div>
+    <div>
+      <div class="figs" id="chargeFigs"></div>
+      <div class="verdict" id="anodeVerdict"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="scale">
+  <div class="sec-head"><span class="sec-n">03</span><h2>Why the 25 g prototype is the wrong size to judge energy by</h2></div>
+  <p>The prototype at ESA's ESTEC processes about <span class="mono">25 g</span> of simulant in 24 hours<sup><a href="#s3">3</a></sup>. At that size, almost all the energy goes into keeping a small, hot reactor hot. Heat leaks through the surface, but oxygen comes from the volume, so the energy cost per kilogram falls steeply as the batch grows. The chart sweeps batch size with your other settings fixed.</p>
+  <div class="grid">
+    <div class="panel">
+      <div class="ctrl"><label for="mr">Regolith per batch <b id="mrv"></b></label><input id="mr" type="range" min="0" max="100" step="1" value="0"></div>
+      <div class="ctrl"><label for="salt">Salt to regolith mass ratio <span class="assume">assumption</span> <b id="saltv"></b></label><input id="salt" type="range" min="2" max="20" step="1" value="10"></div>
+      <div class="ctrl"><label for="U">Heat loss through insulation <span class="assume">assumption</span> <b id="Uv"></b></label><input id="U" type="range" min="0.5" max="6" step="0.1" value="2"></div>
+      <div class="ctrl"><label for="th">Batch duration <b id="thv"></b></label><input id="th" type="range" min="4" max="72" step="1" value="24"></div>
+      <div class="ctrl"><label class="chk" for="keep"><span><input id="keep" type="checkbox"> Keep the salt molten between batches</span></label></div>
+      <p class="note">Operating temperature 950 °C, as in Lomax et al.<sup><a href="#s1">1</a></sup> The reactor is a cylinder as tall as it is wide, sized to hold the salt and regolith. Heat capacities, the salt's latent heat and densities are approximate textbook values, and the heat-loss coefficient lumps all the insulation into one number. I don't know what a flight reactor would use for either the salt ratio or the insulation, which is exactly why they're sliders.</p>
+    </div>
+    <div>
+      <div class="figs" id="scaleFigs"></div>
+      <div class="chart" id="c3w"><canvas id="c3" aria-label="Energy per kilogram of oxygen against batch size"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="stop">
+  <div class="sec-head"><span class="sec-n">04</span><h2>When to stop a batch</h2></div>
+  <p>In the 2020 run, Lomax et al. had extracted about <span class="mono">76%</span> of the oxygen after 16 hours and <span class="mono">96%</span> after about 50 hours<sup><a href="#s1">1</a></sup> (ESA's press release rounds the first point to 75% at 15 h, which is what I fitted). The last fifth of the oxygen takes more than twice as long as the first three quarters, while the reactor keeps losing heat the whole time. So there should be a best time to stop a batch and start the next one. I fitted a simple saturating curve, X(t) = X<sub>max</sub>(1 − e<sup>−kt</sup>), through those two points. It gives k ≈ 0.100 per hour and X<sub>max</sub> ≈ 96.7%. That's a curve fit to two points, not a kinetic model, and that run was at constant current on loose powder, so its time curve mostly reflects current efficiency. The newer constant-voltage pellet data are analysed in the methods notes.</p>
+  <div class="grid">
+    <div class="panel">
+      <div class="ctrl"><label for="turn">Unload, wash and reload time <span class="assume">assumption</span> <b id="turnv"></b></label><input id="turn" type="range" min="0" max="24" step="1" value="4"></div>
+      <div class="figs" id="stopFigs"></div>
+      <p class="note">Uses the batch size, salt ratio, insulation and salt setting from section 03, and the voltage and efficiency from section 02. If the salt stays molten, the reactor keeps losing heat during the turnaround too, which pushes the best stopping time later.</p>
+      <p class="note">What surprised me: with a small, leaky reactor the energy optimum stops well before the published 96%. Energy isn't the only cost though. Stopping early means digging and handling more regolith per kilogram of oxygen and leaving a half-reduced product that is harder to use.</p>
+    </div>
+    <div>
+      <div class="chart" id="c4w"><canvas id="c4" aria-label="Energy per kilogram of oxygen against batch duration"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="earth">
+  <div class="sec-head"><span class="sec-n">05</span><h2>What still has to come from Earth</h2></div>
+  <p>A lunar oxygen plant only makes sense if it saves more mass than it consumes. Two consumables are easy to forget: salt that leaves with the product each batch, and, if the anode is carbon, the carbon itself, which leaves as CO₂ or CO. Burning carbon to CO₂ uses <span class="mono">12 / 32 = 0.375 kg</span> of carbon per kilogram of O₂ removed. Producing CO uses twice that.</p>
+  <div class="grid">
+    <div class="panel">
+      <div class="ctrl"><label for="loss">Salt lost per batch <span class="assume">assumption</span> <b id="lossv"></b></label><input id="loss" type="range" min="0" max="5" step="0.1" value="1"></div>
+      <p class="note">Losses come from salt trapped in the reduced product and from evaporation. The anode setting is the one in section 02.</p>
+    </div>
+    <div>
+      <div class="figs" id="earthFigs"></div>
+      <div class="verdict" id="earthVerdict"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="crew">
+  <div class="sec-head"><span class="sec-n">06</span><h2>A plant for a real crew</h2></div>
+  <p>NASA's ECLSS technical brief uses <span class="mono">1.083 kg</span> of oxygen per person per day as an example, including two hours of exercise<sup><a href="#s7">7</a></sup>. A habitat would also recycle some of its oxygen, so the share the plant has to supply is a slider.</p>
+  <div class="grid">
+    <div class="panel">
+      <div class="ctrl"><label for="crewN">Crew <b id="crewNv"></b></label><input id="crewN" type="range" min="1" max="12" step="1" value="4"></div>
+      <div class="ctrl"><label for="share">Share supplied by the plant <b id="sharev"></b></label><input id="share" type="range" min="10" max="100" step="5" value="100"></div>
+      <div class="ctrl"><label for="duty">Time the plant runs <span class="assume">assumption</span> <b id="dutyv"></b></label><input id="duty" type="range" min="30" max="100" step="5" value="80"></div>
+    </div>
+    <div>
+      <div class="figs" id="crewFigs"></div>
+      <p class="note" id="crewNote"></p>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="metal">
+  <div class="sec-head"><span class="sec-n">07</span><h2>What's left behind: more metal than oxygen</h2></div>
+  <p>Run the process to completion and the residue is every metal that was bound to that oxygen. By mass, that's more than the oxygen itself. If every oxide were reduced, highland simulant would leave about 1.2 kg of metal per kilogram of O₂, mostly silicon, aluminium and calcium.</p>
+  <div class="grid">
+    <div class="panel">
+      <p>That residue isn't a clean metal. Schild et al. found a heterogeneous mix of intermetallics, including Al₂Si₂Ca, AlSiCa and Al–Si–Fe compounds, often several phases inside a single particle. They concluded that sieving and elutriation can't isolate specific alloys<sup><a href="#s2">2</a></sup>. They also found Cr, Mn, Ni and Mo picked up from the reactor itself.</p>
+      <p class="note">Bars assume every oxide is reduced in the same proportion, which is a simplification. Calcium oxide in particular partly dissolves into the CaCl₂ salt.</p>
+    </div>
+    <div>
+      <h3>Metal left per kilogram of O₂ (full reduction)</h3>
+      <div class="chart" id="c7w"><canvas id="c7" aria-label="Metal residue per kilogram of oxygen by element"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="asteroids">
+  <div class="sec-head"><span class="sec-n">08</span><h2>On an asteroid, the question changes</h2></div>
+  <p>I'm interested in this process because of asteroids, not only the Moon. Asteroid feedstock is a different problem, because a lot of the iron is already metal and some bodies hold water. The cheapest path to oxygen depends on the body's class.</p>
+  <div class="cards">
+    <div class="card"><div class="tag">Ordinary chondrites · H, L, LL</div><h3>Separate the metal before electrolysis</h3><p>Total iron is about 28, 22 and 19 wt%, and free metal about 8.4, 4.1 and 2 vol% for H, L and LL<sup><a href="#s8">8</a></sup>. Metal grains are magnetic, so a magnetic separation step could pull them out first, leaving a cleaner silicate feed and a separate Fe–Ni product.</p></div>
+    <div class="card"><div class="tag">Carbonaceous · CI</div><h3>Bake out the water first</h3><p>Up to 20% water held in clay minerals, plus up to 11% magnetite and up to 6% organic matter<sup><a href="#s9">9</a></sup>. Heating to drive off water and splitting it is likely a far cheaper first source of oxygen than electrolysing silicates. Electrolysis would come second, on the dry residue.</p></div>
+    <div class="card"><div class="tag">Enstatite chondrites</div><h3>Iron that's already reduced</h3><p>Iron sits only in metal and troilite (FeS), with no iron oxides, and the metal can carry up to 1% silicon<sup><a href="#s9">9</a></sup>. Oxygen here is all in silicates, so the electrolysis case looks like highland regolith but with a metal stream to handle.</p></div>
+    <div class="card"><div class="tag">Metal-rich, M-type</div><h3>The by-product becomes the product</h3><p>For a body like Psyche, the target is the metal itself. Oxygen would be a by-product of processing whatever silicate is mixed in, which is the reverse of the lunar case above.</p></div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="plan">
+  <div class="sec-head"><span class="sec-n">09</span><h2>How I'd characterise a batch</h2></div>
+  <p>This is where my own experience fits. At Blackswan Space I wrote the test plan for a space-grade laser range finder and ran the full characterisation campaign. Here's how I'd structure characterisation for an electrolysis or sintering run with the techniques this lab uses. The thresholds are my proposals, not anyone's standard.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Question</th><th>Technique</th><th>What I'd look at</th><th>Decision it drives</th></tr></thead>
+    <tbody>
+      <tr><td>Is the feedstock what the datasheet says?</td><td>XRF, XRD, laser diffraction</td><td>Major oxides, glass vs crystalline content, particle size</td><td>Reject a batch if a major oxide is off by more than ~2 wt% from the sheet</td></tr>
+      <tr><td>How much oxygen came out?</td><td>Inert gas fusion on the product<sup><a href="#s2">2</a></sup>, mass balance</td><td>Residual oxygen vs the feedstock value from section 01</td><td>Extraction % for the run, compared with the published 96–99%</td></tr>
+      <tr><td>What did it turn into?</td><td>XRD, SEM-EDX mapping</td><td>Intermetallic phases, unreduced cores in large grains</td><td>Whether particle size limits reduction</td></tr>
+      <tr><td>Is salt leaving with the product?</td><td>SEM-EDX chlorine mapping, mass loss after washing</td><td>Trapped CaCl₂</td><td>Salt loss per batch, which feeds section 05</td></tr>
+      <tr><td>Is the reactor contaminating the product?</td><td>EDX or XRF for Cr, Mn, Ni, Mo</td><td>Elements from the reactor steel<sup><a href="#s2">2</a></sup></td><td>Choice of crucible and basket material</td></tr>
+      <tr><td>Did a sintered sample densify?</td><td>Archimedes density, X-ray CT, XRD, compression test</td><td>Porosity, crack networks, glass turning crystalline</td><td>Which temperature and time window to keep</td></tr>
+      <tr><td>Can I trust XRF on the metal product?</td><td>XRF checked against metal reference standards</td><td>Calibrations built on rock powders</td><td>Add metal standards before trusting XRF on alloys</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">The last row comes from a conversation with a planetary XRF instrument scientist. Their calibration was built entirely on rock powders, and whether it holds for metal-rich material has never been tested. The product of this process is exactly that kind of material.</p>
+</section>
+
+<!-- 10 -->
+<section id="questions">
+  <div class="sec-head"><span class="sec-n">10</span><h2>Questions I'd bring to the lab</h2></div>
+  <ul class="qs">
+    <li><b>Is highland regolith actually the easier feedstock?</b> It has almost no iron, but Schild et al. measured higher current efficiency on anorthosite. If that holds, the south pole may be a better place to run this than the mare.</li>
+    <li><b>Could reduction be staged instead of sieved?</b> Oxides reduce in a rough order of stability: iron first, then silicon, then titanium and aluminium, with magnesium and calcium hardest. If a run were stopped part-way, would the early product be a cleaner Fe–Si alloy? That would move separation from after the process into the process.</li>
+    <li><b>What sets the batch time on the Moon?</b> On Earth it's the reduction kinetics. At the south pole it might be the power available through periods without sunlight, which would push towards keeping the salt molten and accepting longer batches.</li>
+    <li><b>How much salt leaves per batch, and can it come back?</b> Section 05 shows this decides whether the plant pays for itself. A washing step that doesn't rely on water shipped from Earth seems like an open problem.</li>
+  </ul>
+</section>
+
+<!-- 11 -->
+<section id="limits">
+  <div class="sec-head"><span class="sec-n">11</span><h2>What this model leaves out</h2></div>
+  <ul class="qs">
+    <li>The O₂ handling chain after the anode: drying, compression and storage.</li>
+    <li>Real kinetics. The extraction curve is a two-point fit and doesn't depend on particle size or temperature.</li>
+    <li>Any coupling between current efficiency and how far the batch has gone. In reality, efficiency probably falls as the easy oxygen runs out.</li>
+    <li>Lunar ambient temperature, radiative losses in vacuum, and reactor mass. All heating starts from 20 °C, as in a lab.</li>
+    <li>Sodium and potassium oxides, which may behave differently in the melt.</li>
+  </ul>
+  <p>Corrections are welcome. That's the reason for building it.</p>
+</section>
+
+<section id="sources" style="border-bottom:0">
+  <div class="sec-head"><span class="sec-n">··</span><h2>Sources</h2></div>
+  <ol class="src">
+    <li id="s1">Lomax, B.A. et al., "Proving the viability of an electrochemical process for the simultaneous extraction of oxygen and production of metal alloys from lunar regolith", <i>Planetary and Space Science</i>, doi:10.1016/j.pss.2019.104748. Summary: <a href="https://phys.org/news/2019-10-oxygen-metal-lunar-regolith.amp" target="_blank" rel="noopener">phys.org</a>.</li>
+    <li id="s2">Schild, T., Lomax, B.A., Conti, M., Aridon, G., Harries, D., Hadler, K., "Characterization of metal products from the molten salt electrolysis of lunar highland regolith simulants", <i>Acta Astronautica</i> 232 (2025) 1–13. <a href="https://list.lu/en/research/scientific-publication/characterization-of-metal-products-from-the-molten-salt-electrolysis-of-lunar-highland-regolith-simu" target="_blank" rel="noopener">Abstract</a>.</li>
+    <li id="s3">Schild, T. et al., "Manufacturing using waste from space resources for a circular space economy", Space Resources Week 2023. <a href="https://indico.esa.int/event/450/contributions/8925/attachments/5750/9506/TSchild_clean_space_days_presentation.pdf" target="_blank" rel="noopener">Slides</a>.</li>
+    <li id="s4">Exolith Lab, LHS-1 and LMS-1 spec sheets, December 2023. <a href="https://cdn.shopify.com/s/files/1/0398/9268/0862/files/lhs-1-spec-sheet-Dec2023.pdf" target="_blank" rel="noopener">LHS-1</a>, <a href="https://cdn.shopify.com/s/files/1/0398/9268/0862/files/lms-1-spec-sheet-Dec2023.pptx.pdf" target="_blank" rel="noopener">LMS-1</a>.</li>
+    <li id="s5">De Guzman, A.A. et al., "Physicochemical properties of lunar regolith simulant for in situ oxygen production", arXiv:2601.14719. <a href="https://arxiv.org/html/2601.14719v1" target="_blank" rel="noopener">arXiv</a>.</li>
+    <li id="s6">FFC Cambridge process, overview of cathode and anode reactions. <a href="https://en.wikipedia.org/wiki/FFC_Cambridge_process" target="_blank" rel="noopener">Wikipedia</a>.</li>
+    <li id="s7">NASA Office of the Chief Health and Medical Officer, ECLSS technical brief. <a href="https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-002-eclss.pdf" target="_blank" rel="noopener">PDF</a>.</li>
+    <li id="s8">Vernazza, P. et al., "The Formation and Evolution of Ordinary Chondrite Parent Bodies", Table 1. <a href="https://arxiv.org/pdf/1611.08734" target="_blank" rel="noopener">arXiv:1611.08734</a>.</li>
+    <li id="s9">National Space Society, <i>Space Resources</i> vol. 3, meteorite classes. <a href="https://settlement.nss.org/spaceresvol3/asterres1b.htm" target="_blank" rel="noopener">Online</a>.</li>
+  </ol>
+</section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+(function(){
+const M={O:15.999,Si:28.085,Ti:47.867,Al:26.982,Fe:55.845,Mn:54.938,Mg:24.305,Ca:40.078,Na:22.990,K:39.098,P:30.974};
+const OX={SiO2:['Si',1,2],TiO2:['Ti',1,2],Al2O3:['Al',2,3],FeO:['Fe',1,1],MnO:['Mn',1,1],MgO:['Mg',1,1],CaO:['Ca',1,1],Na2O:['Na',2,1],K2O:['K',2,1],P2O5:['P',2,5]};
+const LABEL={SiO2:'SiO₂',TiO2:'TiO₂',Al2O3:'Al₂O₃',FeO:'FeO',MnO:'MnO',MgO:'MgO',CaO:'CaO',Na2O:'Na₂O',K2O:'K₂O',P2O5:'P₂O₅'};
+const FEED={
+  LHS1:{SiO2:49.12,TiO2:0.63,Al2O3:26.29,FeO:3.20,MnO:0.06,MgO:2.86,CaO:13.52,Na2O:2.55,K2O:0.34,P2O5:0.17},
+  LMS1:{SiO2:48.22,TiO2:2.70,Al2O3:12.40,FeO:8.79,MnO:0.06,MgO:15.97,CaO:7.65,Na2O:1.73,K2O:0.42,P2O5:0.23}
+};
+const F=96485.33, QKG=1000/M.O*2*F; // C per kg O2
+const T_OP=950, T0=20, DT=T_OP-T0;
+const CP_R=850, CP_S=800, LF_S=257e3, RHO_S=2080, RHO_R=1500; // J/kgK, J/kg, kg/m3
+const KX=0.0997, XMAX=0.9666;
+const PROTO=0.025;
+
+function split(c){
+  let tot=0; for(const k in c) tot+=c[k];
+  let O=0; const el={}, oc={};
+  for(const ox in c){const [e,n,m]=OX[ox]; const mw=n*M[e]+m*M.O; const w=c[ox]/tot; const o=w*m*M.O/mw; O+=o; oc[ox]=o; el[e]=(el[e]||0)+(w-o);}
+  return {O,el,oc};
+}
+const $=id=>document.getElementById(id);
+const S={feed:'LHS1',anode:'inert'};
+function X(t){return XMAX*(1-Math.exp(-KX*t));}
+function mrFromSlider(v){return Math.pow(10,-1.602+v/100*(3-(-1.602)));} // 25 g .. 1000 kg, log
+function fmtMass(kg){if(kg<1) return (kg*1000).toPrecision(3).replace(/\.0+$/,'')+' g'; if(kg<1000) return (kg<10?kg.toFixed(2):kg<100?kg.toFixed(1):kg.toFixed(0))+' kg'; return (kg/1000).toFixed(kg<1e4?2:1)+' t';}
+function fmt(x,d){return x.toLocaleString('en-GB',{maximumFractionDigits:d,minimumFractionDigits:d});}
+
+function batch(p,mr,t){
+  const sp=split(FEED[p.feed]);
+  const xt=X(t);
+  const o2=mr*sp.O*xt; // kg O2 per batch
+  const ms=p.salt*mr;
+  const Eel=o2*QKG*p.V/p.eta; // J
+  const Eheat=mr*CP_R*DT + (p.keep?0:ms*(CP_S*DT+LF_S));
+  const vol=ms/RHO_S+mr/RHO_R; const D=Math.cbrt(4*vol/Math.PI); const A=1.5*Math.PI*D*D;
+  const Ploss=p.U*A*DT; const Eloss=Ploss*(t+(p.keep?p.turn:0))*3600;
+  const per=x=>x/o2/3.6e6; // kWh per kg O2
+  return {sp,xt,o2,ms,el:per(Eel),heat:per(Eheat),loss:per(Eloss),tot:per(Eel+Eheat+Eloss),Ploss,A};
+}
+function params(){
+  return {feed:S.feed,anode:S.anode,V:+$('V').value,eta:+$('eta').value/100,salt:+$('salt').value,U:+$('U').value,t:+$('th').value,keep:$('keep').checked,
+    mr:mrFromSlider(+$('mr').value),loss:+$('loss').value/100,crew:+$('crewN').value,share:+$('share').value/100,duty:+$('duty').value/100,turn:+$('turn').value};
+}
+function figHTML(items){return items.map(([v,k,c])=>`<div class="fig ${c||''}"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');}
+
+// charts
+let C1,C3,C4,C7;
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function baseOpts(){
+  const ink=css('--muted'), rule=css('--rule');
+  return {responsive:true,maintainAspectRatio:false,animation:false,
+    plugins:{legend:{labels:{color:ink,font:{family:'IBM Plex Sans',size:12},boxWidth:12}},tooltip:{titleFont:{family:'IBM Plex Mono'},bodyFont:{family:'IBM Plex Mono'}}},
+    scales:{x:{ticks:{color:ink,font:{family:'IBM Plex Mono',size:11}},grid:{color:rule}},y:{ticks:{color:ink,font:{family:'IBM Plex Mono',size:11}},grid:{color:rule}}}};
+}
+function build(){
+  if(typeof Chart==='undefined'){['c1w','c3w','c4w','c7w'].forEach(id=>{$(id).innerHTML='<p class="note">The chart library didn\'t load. The numbers beside it are still live.</p>';});return;}
+  [C1,C3,C4,C7].forEach(c=>c&&c.destroy());
+  const o1=baseOpts(); o1.indexAxis='y'; o1.plugins.legend.display=false; o1.scales.x.title={display:true,text:'% of the regolith\'s oxygen',color:css('--muted'),font:{family:'IBM Plex Sans',size:12}};
+  C1=new Chart($('c1'),{type:'bar',data:{labels:[],datasets:[{data:[],backgroundColor:css('--oxy'),borderRadius:2}]},options:o1});
+  const o3=baseOpts(); o3.scales.x.type='logarithmic'; o3.scales.x.title={display:true,text:'Regolith per batch (kg, log scale)',color:css('--muted'),font:{family:'IBM Plex Sans',size:12}};
+  o3.scales.y.type='logarithmic'; o3.scales.y.title={display:true,text:'kWh per kg O₂ (log scale)',color:css('--muted'),font:{family:'IBM Plex Sans',size:12}};
+  o3.scales.x.ticks.callback=v=>{const l=Math.log10(v); return Math.abs(l-Math.round(l))<1e-9?(v>=1?v+'':v.toString()):'';};
+  o3.scales.y.ticks.callback=v=>{const l=Math.log10(v); return Math.abs(l-Math.round(l))<1e-9?v+'':'';};
+  C3=new Chart($('c3'),{type:'line',data:{datasets:[
+    {label:'Total',data:[],borderColor:css('--ink'),borderWidth:2,pointRadius:0},
+    {label:'Heat loss',data:[],borderColor:css('--heat'),borderWidth:1.5,pointRadius:0,borderDash:[4,3]},
+    {label:'Electrolysis',data:[],borderColor:css('--oxy'),borderWidth:1.5,pointRadius:0,borderDash:[2,2]},
+    {label:'This batch',data:[],borderColor:css('--ink'),backgroundColor:css('--ink'),pointRadius:5,showLine:false},
+    {label:'ESTEC prototype size',data:[],borderColor:css('--heat'),backgroundColor:css('--paper'),pointRadius:5,pointBorderWidth:2,showLine:false}
+  ]},options:o3});
+  const o4=baseOpts(); o4.scales.x.type='linear'; o4.scales.x.title={display:true,text:'Batch duration (h)',color:css('--muted'),font:{family:'IBM Plex Sans',size:12}};
+  o4.scales.y.title={display:true,text:'kWh per kg O₂',color:css('--muted'),font:{family:'IBM Plex Sans',size:12}};
+  o4.scales.y2={position:'right',min:0,max:100,ticks:{color:css('--muted'),font:{family:'IBM Plex Mono',size:11},callback:v=>v+'%'},grid:{drawOnChartArea:false},title:{display:true,text:'Oxygen extracted',color:css('--muted'),font:{family:'IBM Plex Sans',size:12}}};
+  C4=new Chart($('c4'),{type:'line',data:{datasets:[
+    {label:'Energy per kg O₂',data:[],borderColor:css('--ink'),borderWidth:2,pointRadius:0,yAxisID:'y'},
+    {label:'Extracted (fit)',data:[],borderColor:css('--oxy'),borderWidth:1.5,pointRadius:0,borderDash:[4,3],yAxisID:'y2'},
+    {label:'Published points',data:[{x:15,y:75},{x:50,y:96}],borderColor:css('--oxy'),backgroundColor:css('--oxy'),pointRadius:4,showLine:false,yAxisID:'y2'},
+    {label:'Best stop',data:[],borderColor:css('--heat'),backgroundColor:css('--heat'),pointRadius:6,showLine:false,yAxisID:'y'}
+  ]},options:o4});
+  const o7=baseOpts(); o7.plugins.legend.display=false; o7.scales.y.title={display:true,text:'kg per kg O₂',color:css('--muted'),font:{family:'IBM Plex Sans',size:12}};
+  C7=new Chart($('c7'),{type:'bar',data:{labels:[],datasets:[{data:[],backgroundColor:css('--metal'),borderRadius:2}]},options:o7});
+  update();
+}
+
+function update(){
+  const p=params();
+  $('Vv').textContent=fmt(p.V,2)+' V'; $('etav').textContent=Math.round(p.eta*100)+'%';
+  $('mrv').textContent=fmtMass(p.mr); $('saltv').textContent=p.salt+' : 1'; $('Uv').textContent=fmt(p.U,1)+' W/m²K'; $('thv').textContent=p.t+' h';
+  $('lossv').textContent=fmt(p.loss*100,1)+'%'; $('crewNv').textContent=p.crew; $('sharev').textContent=Math.round(p.share*100)+'%'; $('dutyv').textContent=Math.round(p.duty*100)+'%'; $('turnv').textContent=p.turn+' h';
+
+  // 1
+  const sp=split(FEED[p.feed]);
+  const ocs=Object.entries(sp.oc).sort((a,b)=>b[1]-a[1]);
+  const siShare=sp.oc.SiO2/sp.O;
+  $('feedFigs').innerHTML=figHTML([[fmt(sp.O*100,1)+'%','oxygen by mass'],[fmt(siShare*100,0)+'%','of it bound in silica'],[fmt(1/(sp.O*0.96),2)+' kg','regolith per kg O₂ at 96% extraction','metal']]);
+  if(C1){C1.data.labels=ocs.map(o=>LABEL[o[0]]); C1.data.datasets[0].data=ocs.map(o=>+(o[1]/sp.O*100).toFixed(2)); C1.update();}
+
+  // 2
+  const Ah=QKG/3600/p.eta; const kwhEl=QKG*p.V/p.eta/3.6e6;
+  $('chargeFigs').innerHTML=figHTML([[fmt(Ah,0)+' Ah','charge drawn per kg O₂'],[fmt(kwhEl,1)+' kWh','electrolysis energy per kg O₂'],[fmt(QKG*p.V/3.6e6,1)+' kWh','floor at 100% efficiency']]);
+  const av=$('anodeVerdict');
+  if(p.anode==='inert'){av.className='verdict good';av.textContent='Inert anode: oxygen leaves as O₂ gas and nothing is consumed. Keeping such anodes stable in the melt is still a known problem.';}
+  else if(p.anode==='co2'){av.className='verdict warn';av.textContent='Carbon anode to CO₂: 0.375 kg of carbon from Earth per kg of oxygen removed, and you get CO₂, not O₂. Turning that into breathable oxygen needs a second plant.';}
+  else {av.className='verdict bad';av.textContent='Carbon anode to CO: 0.75 kg of carbon from Earth per kg of oxygen removed, and the oxygen leaves as CO. This mostly defeats the purpose on the Moon.';}
+
+  // 3
+  const b=batch(p,p.mr,p.t);
+  $('scaleFigs').innerHTML=figHTML([[fmt(b.tot,b.tot<100?1:0)+' kWh','total per kg O₂'],[fmt(b.loss/b.tot*100,0)+'%','of it lost as heat','heat'],[fmtMass(b.o2),'O₂ per batch']]);
+  if(C3){
+    const tot=[],loss=[],el=[];
+    for(let i=0;i<=60;i++){const m=Math.pow(10,-1.602+i/60*(3+1.602)); const r=batch(p,m,p.t); tot.push({x:m,y:r.tot}); loss.push({x:m,y:Math.max(r.loss,1e-3)}); el.push({x:m,y:r.el});}
+    C3.data.datasets[0].data=tot;C3.data.datasets[1].data=loss;C3.data.datasets[2].data=el;
+    C3.data.datasets[3].data=[{x:p.mr,y:b.tot}];
+    C3.data.datasets[4].data=[{x:PROTO,y:batch(p,PROTO,p.t).tot}];
+    C3.update();
+  }
+
+  // 4
+  let best={t:0,e:Infinity}; const curve=[],xc=[];
+  for(let t=2;t<=96;t+=1){const r=batch(p,p.mr,t); curve.push({x:t,y:r.tot}); xc.push({x:t,y:X(t)*100}); if(r.tot<best.e){best={t,e:r.tot,x:X(t)};}}
+  $('stopFigs').innerHTML=figHTML([[best.t+' h','lowest-energy batch length'],[fmt(best.x*100,0)+'%','oxygen extracted by then'],[fmt(best.e,best.e<100?1:0)+' kWh','per kg O₂ at that point']]);
+  if(C4){C4.data.datasets[0].data=curve;C4.data.datasets[1].data=xc;C4.data.datasets[3].data=[{x:best.t,y:best.e}];C4.update();}
+
+  // 5
+  const saltPerKg=p.loss*b.ms/b.o2; const carbon=p.anode==='co2'?0.375:p.anode==='co'?0.75:0;
+  const earth=saltPerKg+carbon;
+  $('earthFigs').innerHTML=figHTML([[fmt(saltPerKg*1000,0)+' g','salt per kg O₂','heat'],[fmt(carbon*1000,0)+' g','anode carbon per kg O₂','metal'],[fmt(earth*1000,0)+' g','from Earth per kg O₂']]);
+  const ev=$('earthVerdict');
+  if(earth>=1){ev.className='verdict bad';ev.textContent='You ship more consumables than the oxygen you make. Bringing the oxygen from Earth would be lighter.';}
+  else if(earth>=0.2){ev.className='verdict warn';ev.textContent='The plant saves mass, but the consumables eat a large share of the gain before counting the plant’s own mass.';}
+  else {ev.className='verdict good';ev.textContent='Consumables are a small fraction of the oxygen produced. Now the plant’s own mass and lifetime decide whether it pays off.';}
+
+  // 6
+  const need=p.crew*1.083*365*p.share; // kg O2 / yr
+  const regYr=need/(sp.O*b.xt);
+  const kwhYr=need*b.tot; const avgP=kwhYr/(8760*p.duty);
+  const batchesYr=8760*p.duty/(p.t+p.turn); const reactors=need/(b.o2*batchesYr);
+  const protoO2yr=batch(p,PROTO,24).o2*365*p.duty;
+  const metalYr=regYr-regYr*sp.O*b.xt;
+  $('crewFigs').innerHTML=figHTML([
+    [fmt(need,0)+' kg','oxygen per year'],
+    [fmtMass(regYr),'regolith dug per year','metal'],
+    [fmt(avgP,avgP<10?1:0)+' kW','average power while running','heat'],
+    [fmt(Math.ceil(reactors),0),'reactors at this batch size'],
+    [fmtMass(metalYr),'metal-rich residue per year','metal'],
+    [fmtMass(earth*need),'consumables from Earth per year']
+  ]);
+  $('crewNote').textContent='For scale: one reactor the size of the 25 g ESTEC prototype, running one 24 h batch a day for the same share of the year, makes about '+fmt(protoO2yr,1)+' kg of O₂ a year. Covering this crew would take about '+fmt(need/protoO2yr,0)+' of them in parallel.';
+
+  // 7
+  const mets=Object.entries(sp.el).map(([e,m])=>[e,m/sp.O]).sort((a,b)=>b[1]-a[1]).filter(e=>e[1]>0.004);
+  if(C7){C7.data.labels=mets.map(m=>m[0]);C7.data.datasets[0].data=mets.map(m=>+m[1].toFixed(3));C7.update();}
+}
+
+// events
+$('feed').addEventListener('change',e=>{S.feed=e.target.value;update();});
+document.querySelectorAll('#anode button').forEach(btn=>btn.addEventListener('click',()=>{S.anode=btn.dataset.v;document.querySelectorAll('#anode button').forEach(x=>x.setAttribute('aria-pressed',x===btn?'true':'false'));update();}));
+['V','eta','mr','salt','U','th','keep','loss','crewN','share','duty','turn'].forEach(id=>$(id).addEventListener('input',update));
+try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',build);}catch(e){}
+new MutationObserver(build).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(build);}else{build();}
+update();
+})();
+</script>
+
+</body>
+</html>

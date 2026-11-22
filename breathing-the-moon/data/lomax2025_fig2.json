@@ -1,0 +1,39 @@
+{
+ "source": "Lomax et al. 2025 Acta Astronautica 234, Fig. 2, LMS-1 pellets 24 g, 950 C, 3.2 V, graphite anode, mean of n=10 runs; digitised from the embedded figure by blob detection, axis calibrated on frame (0-100 %) and dot spacing (2 h)",
+ "t_h": [
+  0.0,
+  2.01,
+  4.03,
+  5.99,
+  8.0,
+  10.02,
+  11.99,
+  14.0,
+  16.03,
+  17.99,
+  20.01,
+  21.98,
+  23.99,
+  26.01,
+  27.99,
+  30.0
+ ],
+ "X_pct": [
+  0.0,
+  5.98,
+  13.1,
+  20.56,
+  27.84,
+  35.62,
+  44.87,
+  51.33,
+  59.48,
+  63.12,
+  68.91,
+  74.91,
+  79.95,
+  82.66,
+  86.3,
+  89.26
+ ]
+}

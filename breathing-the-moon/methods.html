@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Methods and caveats · Tauras Nienius</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#0b0c0e;--paper:#141518;--ink:#ece8e2;--muted:#9a958e;--rule:#2a2b2f;--oxy:#7fc8ff;--melt:#ff8a3d;color-scheme:dark}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0b0c0e;--ink:#ece8e2}}
+:root[data-theme="dark"]{--bg:#0b0c0e;--ink:#ece8e2}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.6 "IBM Plex Sans",-apple-system,Segoe UI,Roboto,sans-serif;
+  padding:0 max(16px,env(safe-area-inset-right,0px)) 64px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:860px;margin:0 auto}
+h1{font:700 clamp(28px,4.5vw,40px)/1.05 Archivo,Arial,sans-serif;margin:40px 0 10px;letter-spacing:-.01em}
+h2{font:600 22px/1.2 Archivo,Arial,sans-serif;margin:40px 0 10px;padding-top:24px;border-top:1px solid var(--rule)}
+h3{font:600 16px/1.3 Archivo,Arial,sans-serif;margin:22px 0 6px}
+p,li{color:#d6d0c8;max-width:72ch}
+.lede{color:var(--muted)}
+.mono,code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.92em}
+.box{background:var(--paper);border:1px solid var(--rule);border-left:2px solid var(--melt);border-radius:8px;padding:14px 18px;margin:18px 0}
+.box p{margin:6px 0}
+.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;margin:14px 0}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font:500 11.5px "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.n{font-family:"IBM Plex Mono",monospace;white-space:nowrap}
+a{color:var(--oxy)}
+ol.src li{font-size:13.5px;color:var(--muted);margin-bottom:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Methods and caveats</h1>
+<p class="lede">Tauras Nienius · November 2026. How the findings on the main page were obtained, what they rest on, and where they could be wrong. The code is a few hundred lines of Python (NumPy, SciPy) organised as the sections below; every number in it carries its source.</p>
+
+<div class="box">
+  <p><b>What is new here, relative to Lomax et al. 2025 and Meurisse et al. 2022.</b></p>
+  <p>1. Decomposition voltages for the actual regolith minerals and the calcium intermediates, as a function of dissolved CaO activity. Meurisse et al. used simple oxides "due to the availability of the thermodynamic data". The ordering is not new; the CaO dependence is.</p>
+  <p>2. A quantitative check of the staged reduction mechanism that Lomax et al. 2025 proposed qualitatively, a model without chemistry to test it against, and the experiment that would discriminate.</p>
+  <p>3. A first estimate of the anode bubble penalty at lunar gravity in molten CaCl₂, calibrated on the only reduced-gravity electrolysis data available (Lomax et al. 2022, water). No molten-salt experiment at reduced gravity exists (Akay et al. 2022).</p>
+  <p>Not new: iron reducing first and magnesium last (both already reported by the lab).</p>
+</div>
+
+<h2>1 · Thermodynamics</h2>
+<p>For each candidate cathode reaction, the reversible voltage against oxygen evolution at 1 bar is E = ΔG<sub>r</sub>/(zF) at 1223 K, from NIST-JANAF tables for oxides, CaCl₂ and Mg₂Si, and Robie &amp; Hemingway (USGS Bulletin 2131) for the minerals. Dissolved CaO enters through its activity: CaO released by a reaction makes it easier, CaO consumed makes it harder. A Monte Carlo over the tabulated uncertainties gives the spread.</p>
+<div class="tbl"><table>
+<thead><tr><th>Step (1223 K, unit activities)</th><th>Voltage</th></tr></thead>
+<tbody>
+<tr><td>Fe from FeO, fayalite, ilmenite</td><td class="n">1.00–1.06 V</td></tr>
+<tr><td>Si into FeSi (while Fe lasts)</td><td class="n">1.61 V</td></tr>
+<tr><td>Si from SiO₂ / diopside / forsterite / anorthite / CaSiO₃</td><td class="n">1.79 / 1.91 / 1.94 / 1.96 / 2.02 V</td></tr>
+<tr><td>Ca into CaSi₂</td><td class="n">2.04 V</td></tr>
+<tr><td>Ti via CaTiO₃ (to a sub-oxide)</td><td class="n">2.10 V</td></tr>
+<tr><td>Al from Al₂O₃ / spinel</td><td class="n">2.22 / 2.28 V</td></tr>
+<tr><td>Mg into Mg₂Si / from MgO</td><td class="n">2.25 / 2.42 V</td></tr>
+<tr><td>Ca metal from CaO</td><td class="n">2.63 V</td></tr>
+<tr><td>CaCl₂ to Ca + Cl₂</td><td class="n">3.18 V</td></tr>
+</tbody></table></div>
+<p>The gap between making silicon (via CaSiO₃) and making CaSi₂ moves with CaO activity: 17 mV at a<sub>CaO</sub> = 1, 0.20 V at 0.1, 0.38 V at 0.01. Inside a reducing pellet the pore salt is CaO-rich, which is why the intermediates form, so the near-coincident case is the relevant one.</p>
+<h3>Caveats</h3>
+<ul>
+<li>These are reversible potentials of competing reactions. They rank preference; they do not say which reactions run at an applied 3.2 V, which depends on the cathode potential inside the pellet. That was not measured.</li>
+<li>With a graphite anode every oxide step shifts down by 1.03 V (CO₂) or 1.14 V (CO). The order is unchanged; the CaCl₂ line does not move. At 3.2 V every step has positive driving force.</li>
+<li>The CaCl₂ limit is soft: under an argon purge the chlorine partial pressure is low, and Cl₂ is possible from about 2.7 V.</li>
+<li>Calcium silicide data are 298 K enthalpies (Brutti et al. 2001) with ΔG ≈ ΔH assumed, carried as ±0.1 V. CaAl₂Si₂, the phase actually found in highland products, has no data in my sources yet. A CALPHAD description of Al–Ca–Fe–Si would replace both.</li>
+</ul>
+
+<h2>2 · Kinetics and the 60% knee</h2>
+<p>Data: Lomax et al. 2025, Figs. 2 and 3 (LMS-1 pellets of 24 g, 46 × 10 mm, 950 °C, 3.2 V, graphite anode), digitised by locating the plotted markers in the published figure images. An independent pixel check agreed to within 0.5 points.</p>
+<ul>
+<li>Up to about 60%, extraction is linear in time (rms 1.1%); the square-root law of diffusion through a growing product shell fits much worse (rms 7.8%). That rules out shell diffusion as the limit. It does not single out front control: a current limited by the cell with slowly changing efficiency also gives a straight line.</li>
+<li>A front moving inward from all faces of the disc at constant speed, with no chemistry, fits the cumulative curve to 1.9% at 0.145 mm/h (about 40 nm/s). Its rate is highest at the start and declines smoothly; the largest one-hour drop is 0.009 g/h.</li>
+<li>Measured: the rate rises for about 4 h, holds near 0.4 g/h, then falls by 0.078 g/h between 17 and 18 h, at 60–63% extraction.</li>
+<li>The oxygen held by Fe, Mn, Si and Ti, plus Na, K and P oxygen that leaves by exchange with the salt, is 60–72% of the total depending on which composition and oxygen basis is used. With the lab's own LMS-1 batch (Meurisse et al. 2022, Table 2) on the basis implied by Fig. 2: about 63%.</li>
+</ul>
+<h3>Caveats</h3>
+<ul>
+<li>Verdict: inconclusive. A no-chemistry front model fits the cumulative curve; only the abruptness of the rate step favours a chemical stage. Depending on how the curve is read, the slowdown sits anywhere from about 55% to 68%.</li>
+<li>Only 3 runs were still running at the step. The highland runs after 15 h are a single run and cannot test anything.</li>
+<li>Other explanations remain open: rising cell resistance as the pellet turns to powder, release of calcium intermediates, the CaO dissolved in the salt (about 15% of the pellet's oxygen), and graphite-anode effects.</li>
+<li>Decisive test: two pellet thicknesses under the same conditions. A chemical stage keeps the drop at the same extraction %, a geometric one moves it. Runs stopped at about 55% and 70% with XRD and SEM-EDX would show whether silicon-bearing phases survive past the drop.</li>
+</ul>
+<p>Side note on simulants: the lab's LMS-1 batch has 4.92 wt% Na₂O against 0.41 wt% in Apollo 11 soil 10084 (Meurisse et al. 2022, Table 2). About 3% of its oxygen therefore leaves through Na₂O + CaCl₂ exchange rather than reduction.</p>
+
+<h2>3 · Gravity</h2>
+<p>Chain: gravity sets the size at which a bubble leaves the anode (either the Fritz law, d ∝ g<sup>−1/2</sup>, or a pinned contact line, d ∝ g<sup>−1/3</sup>); size sets anode coverage (Vogt &amp; Balzer at 1 g, scaled with bubble footprint); coverage sets an ohmic bubble-layer drop (Hyde &amp; Welch, from aluminium electrolysis) and an activation term. CaCl₂ properties at 1223 K from the NBS molten-salt tables and Janz.</p>
+<ul>
+<li>Uncalibrated, the lunar extra voltage spans 32–818 mV: too wide to be useful.</li>
+<li>Lomax et al. 2022 measured water electrolysis on a centrifuge, in the lab for 1–8 g and on parabolic flights for 0.166–1 g. Their logarithmic fits of anode potential across 0.166–8 g (Fig. 7) give +15, +30 and +23 mV at lunar gravity for 50, 75 and 100 mA/cm². After calibration my chain gives 17, 26 and 36 mV for the same points: within 15% at the first two, 53% high at the third. Weighting the model's uncertain parameters by agreement with these points rejects the Fritz branch and keeps the pinned one, as long as coverage grows at least linearly with bubble size. If that is relaxed, Fritz is only disfavoured (probability 0.1 to 0.3 instead of near zero). Burke et al. 2024's simulation for CaCl₂ implies an even weaker size scaling.</li>
+<li>Transferred to CaCl₂ at the estimated current density of the lab cell (0.14 A/cm²): about 41 mV at lunar gravity (29–63 mV) and 18 mV on Mars (13–26 mV). Averaged over 0.05–0.5 A/cm² the lunar value is 45 mV (23–94). The simulator on the main page reads these numbers from a table computed with 60,000 weighted parameter sets.</li>
+<li>At a fixed 3.2 V this is a current loss rather than an energy penalty: 41 mV over the voltage not spent on the reactions themselves, which I assume to be 1.65 V (not measured), so about 2.5% slower at 0.14 A/cm² (1.7–3.8%). I checked that voltage two ways. Thermodynamics gives 2.2–2.3 V while silicon is being reduced. And the lab's own runs with a tin oxide anode, which shift the anode by about 1.1 V at the same 3.2 V and cut the oxygen rate to about half, give 1.5–2.5 V. So 1.65 V is on the cautious side: over 1.5–2.5 V the loss is 1.6–2.7%, and 1.2–4.2% with the voltage range included. Lomax et al. 2022 measured 11% less product in water at fixed potential.</li>
+</ul>
+<h3>Caveats</h3>
+<ul>
+<li>The lab's anode is a vertical 12.7 mm rod. The model describes bubbles on a flat plate, and lunar bubbles may be wider than the rod.</li>
+<li>Earth coverage comes from a water correlation. If molten-salt coverage is closer to aluminium cells (40% or more), the model predicts near-complete coverage on the Moon and stops being valid.</li>
+<li>The calibrated chain matches the lunar water point but under-predicts the hypergravity gain (−6 to −11 mV at 8 g, against −18 to −27 mV from the measured fits), so I don't use it for centrifuge predictions.</li>
+<li>The bubble sizes shown on the main page (2.0, 2.8, 3.7 mm) are the Young–Laplace values for a 0.1 mm pinning site. The calibrated chain does not use them: its coverage depends only on the size ratio to Earth, and its small ohmic term uses the pinning radius favoured by the water data (median 23 µm, giving bubbles of about 1.2 mm on Earth and 2.2 mm on the Moon). The Moon-to-Earth ratio is the same in both, 1.82 to 1.85.</li>
+<li>Of the 41 mV, about 35 mV is the activation term and 5.5 mV the ohmic term.</li>
+<li>How much the 41 mV depends on the parameter ranges I chose: widening them one at a time moves it between 29 and 53 mV; widening all of them gives 34 mV with a 90% range of 14 to 77 mV. The sign and the size (tens of millivolts) hold throughout.</li>
+<li>What would settle it: bubble size and coverage against g in CaCl₂ on the real anode, and the cell's current-voltage slope.</li>
+</ul>
+
+<h2>4 · Bubble shape (the 3D view)</h2>
+<p>The bubble on the main page is solved, not drawn. For an axisymmetric gas bubble on an upward-facing anode with its contact line pinned on a 0.1 mm site, the Young–Laplace equation in arc length s, scaled by the apex radius b, is dx/ds = cos φ, dz/ds = sin φ, dφ/ds = 2 − βz − sin φ / x, with β = Δρ g b² / σ (σ = 0.143 N/m, ρ = 2009 kg/m³ for CaCl₂ at 950 °C). Integrating from the apex until the profile necks back to the pinning radius gives one static shape per apex radius. The volume has a maximum over b; no static shape holds more gas, so that one detaches.</p>
+<ul>
+<li>Departure size (equivalent sphere): 2.0 mm on Earth, 2.8 mm on Mars, 3.7 mm on the Moon. Volume ratio Moon/Earth 6.3.</li>
+<li>With a pinning radius of 0.05 or 0.2 mm instead, Earth gives 1.6 or 2.5 mm; the Moon/Earth size ratio stays at 1.84–1.86.</li>
+<li>Burke et al. 2024's CFD for CaCl₂, which grows the bubble dynamically from an inlet, gives a weaker scaling (volume ×3.8 at lunar g). A static solution is an upper bound on how much the bubble can grow.</li>
+<li>At zero gravity there is no maximum: the bubble keeps growing on the anode until it merges with its neighbours.</li>
+<li>The 3D view draws each bubble as the sphere of the same volume, grows it at a constant gas rate, and is time-compressed: at the same current a lunar bubble takes about 6 times longer to fill than an Earth one.</li>
+</ul>
+
+<h2>5 · Smaller design notes</h2>
+<ul>
+<li>CaCl₂ vapour pressure is about 1.2 Pa at 950 °C (JANAF estimate). A free melt surface open to vacuum could lose up to 5.6 kg/m² per hour, so any lunar cell is sealed or under cover gas.</li>
+<li>Lunar night: holding the salt molten versus letting it freeze and remelting scales as the night length over the cell's thermal time constant. For 1–1000 kg of salt at the equator (14.8-day night), freezing wins by 8× to 950× (salt only). At a polar ridge with about 1.5 days of darkness, holding becomes comparable at tonne scale. Holding draws on stored energy; remelting can use daytime solar. Repeated freeze-thaw of crucible, basket and electrodes is the open question.</li>
+</ul>
+
+<h2>Independent check</h2>
+<p>A separate reviewer, who did not build the model, re-derived the reaction stoichiometries and five voltages by hand (all within 1 mV), re-digitised the figures, and challenged every interpretation. The caveats above, the switch from a "voltage window" to the CaO-activity picture, the use of the lab's own simulant composition, and the calibration of the bubble model on water data all came out of that review.</p>
+
+<h2>Sources</h2>
+<ol class="src">
+<li>Lomax, B.A. et al. (2025) Identifying an efficient endpoint for oxygen extraction from lunar regolith simulant pellets using molten salt electrolysis. Acta Astronautica 234, 287–295. <a href="https://eprints.gla.ac.uk/355741/" target="_blank" rel="noopener">Open access</a></li>
+<li>Meurisse, A. et al. (2022) Lower temperature electrochemical reduction of lunar regolith simulants in molten salts. Planetary and Space Science 211, 105408. <a href="https://eprints.gla.ac.uk/261964/" target="_blank" rel="noopener">Open access</a></li>
+<li>Lomax, B.A. et al. (2020) Proving the viability of an electrochemical process for the simultaneous extraction of oxygen and production of metal alloys from lunar regolith. Planetary and Space Science 180, 104748. <a href="https://eprints.gla.ac.uk/196778/" target="_blank" rel="noopener">Open access</a></li>
+<li>Lomax, B.A. et al. (2022) Predicting the efficiency of oxygen-evolving electrolysis on the Moon and Mars. Nature Communications 13, 583. <a href="https://www.nature.com/articles/s41467-022-28147-5" target="_blank" rel="noopener">Link</a></li>
+<li>Schild, T. et al. (2025) Characterization of metal products from the molten salt electrolysis of lunar highland regolith simulants. Acta Astronautica 232, 1–13.</li>
+<li>Burke, P.A. et al. (2024) Modeling electrolysis in reduced gravity: producing oxygen from in-situ resources at the Moon and beyond. Frontiers in Space Technologies 5, 1304579. <a href="https://www.frontiersin.org/articles/10.3389/frspt.2024.1304579/full" target="_blank" rel="noopener">Link</a></li>
+<li>Akay, Ö. et al. (2022) Electrolysis in reduced gravitational environments: current research perspectives and future applications. npj Microgravity 8, 56. <a href="https://www.nature.com/articles/s41526-022-00239-y" target="_blank" rel="noopener">Link</a></li>
+<li>NIST-JANAF Thermochemical Tables. <a href="https://janaf.nist.gov/" target="_blank" rel="noopener">janaf.nist.gov</a></li>
+<li>Robie, R.A. &amp; Hemingway, B.S. (1995) Thermodynamic properties of minerals and related substances. USGS Bulletin 2131.</li>
+<li>Brutti, S. et al. (2001) Journal of Alloys and Compounds 317–318, 525 (calcium silicide enthalpies).</li>
+<li>Janz, G.J. et al., NSRDS-NBS 15 and molten-salt property compilations (CaCl₂ density, conductivity, viscosity, surface tension).</li>
+<li>Vogt, H. &amp; Balzer, R.J. (2005) Electrochimica Acta 50, 2073 (gas coverage of electrodes).</li>
+<li>Angulo, A. et al. (2020) Influence of bubbles on the energy conversion efficiency of electrochemical reactors. Joule. <a href="https://arxiv.org/abs/2002.08167" target="_blank" rel="noopener">arXiv</a></li>
+<li>Stanic, N. et al. (2021), quoting Hyde &amp; Welch (1997) and Haupin (1998) on anode bubble layers in aluminium electrolysis.</li>
+<li>Deng, Y. et al. (2005) J. Phys. Chem. B (three-phase interline model); Osarinmwian, C. &amp; Roberts, A. (2023) J. Solid State Electrochemistry 27, 3383.</li>
+<li>Xiao, W. et al. (2012) RSC Advances (SiO₂ reduction via CaSiO₃).</li>
+<li>Exolith Lab, LHS-1 and LMS-1 data sheets (2021 and December 2023 versions).</li>
+</ol>
+</div>
+</body>
+</html>

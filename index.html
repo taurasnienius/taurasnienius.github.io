@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tauras Nienius · Aerospace engineering</title>
+<meta name="description" content="Projects by Tauras Nienius, aerospace engineering student: lunar oxygen extraction, asteroid mission screening, space resources.">
+<meta property="og:title" content="Tauras Nienius · Aerospace engineering">
+<meta property="og:description" content="Projects on space resources: lunar oxygen extraction and multi-asteroid mission screening.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://taurasnienius.github.io/">
+<meta property="og:image" content="https://taurasnienius.github.io/breathing-the-moon/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#0c0a0a;--panel:rgba(26,20,18,.72);--ink:#efe9e2;--muted:#a39a91;--dim:#6f6660;--rule:rgba(255,235,220,.10);
+  --mars:#ff7a3d;--earth:#6fb7ff;--moon:#e6e1d8;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;--f-body:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;color:var(--ink);font-family:var(--f-body);font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  background:radial-gradient(1200px 700px at 85% 115%,rgba(180,80,44,.22),transparent 60%),var(--bg);min-height:100vh}
+a{color:inherit}
+.wrap{max-width:960px;margin:0 auto;padding:0 28px}
+header{padding:88px 0 40px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#d79a7c}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(40px,6vw,68px);line-height:1;letter-spacing:-.02em;margin:14px 0 18px}
+.lede{font-size:clamp(18px,2vw,21px);color:var(--ink);max-width:680px;margin:0 0 14px}
+.sub{color:var(--muted);max-width:680px;margin:0}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.links a{font-family:var(--f-mono);font-size:13px;text-decoration:none;border:1px solid var(--rule);border-radius:999px;padding:7px 14px;color:var(--muted);transition:color .15s,border-color .15s}
+.links a:hover{color:var(--ink);border-color:rgba(255,235,220,.3)}
+h2{font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:48px 0 18px}
+.proj{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:0;border:1px solid var(--rule);border-radius:14px;overflow:hidden;background:var(--panel);text-decoration:none;margin-bottom:20px;transition:border-color .2s,transform .2s}
+.proj:hover{border-color:rgba(255,235,220,.28);transform:translateY(-2px)}
+.proj .img{background:#000 center/cover no-repeat;min-height:240px}
+.proj .txt{padding:26px 28px}
+.meta{font-family:var(--f-mono);font-size:12px;color:var(--dim);letter-spacing:.04em}
+.proj h3{font-family:var(--f-display);font-size:26px;line-height:1.1;margin:8px 0 10px;letter-spacing:-.01em}
+.proj p{margin:0 0 12px;color:var(--muted)}
+.proj .nums{display:flex;gap:22px;flex-wrap:wrap;margin:14px 0 16px}
+.proj .nums b{display:block;font-family:var(--f-mono);font-size:20px;color:var(--ink);font-weight:500}
+.proj .nums span{font-size:12.5px;color:var(--dim)}
+.go{font-family:var(--f-mono);font-size:13px;color:var(--mars)}
+.proj.b .go{color:var(--earth)}
+.proj.b .img{background:linear-gradient(135deg,#0a1220,#101a2c 60%,#1b2238);position:relative}
+.orbit{position:absolute;inset:0;display:block;width:100%;height:100%}
+footer{border-top:1px solid var(--rule);margin-top:56px;padding:26px 0 48px;color:var(--dim);font-size:13.5px}
+@media (max-width:760px){.proj{grid-template-columns:1fr}.proj .img{min-height:200px}header{padding-top:56px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">Aerospace engineering · space resources</div>
+  <h1>Tauras Nienius</h1>
+  <p class="lede">I'm in the final year of an aerospace engineering Master's at ELISA Aerospace (ISAE Group) in Bordeaux. I want to build the hardware and missions that make mining asteroids possible.</p>
+  <p class="sub">Before this I worked at Rocket Factory Augsburg and in systems engineering at Blackswan Space, where I wrote the test plan for a space-grade laser range finder and ran its characterisation campaign. These projects are my own work outside the curriculum: models I built to understand a problem properly, checked against published data.</p>
+  <div class="links">
+    <a href="https://github.com/taurasnienius">GitHub</a>
+  </div>
+</header>
+
+<main>
+<h2>Projects</h2>
+
+<a class="proj" href="breathing-the-moon/">
+  <div class="img" style="background-image:url('breathing-the-moon/og.jpg')" role="img" aria-label="An oxygen bubble on an electrode under lunar gravity"></div>
+  <div class="txt">
+    <div class="meta">Nov 2026 · lunar ISRU · electrochemistry</div>
+    <h3>Breathing the Moon</h3>
+    <p>A physics model of how lunar gravity changes the gas bubbles in ESA's molten-salt cell for extracting oxygen from regolith, calibrated on the only reduced-gravity electrolysis data that exist.</p>
+    <div class="nums"><div><b>+41 mV</b><span>extra cell voltage on the Moon</span></div><div><b>−2.5%</b><span>oxygen per hour at 3.2 V</span></div></div>
+    <span class="go">Interactive page, paper and code →</span>
+  </div>
+</a>
+
+<a class="proj b" href="https://github.com/taurasnienius/pykep-asteroid-screening">
+  <div class="img" aria-hidden="true">
+    <svg class="orbit" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice">
+      <circle cx="200" cy="130" r="7" fill="#ffd27a"/>
+      <g fill="none" stroke="rgba(160,200,255,.22)" stroke-width="1">
+        <ellipse cx="200" cy="130" rx="70" ry="44"/><ellipse cx="204" cy="131" rx="112" ry="70" transform="rotate(-8 200 130)"/>
+        <ellipse cx="196" cy="128" rx="150" ry="94" transform="rotate(6 200 130)"/><ellipse cx="202" cy="132" rx="184" ry="116" transform="rotate(-4 200 130)"/>
+      </g>
+      <path d="M268 131 C 300 60, 330 90, 302 186 S 120 240, 70 160 S 150 30, 352 74" fill="none" stroke="#6fb7ff" stroke-width="1.6" stroke-dasharray="4 5"/>
+      <g fill="#cfe3ff"><circle cx="268" cy="131" r="3.2"/><circle cx="302" cy="186" r="3.2"/><circle cx="70" cy="160" r="3.2"/><circle cx="352" cy="74" r="3.2"/></g>
+    </svg>
+  </div>
+  <div class="txt">
+    <div class="meta">Nov 2026 · mission analysis · pykep</div>
+    <h3>Screening multi-asteroid tours</h3>
+    <p>Cheap formulas for ranking asteroid-to-asteroid transfers miss their own best candidates, because similar orbits drift into phase over centuries. I added a phasing correction with no fitted parameters and tested it against exact Lambert transfers on ESA's GTOC7 catalogue of 16,000 asteroids.</p>
+    <div class="nums"><div><b>0.94</b><span>rank correlation on held-out pairs</span></div><div><b>4×</b><span>fewer Lambert solves for a better tour</span></div></div>
+    <span class="go">Code and results on GitHub →</span>
+  </div>
+</a>
+</main>
+
+<footer>Tauras Nienius · Bordeaux, France · Figures reproduced from published papers keep their original licences, credited where they appear.</footer>
+</div>
+</body>
+</html>
