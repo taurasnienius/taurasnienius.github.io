@@ -95,7 +95,7 @@ axs[0].set_title("Evolving the ranking rule"); axs[0].legend(fontsize=9.5, loc="
 rr = json.load(open("results_rules.json"))
 names = rr["rules"]; res = rr["results"]
 for W, mk in ((50, "o"), (200, "s")):
-    rows = [v for k, v in res.items() if k.startswith(f"W{W} ")]
+    rows = [v for k, v in res.items() if k.startswith(f"W{W} ") and "jovianmoons_20_T41" not in k]  # training instance
     gm = [np.exp(np.mean([np.log(r[n]) for r in rows])) for n in names]
     axs[1].scatter(range(len(names)), gm, marker=mk, s=70, color=E if W == 50 else PEACH, label=f"beam width {W}", zorder=3)
 axs[1].set_xticks(range(len(names)))

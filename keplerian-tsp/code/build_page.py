@@ -83,7 +83,7 @@ ratio_beam = TABLE3[('asteroids_20', 161)][0] / a20['beam_hand']['cost']
 # discovery summary
 names = RULES['rules']; res = RULES['results']
 def gm(W, n):
-    rows_ = [v for k, v in res.items() if k.startswith(f'W{W} ')]
+    rows_ = [v for k, v in res.items() if k.startswith(f'W{W} ') and 'jovianmoons_20_T41' not in k]  # that one was a training instance
     return np.exp(np.mean([np.log(r[n]) for r in rows_]))
 hand_on, hand_cost = names[0], names[1]
 evolved = names[2:5]
@@ -178,9 +178,9 @@ main{{margin:0 auto !important;max-width:760px}}
 
 <h2><span class="sn">6</span>Can the search rule be discovered automatically?</h2>
 <p>This is the question of ACT's internship topic: replace hand-designed parts of search methods (beam rules, rollouts, pheromone updates) with parts found by an automatic generate, test and refine loop [5, 6]. I tested it on the one component that mattered most in my beam search, the rule that ranks partial tours.</p>
-<p>A genetic programming loop wrote ranking rules as formulas over eight features of a partial tour (cost on schedule, cheapest cost, cost a little earlier and later, last leg, progress, time used, cheapest next legs). It trained on six small instances only, and every rule was then tested unchanged on nine others, most of them larger.</p>
+<p>A genetic programming loop wrote ranking rules as formulas over eight features of a partial tour (cost on schedule, cheapest cost, cost a little earlier and later, last leg, progress, time used, cheapest next legs). It trained on six small instances only, and every rule was then tested unchanged on eight others it had never seen, most of them larger.</p>
 <figure><img src="img/fig_discovery.png" alt="Training curves of three evolution runs and held-out comparison of rules" loading="lazy">
-<figcaption><b>Left:</b> three runs from random formulas each beat my hand rule on the training set within a few generations. <b>Right:</b> on unseen instances (geometric mean of tour Δv / best known, beam search alone) the evolved rules land within about 1% of the hand rule, on both sides, and far ahead of ranking by cost alone.</figcaption></figure>
+<figcaption><b>Left:</b> three runs from random formulas each beat my hand rule on the training set within a few generations. <b>Right:</b> on unseen instances (geometric mean of tour Δv / best known, beam search alone) the three rules evolved from random formulas land within about 1% of the hand rule, on both sides, and far ahead of ranking by cost alone; the run seeded with my rule ends {(g200[names[5]]/g200[hand_on]-1)*100:+.1f}% against it.</figcaption></figure>
 <p>What came out:</p>
 <ul>
 <li><strong>Starting from random formulas, every run rediscovered the same principle as my hand rule:</strong> judge a partial tour by its cost on schedule and penalise using up time. Ranking by cost alone, the obvious choice, is {g200[hand_cost]/g200[hand_on]:.1f} times worse on the held-out instances.</li>
