@@ -6,7 +6,7 @@
 <title>Tauras Nienius · Aerospace engineering</title>
 <meta name="description" content="Projects by Tauras Nienius, aerospace engineering student: lunar oxygen extraction, asteroid mission screening, space resources.">
 <meta property="og:title" content="Tauras Nienius · Aerospace engineering">
-<meta property="og:description" content="Projects on space resources: lunar oxygen extraction and multi-asteroid mission screening.">
+<meta property="og:description" content="Projects on space resources and mission analysis: multi-asteroid tours, lunar oxygen extraction, asteroid mission screening.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://taurasnienius.github.io/">
 <meta property="og:image" content="https://taurasnienius.github.io/breathing-the-moon/og.jpg">
@@ -46,7 +46,7 @@ h2{font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.1
 .proj .nums b{display:block;font-family:var(--f-mono);font-size:20px;color:var(--ink);font-weight:500}
 .proj .nums span{font-size:12.5px;color:var(--dim)}
 .go{font-family:var(--f-mono);font-size:13px;color:var(--mars)}
-.proj.b .go{color:var(--earth)}
+.proj.b .go,.proj.c .go{color:var(--earth)}
 .proj.b .img{background:linear-gradient(135deg,#0a1220,#101a2c 60%,#1b2238);position:relative}
 .orbit{position:absolute;inset:0;display:block;width:100%;height:100%}
 footer{border-top:1px solid var(--rule);margin-top:56px;padding:26px 0 48px;color:var(--dim);font-size:13.5px}
@@ -69,6 +69,17 @@ footer{border-top:1px solid var(--rule);margin-top:56px;padding:26px 0 48px;colo
 
 <main>
 <h2>Projects</h2>
+
+<a class="proj c" href="keplerian-tsp/">
+  <div class="img" style="background-image:url('keplerian-tsp/img/fig_tour80.png');background-position:center 60%;background-color:#17120f" role="img" aria-label="A tour through 80 asteroids around the Sun"></div>
+  <div class="txt">
+    <div class="meta">Nov 2026 · mission analysis · optimisation</div>
+    <h3>Keep the clock open</h3>
+    <p>Cheaper multi-asteroid tours for ESA's Keplerian travelling salesperson benchmark: a verified rebuild of the problem, a beam search that keeps the timing open, and an automatic search for ranking rules.</p>
+    <div class="nums"><div><b>−3.5%</b><span>vs best known, 80 asteroids</span></div><div><b>4</b><span>new best-known tours</span></div></div>
+    <span class="go">Results, method and code →</span>
+  </div>
+</a>
 
 <a class="proj" href="breathing-the-moon/">
   <div class="img" style="background-image:url('breathing-the-moon/og.jpg')" role="img" aria-label="An oxygen bubble on an electrode under lunar gravity"></div>

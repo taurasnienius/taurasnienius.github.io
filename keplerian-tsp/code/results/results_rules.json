@@ -1,0 +1,156 @@
+{
+ "rules": [
+  "hand: on-schedule",
+  "hand: cost-only",
+  "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))",
+  "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)",
+  "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))",
+  "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))"
+ ],
+ "results": {
+  "W50 asteroids_20_T21": {
+   "hand: on-schedule": 1.0879673300087536,
+   "hand: cost-only": 1.9112500858026455,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.0879673300087536,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.0879673300087536,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.1032086025448502,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.1157369607732341
+  },
+  "W50 asteroids_20_T161": {
+   "hand: on-schedule": 1.0792364414012507,
+   "hand: cost-only": 1.9022717163158196,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.0792364414012507,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.0792364414012507,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.1134370633101858,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.088240244798814
+  },
+  "W50 jovianmoons_20_T21": {
+   "hand: on-schedule": 1.031565225940844,
+   "hand: cost-only": 1.4117567240900235,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.0427374970232608,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.0282912289244541,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.031565225940844,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.1410064361245968
+  },
+  "W50 jovianmoons_20_T161": {
+   "hand: on-schedule": 1.0000000400626126,
+   "hand: cost-only": 1.6873837740866917,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.0083917247474945,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.0000000400626126,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.0277532435773933,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.0400408670042125
+  },
+  "W50 asteroids_40_T81": {
+   "hand: on-schedule": 1.5645964362492906,
+   "hand: cost-only": 2.510596778983339,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.5959471051363452,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.5856564133494193,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.5476342715643152,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.579488574441081
+  },
+  "W50 asteroids_40_T161": {
+   "hand: on-schedule": 1.5727565487224153,
+   "hand: cost-only": 2.572728845607188,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.5971412247364074,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.5971412247364074,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.5034378502642562,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.7101399540168463
+  },
+  "W50 asteroids_80_T81": {
+   "hand: on-schedule": 1.8369354261864816,
+   "hand: cost-only": 3.304748099260544,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.8438636934551567,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.8155188863484575,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.8571188116556208,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.773623054237514
+  },
+  "W50 asteroids_80_T161": {
+   "hand: on-schedule": 1.1971464550706692,
+   "hand: cost-only": 2.8677426328810913,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.1988956125967192,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.3045348106026662,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.2461735462432024,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.5052327999663218
+  },
+  "W50 jovianmoons_20_T41": {
+   "hand: on-schedule": 1.0318014546105765,
+   "hand: cost-only": 1.5508455305077502,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.0390751022054365,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.0318014546105765,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.0318014546105765,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.0718509125104536
+  },
+  "W200 asteroids_20_T21": {
+   "hand: on-schedule": 1.074374695964595,
+   "hand: cost-only": 1.7162826915977796,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.074374695964595,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.074374695964595,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.0926258538980482,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.0268969105790327
+  },
+  "W200 asteroids_20_T161": {
+   "hand: on-schedule": 1.0710323043656016,
+   "hand: cost-only": 1.6012911879636966,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.0710323043656016,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.0710323043656016,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.1218432785318044,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.0515383350631518
+  },
+  "W200 jovianmoons_20_T21": {
+   "hand: on-schedule": 1.0000000522625083,
+   "hand: cost-only": 1.458367785720364,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.0054341416896544,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.0000000522625083,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.0000000522625083,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.0427374970232608
+  },
+  "W200 jovianmoons_20_T161": {
+   "hand: on-schedule": 1.0000000400626126,
+   "hand: cost-only": 1.13849570359314,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.0083917247474945,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.0000000400626126,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.0129421259825697,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.0400408670042125
+  },
+  "W200 asteroids_40_T81": {
+   "hand: on-schedule": 1.4902853603971034,
+   "hand: cost-only": 2.3816520431554293,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.4902853603971034,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.4945324899245016,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.4642059500134599,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.6225309127431857
+  },
+  "W200 asteroids_40_T161": {
+   "hand: on-schedule": 1.507516257392906,
+   "hand: cost-only": 2.400190008509315,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.5220749757749104,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.5220749757749104,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.4251517047244049,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.5622744276050213
+  },
+  "W200 asteroids_80_T81": {
+   "hand: on-schedule": 1.8255469940472069,
+   "hand: cost-only": 3.1241116497813595,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.8255469940472069,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.8420632552110636,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.7838081337289329,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.8107994090796447
+  },
+  "W200 asteroids_80_T161": {
+   "hand: on-schedule": 1.2586758862071694,
+   "hand: cost-only": 2.7978182829602893,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.2629946388794135,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.2244441945631277,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.2332912309440045,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.441522293938632
+  },
+  "W200 jovianmoons_20_T41": {
+   "hand: on-schedule": 1.005008756117443,
+   "hand: cost-only": 1.1628672002728053,
+   "gp_seed1.pkl: (a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))": 1.0390751022054365,
+   "gp_seed2.pkl: ((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)": 1.005008756117443,
+   "gp_seed3.pkl: ((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))": 1.0123109006221849,
+   "gp2_seed1.pkl: max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))": 1.025800584793575
+  }
+ }
+}

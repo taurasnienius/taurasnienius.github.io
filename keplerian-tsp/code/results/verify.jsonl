@@ -1,0 +1,12 @@
+{"instance": "asteroids_20", "nT": 161, "claimed": 91631.03536529533, "recomputed": 91631.03536529533, "diff": 0.0, "worst_position_miss_m": 0.0019409671607021615, "legs": 20, "errors": []}
+{"instance": "asteroids_20", "nT": 21, "claimed": 118104.77438323389, "recomputed": 118104.77438323389, "diff": 0.0, "worst_position_miss_m": 0.0009578783831770053, "legs": 20, "errors": []}
+{"instance": "asteroids_20", "nT": 41, "claimed": 95033.47099333793, "recomputed": 95033.47099333793, "diff": 0.0, "worst_position_miss_m": 0.001451301812843587, "legs": 20, "errors": []}
+{"instance": "asteroids_20", "nT": 81, "claimed": 92544.5172758806, "recomputed": 92544.5172758806, "diff": 0.0, "worst_position_miss_m": 0.0010394441954298796, "legs": 20, "errors": []}
+{"instance": "asteroids_40", "nT": 161, "claimed": 307514.9779603453, "recomputed": 307514.9779603453, "diff": 0.0, "worst_position_miss_m": 0.006916899557424466, "legs": 40, "errors": []}
+{"instance": "asteroids_40", "nT": 41, "claimed": 391076.39966890437, "recomputed": 391076.39966890437, "diff": 0.0, "worst_position_miss_m": 0.0017244499217612703, "legs": 40, "errors": []}
+{"instance": "asteroids_40", "nT": 81, "claimed": 316527.10840134043, "recomputed": 316527.10840134043, "diff": 0.0, "worst_position_miss_m": 0.0033058804830061995, "legs": 40, "errors": []}
+{"instance": "asteroids_80", "nT": 161, "claimed": 1370930.773115911, "recomputed": 1370930.773115911, "diff": 0.0, "worst_position_miss_m": 0.008092123671555117, "legs": 80, "errors": []}
+{"instance": "asteroids_80", "nT": 81, "claimed": 1549060.5583635657, "recomputed": 1549060.5583635657, "diff": 0.0, "worst_position_miss_m": 0.003224394159886985, "legs": 80, "errors": []}
+{"instance": "jovianmoons_20", "nT": 161, "claimed": 44340.50177639627, "recomputed": 44340.50177639627, "diff": 0.0, "worst_position_miss_m": 5.03283493116713e-05, "legs": 20, "errors": []}
+{"instance": "jovianmoons_20", "nT": 41, "claimed": 46505.23388871937, "recomputed": 46505.23388871937, "diff": 0.0, "worst_position_miss_m": 0.0006036481579764845, "legs": 20, "errors": []}
+{"instance": "jovianmoons_20", "nT": 81, "claimed": 44797.842280285266, "recomputed": 44797.842280285266, "diff": 0.0, "worst_position_miss_m": 5.6226360217985824e-05, "legs": 20, "errors": []}
