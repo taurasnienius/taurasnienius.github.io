@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Keep the clock open: the Keplerian travelling salesperson problem · Tauras Nienius</title>
-<meta name="description" content="Cheaper multi-asteroid tours on ESA's Keplerian TSP benchmark: a verified evaluator, a beam search that keeps timing open, new best-known tours on 4 open instances, and an automatic search for ranking rules.">
+<meta name="description" content="Cheaper multi-asteroid tours on ESA's Keplerian TSP benchmark: an interactive 3D tour through 80 asteroids, a beam search that keeps timing open, new best-known tours on 4 open instances.">
 <meta property="og:title" content="Keep the clock open: new best-known tours on ESA's Keplerian TSP benchmark">
 <meta property="og:description" content="80 asteroids, one spacecraft: a tour 3.5% cheaper than the best known, checked arc by arc.">
 <meta property="og:type" content="article">
@@ -14,135 +14,210 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-:root{
-  --bg:#0c0a0a; --ink:#efe9e2; --muted:#a39a91; --rule:rgba(255,235,220,.09); --panel:rgba(22,17,15,.8);
-  --accent:#ff8a5c; --earth:#7cc6e8; --mars:#f2836b; --moon:#e9e1d3; color-scheme:dark;
-}
-@media (prefers-color-scheme: dark){
-  :root{--bg:#0c0a0a; --ink:#efe9e2; --muted:#a39a91; --rule:rgba(255,235,220,.09); --panel:rgba(22,17,15,.8);
-    --accent:#ff8a5c; --earth:#7cc6e8; --mars:#f2836b; --moon:#e9e1d3;}
-}
-:root[data-theme="dark"]{--bg:#0c0a0a; --ink:#efe9e2; --muted:#a39a91; --rule:rgba(255,235,220,.09); --panel:rgba(22,17,15,.8);
-  --accent:#ff8a5c; --earth:#7cc6e8; --mars:#f2836b; --moon:#e9e1d3;}
+:root{--bg:#0b0909;--panel:#15110f;--panel2:#1b1613;--ink:#efe9e2;--muted:#a39a91;--dim:#6f6660;--rule:rgba(255,235,220,.10);
+  --mine:#3594d0;--act:#e05a38;--swan:#8d70d8;--amber:#c98317;--hot:#ff8a5c;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;--f-body:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;color-scheme:dark}
 *{box-sizing:border-box}
-html,body{overflow-x:clip;max-width:100%}
-html{background:#0c0a0a}
-body{margin:0;color:var(--ink);background-color:#0c0a0a;
-  background-image:linear-gradient(180deg,rgba(12,10,10,0) 0%,rgba(12,10,10,0) 82%,rgba(96,38,18,.22) 100%);
-  font:17px/1.72 "IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
-a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(255,138,92,.35)}
-a:hover{border-bottom-color:var(--accent)}
-.page{display:block;max-width:1240px;margin:0 auto;padding:0 18px 80px}
-header.top{max-width:760px;margin:0 auto;padding:44px 0 26px;border-bottom:1px solid var(--rule)}
-header.top .back{font:500 14px/1 "IBM Plex Mono",monospace;display:inline-block;margin-bottom:26px}
-header.top h1{font:700 clamp(29px,5vw,44px)/1.08 Archivo,Arial,sans-serif;letter-spacing:-.012em;margin:0 0 16px}
-header.top .byline{color:var(--muted);font-size:15.5px;margin:0}
-header.top .byline b{color:var(--ink);font-weight:600}
-.layout{display:block}
-main{max-width:760px;margin:0 auto;min-width:0}
-aside.toc{display:none}
-details.toc-narrow{max-width:760px;margin:22px auto 0;background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 16px}
-details.toc-narrow summary{cursor:pointer;font:600 15px/1.4 Archivo,Arial,sans-serif;color:var(--ink)}
-.toc ol,.toc-narrow ol{list-style:none;margin:8px 0 4px;padding:0}
-.toc li,.toc-narrow li{margin:0;padding:0}
-.toc a,.toc-narrow a{display:block;border:0;color:var(--muted);font-size:14px;line-height:1.35;padding:4px 0 4px 10px;border-left:2px solid transparent}
-.toc a:hover,.toc-narrow a:hover{color:var(--ink)}
-.toc a.on{color:var(--ink);border-left-color:var(--accent)}
-.toc .n,.toc-narrow .n{font-family:"IBM Plex Mono",monospace;color:var(--accent);display:inline-block;min-width:1.9em}
-@media (min-width:1101px){
-  .layout{display:grid;grid-template-columns:240px minmax(0,760px);gap:56px;justify-content:center}
-  aside.toc{display:block;position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);overflow-y:auto;padding-top:34px}
-  aside.toc .lab{font:600 12px/1 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px 12px}
-  details.toc-narrow{display:none}
-  main{margin:0}
-}
-h2{font:700 25px/1.2 Archivo,Arial,sans-serif;margin:56px 0 14px;padding-top:26px;border-top:1px solid var(--rule);scroll-margin-top:20px}
-h2 .sn{color:var(--accent);font-family:"IBM Plex Mono",monospace;font-weight:500;margin-right:.45em}
-h3{font:600 18.5px/1.3 Archivo,Arial,sans-serif;margin:32px 0 8px;scroll-margin-top:20px}
-h3 .sn{color:var(--accent);font-family:"IBM Plex Mono",monospace;font-weight:500;margin-right:.45em;font-size:.9em}
-p{margin:0 0 15px}
-li{margin:0 0 7px}
-ul,ol{padding-left:1.25em;margin:0 0 16px}
-strong{font-weight:600}
-code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em;color:#f3d9c9}
-.abstract{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 22px;margin:30px 0 0}
-.abstract h2{border:0;margin:0 0 8px;padding:0;font-size:19px}
-.box{background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:8px;padding:14px 18px;margin:20px 0}
-.box p:last-child,.box ul:last-child{margin-bottom:0}
-.box .t{font:600 15px/1.3 Archivo,Arial,sans-serif;margin:0 0 6px;color:var(--ink)}
-.muted{color:var(--muted)}
-.earth{color:var(--earth)} .mars{color:var(--mars)} .moon{color:var(--moon)}
-.tbl{overflow-x:auto;margin:16px 0 22px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);-webkit-overflow-scrolling:touch}
-table{border-collapse:collapse;width:100%;font-size:14.5px;line-height:1.45}
-th,td{padding:7px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule)}
-th{font-weight:600;color:var(--ink);background:rgba(255,235,220,.03);white-space:nowrap}
-tr:last-child td{border-bottom:0}
-td.r,th.r{text-align:right}
-td.num,.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13.5px;white-space:nowrap}
-caption{caption-side:bottom;text-align:left;color:var(--muted);font-size:13.5px;padding:8px 10px}
-figure{margin:24px 0 28px}
-figure img{display:block;width:100%;max-width:100%;height:auto;border-radius:8px;border:1px solid var(--rule);background:#151110}
-figure.tall{max-width:380px;margin-left:auto;margin-right:auto}
-figure.mid{max-width:560px;margin-left:auto;margin-right:auto}
-figcaption{color:var(--muted);font-size:14px;line-height:1.55;margin-top:9px}
-figcaption b{color:var(--ink);font-weight:600}
-mjx-container[display]{display:block;overflow-x:auto;overflow-y:hidden;max-width:100%;min-width:0 !important;padding:2px 0}
-mjx-container{max-width:100%}
-.eqnote{color:var(--muted);font-size:15px}
-.refs li{font-size:14.5px;line-height:1.55;margin-bottom:9px;color:#ddd5cc}
-footer{max-width:760px;margin:60px auto 0;color:var(--muted);font-size:13.5px;border-top:1px solid var(--rule);padding-top:16px}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:var(--f-body);font-size:16.5px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:var(--hot);text-underline-offset:3px}
+h1,h2,h3{font-family:var(--f-display);letter-spacing:-.015em;line-height:1.08;margin:0}
+.mono{font-family:var(--f-mono)}
 
-.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:26px 0 6px}
-.kpi{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 14px 12px}
-.kpi b{display:block;font:500 25px/1.1 "IBM Plex Mono",monospace;color:var(--ink)}
-.kpi span{display:block;color:var(--muted);font-size:13.5px;line-height:1.4;margin-top:6px}
-.kpi.hl b{color:var(--earth)}
-@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.lede{font-size:19px;line-height:1.6;margin:0 0 12px}
-main{margin:0 auto !important;max-width:760px}
-.tbl table{font-size:13.5px} .tbl td.num{font-size:12.5px}
+/* ---------- stage ---------- */
+#stage{position:relative;height:240vh}
+.pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:radial-gradient(1100px 700px at 50% 55%,#1a120f 0%,#0b0909 70%)}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;cursor:grab}
+#gl.drag{cursor:grabbing}
+#fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center}
+#fallback img{max-width:min(92vw,760px);max-height:86vh;border-radius:12px}
+.title{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 clamp(22px,7vw,110px);pointer-events:none;will-change:opacity,transform}
+.title .home{pointer-events:auto;position:absolute;top:26px;left:clamp(22px,7vw,110px);font:12.5px var(--f-mono);color:var(--muted);text-decoration:none;letter-spacing:.04em}
+.title .home:hover{color:var(--ink)}
+.eyebrow{font:12.5px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:#d79a7c;margin-bottom:18px}
+.title h1{font-weight:900;font-size:clamp(44px,8.6vw,132px);max-width:13ch;text-wrap:balance}
+.title h1 em{font-style:normal;color:var(--hot)}
+.title p{max-width:560px;font-size:clamp(16.5px,1.6vw,20px);color:#d9d1c8;margin:26px 0 0}
+.title .by{font-size:14px;color:var(--muted);margin-top:14px}
+.cue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);font:12px var(--f-mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:8px}
+.cue i{width:1px;height:34px;background:linear-gradient(var(--muted),transparent);animation:drop 1.8s ease-in-out infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.hud{position:absolute;inset:0;pointer-events:none;opacity:0;will-change:opacity}
+.hud>*{pointer-events:auto}
+.readout{position:absolute;top:22px;left:clamp(16px,3vw,40px);max-width:min(340px,78vw)}
+.readout .k{font:11.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.readout .big{font:500 clamp(26px,3.4vw,40px)/1.05 var(--f-mono);margin:4px 0 2px}
+.readout .sub{font-size:13.5px;color:var(--muted)}
+.readout .row{display:flex;gap:22px;margin-top:14px}
+.readout .row b{display:block;font:500 17px var(--f-mono)}
+.readout .row span{font-size:12px;color:var(--dim)}
+.picker{position:absolute;top:22px;right:clamp(16px,3vw,40px);display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.picker .k{font:11.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.chip{font:12.5px var(--f-mono);color:var(--muted);background:rgba(20,16,14,.7);border:1px solid var(--rule);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chip:hover{color:var(--ink)} .chip[aria-pressed=true]{color:#0b0909;background:var(--ink);border-color:var(--ink)}
+.zoom{position:absolute;right:clamp(16px,3vw,40px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px}
+.zoom button,.play{width:38px;height:38px;border-radius:50%;border:1px solid var(--rule);background:rgba(20,16,14,.75);color:var(--ink);font:18px var(--f-mono);cursor:pointer}
+.zoom button:hover,.play:hover{border-color:rgba(255,235,220,.35)}
+.dock{position:absolute;left:0;right:0;bottom:0;padding:0 clamp(16px,3vw,40px) 16px;background:linear-gradient(transparent,rgba(11,9,9,.86) 38%)}
+.legline{display:flex;justify-content:space-between;gap:12px;font:12px var(--f-mono);color:var(--muted);margin-bottom:4px;min-height:18px}
+#strip{width:100%;height:64px;display:block;cursor:pointer}
+.ctrl{display:flex;align-items:center;gap:12px;margin-top:8px}
+.ctrl input[type=range]{flex:1;accent-color:var(--hot);height:22px}
+.ctrl .t{font:12.5px var(--f-mono);color:var(--muted);min-width:118px;text-align:right}
+.hint{position:absolute;left:50%;top:22px;transform:translateX(-50%);font:12px var(--f-mono);color:var(--dim);letter-spacing:.06em;white-space:nowrap}
+@media (max-width:820px){.hint{display:none}.picker{top:auto;bottom:168px;right:16px}.zoom{display:none}.readout .row{gap:16px}}
+
+/* ---------- content ---------- */
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+section{padding:64px 0 8px}
+.sn{font:12.5px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:#d79a7c;display:block;margin-bottom:10px}
+h2{font-weight:800;font-size:clamp(28px,3.6vw,42px);max-width:22ch}
+.lead{color:#d9d1c8;max-width:68ch;margin:16px 0 0}
+p{max-width:72ch}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:8px}
+.kpi{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:18px 18px 16px}
+.kpi b{display:block;font:500 clamp(26px,3vw,36px)/1.05 var(--f-mono)}
+.kpi span{display:block;color:var(--muted);font-size:13.5px;line-height:1.45;margin-top:8px}
+.kpi.hl b{color:#6fb7e6}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:26px}
+.grid3{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;margin-top:26px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:20px 20px 16px;min-width:0}
+.card h3{font-size:17px;font-weight:700;letter-spacing:0}
+.card .cap{color:var(--muted);font-size:13.5px;line-height:1.5;margin:6px 0 12px;max-width:none}
+.card.txt p{font-size:15.5px;color:#d9d1c8}
+.card.txt p:first-of-type{margin-top:10px}
+.ch{position:relative;height:300px}
+.ch.tall{height:420px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:22px 0 -8px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:0 0 8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.legend i.ln{height:3px;border-radius:2px;vertical-align:3px;width:16px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:26px}
+.step{border-top:2px solid var(--rule);padding-top:14px}
+.step b{font:500 13px var(--f-mono);color:#d79a7c;letter-spacing:.08em}
+.step h3{font-size:18px;margin:8px 0 6px}
+.step p{font-size:15px;color:var(--muted);margin:0}
+details{margin-top:16px;border:1px solid var(--rule);border-radius:12px;background:var(--panel)}
+summary{cursor:pointer;padding:13px 16px;font-size:14.5px;color:var(--muted)}
+summary:hover{color:var(--ink)}
+.tbl{overflow-x:auto;padding:0 6px 8px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--rule);text-align:left;white-space:nowrap}
+th{font-weight:600;color:var(--muted);font-size:12.5px}
+td.num,th.r{text-align:right;font-family:var(--f-mono);font-size:12.5px}
+caption{caption-side:bottom;text-align:left;color:var(--dim);font-size:12.5px;padding:10px}
+.note{border-left:3px solid var(--hot);background:var(--panel);border-radius:0 12px 12px 0;padding:16px 20px;margin-top:22px}
+.note b{display:block;font-family:var(--f-display);margin-bottom:4px}
+.note p{margin:0;color:#d9d1c8;font-size:15.5px;max-width:none}
+ul.find{padding:0;margin:22px 0 0;list-style:none;display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}
+ul.find li{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:18px;font-size:15px;color:var(--muted)}
+ul.find li b{display:block;color:var(--ink);font-family:var(--f-display);font-size:16.5px;line-height:1.25;margin-bottom:8px}
+ul.lim{color:#d9d1c8;max-width:74ch;padding-left:20px} ul.lim li{margin:6px 0}
+ol.refs{font-size:14px;color:var(--muted);max-width:80ch;padding-left:22px} ol.refs li{margin:5px 0}
+footer{border-top:1px solid var(--rule);margin-top:64px;padding:26px 0 56px;color:var(--dim);font-size:13.5px}
+footer a{color:var(--muted)}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2,.grid3,.steps,ul.find{grid-template-columns:1fr}.ch.tall{height:460px}}
+@media (prefers-reduced-motion:reduce){.cue i{animation:none}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
-<div class="page">
-<header class="top">
-  <a class="back" href="../">&larr; Tauras Nienius</a>
-  <h1>Keep the clock open: cheaper tours for ESA's Keplerian travelling salesperson problem</h1>
-  <p class="lede">A spacecraft has to visit every asteroid in a group and come home before a deadline. Which order, and on which dates? I rebuilt ESA's benchmark for this problem from scratch and found cheaper tours than the best known on 4 of its open instances.</p>
-  <p class="byline"><b>Tauras Nienius</b> &middot; Aerospace engineering, ELISA Aerospace (ISAE Group) &middot; November 2026 &middot; <a href="https://github.com/taurasnienius/taurasnienius.github.io/tree/main/keplerian-tsp/code">code</a></p>
-  <div class="kpis">
-    <div class="kpi"><b>22/22</b><span>published optimal values reproduced to the cent</span></div>
-    <div class="kpi hl"><b>-3.5%</b><span>Δv against the best known tour, 80 asteroids</span></div>
-    <div class="kpi hl"><b>4</b><span>open instances with a new best-known tour</span></div>
-    <div class="kpi"><b>2</b><span>CPU cores, against a 128-core server for the old records</span></div>
+
+<div id="stage">
+  <div class="pin">
+    <canvas id="gl" aria-label="Interactive 3D view of the tour through the asteroid belt. Drag to rotate."></canvas>
+    <div id="fallback"><img src="img/fig_tour80.png" alt="The new best tour through 80 asteroids, seen from above"></div>
+    <div class="hud" id="hud">
+      <div class="readout">
+        <div class="k" id="rk">80 asteroids · 161 time points</div>
+        <div class="big"><span id="rdv">0</span> <small style="font-size:.5em;color:var(--muted)">km/s spent</small></div>
+        <div class="sub" id="rsub">waiting at the start</div>
+        <div class="row"><div><b id="rvis">0 / 79</b><span>asteroids visited</span></div><div><b id="rday">day 0</b><span>of 2000</span></div><div><b id="rpct">−3.5%</b><span>vs best known</span></div></div>
+      </div>
+      <div class="hint">drag to rotate · scroll to continue</div>
+      <div class="picker"><span class="k">New best tours</span><div class="chips" id="tourchips"></div></div>
+      <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
+      <div class="dock">
+        <div class="legline"><span>Δv of each leg (click a bar to jump)</span><span id="legtip"></span></div>
+        <canvas id="strip"></canvas>
+        <div class="ctrl"><button class="play" id="play" aria-label="Pause">❚❚</button><input id="scrub" type="range" min="0" max="2000" step="1" value="0" aria-label="Mission day"><button class="chip" id="full" aria-pressed="false">whole route</button></div>
+      </div>
+    </div>
+    <div class="title" id="title">
+      <a class="home" href="../">&larr; Tauras Nienius</a>
+      <div class="eyebrow">Keplerian TSP · ESA Advanced Concepts Team benchmark</div>
+      <h1>80 asteroids.<br>One spacecraft.<br><em>A cheaper way around.</em></h1>
+      <p>I rebuilt ESA's benchmark for multi-asteroid tours from scratch and found routes cheaper than the best published ones on 4 of its open instances.</p>
+      <div class="by">Tauras Nienius · November 2026</div>
+      <div class="cue">scroll<i></i></div>
+    </div>
   </div>
-</header>
+</div>
 
-<main>
-<h2><span class="sn">1</span>The problem</h2>
-<p>ESA's Advanced Concepts Team published the Keplerian travelling salesperson problem in 2026 with a set of benchmark instances [1]. Each instance is a group of bodies on their orbits: 5 to 80 main-belt asteroids, or 4 to 20 moons of Jupiter. A spacecraft starts at the first body, has to rendezvous with every other one, and come back to the first body before the window closes. Each leg is a Lambert arc between two dates, and its cost is the velocity change at departure plus the one at arrival. Dates are restricted to a grid of 6 to 161 points across the window. The goal is the tour with the smallest total Δv.</p>
-<p>It is harder than a normal travelling salesman problem because the "distance" between two asteroids changes all the time: the same pair can cost 2 km/s one month and 20 km/s the next. Choosing the order and choosing the dates are one problem, not two.</p>
-<figure class="mid"><img src="img/fig_tour80.png" alt="The new best tour through 80 asteroids, drawn from above the ecliptic" loading="lazy">
-<figcaption><b>The new best tour through 80 asteroids</b> (161 time points), seen from above. Grey lines are the asteroids' orbits; each coloured arc is one Lambert transfer, from purple at the start to yellow at the end.</figcaption></figure>
+<div class="wrap">
+<section style="padding-top:44px">
+  <div class="kpis">
+    <div class="kpi hl"><b>−3.5%</b><span>Δv against the best known tour through 80 asteroids</span></div>
+    <div class="kpi hl"><b>4</b><span>open instances with a new best-known tour, 9 others matched to the cent</span></div>
+    <div class="kpi"><b>22/22</b><span>published optimal values reproduced exactly before trusting anything</span></div>
+    <div class="kpi"><b>2 cores</b><span>and about an hour per instance. The old records: a 128-core server, up to 4 hours</span></div>
+  </div>
+</section>
 
-<h2><span class="sn">2</span>First, make sure it is the same problem</h2>
-<p>A better number only means something if it is computed exactly the way ACT computes it. I wrote my own transfer-cost tables and an exact solver for small instances (dynamic programming over the set of visited bodies, the current body and the time). The cost model that matches theirs: Lambert arcs with any number of revolutions in both directions, departure plus arrival impulse, waiting at a body for free.</p>
-<p>With that model, my exact solver reproduces all 22 optimal values ACT published for instances with up to 10 bodies, to the cent, each in about a second. This is what every comparison below rests on.</p>
+<section>
+  <span class="sn">01 · The problem</span>
+  <h2>A travelling salesman whose cities never stop moving</h2>
+  <p class="lead">ESA's Advanced Concepts Team published the Keplerian travelling salesperson problem in 2026 with a set of benchmark instances [1]. A spacecraft starts at one body, has to rendezvous with every other one, and come home before the window closes. Each leg is a Lambert arc between two dates on a grid, and costs the velocity change at departure plus the one at arrival. The goal is the smallest total Δv.</p>
+  <div class="steps">
+    <div class="step"><b>WHY IT IS HARD</b><h3>The distances change every day</h3><p>The same pair of asteroids can cost 2 km/s one month and 20 km/s the next. The order and the dates are one problem, not two.</p></div>
+    <div class="step"><b>FIRST, TRUST</b><h3>Same problem, to the cent</h3><p>I wrote my own cost tables and an exact solver. It reproduces all 22 optimal values ACT published for up to 10 bodies, each in about a second.</p></div>
+    <div class="step"><b>THEN, SEARCH</b><h3>20 to 80 bodies</h3><p>Thirteen harder instances, several still open: the best tour found by a commercial solver sits far above the proven lower bound.</p></div>
+  </div>
+</section>
 
-<h2><span class="sn">3</span>The idea: keep the clock open</h2>
-<p>A classic beam search builds tours body by body and keeps the best few hundred or thousand partial tours. To compare partial tours, it has to fix when the spacecraft arrives at each body. On a coarse grid that is fine. On a fine grid it locks in early choices of date that later turn out expensive, and the beam has no way back.</p>
-<p>My beam search does not fix the arrival date. For each partial tour it keeps a whole curve: the cheapest Δv to be at the current body, ready to leave, for every date on the grid. Adding a leg updates the curve exactly (a min-plus step over the grid). Partial tours are then ranked by a rule; my hand-designed one is "on schedule": the cost of the curve at the date where the tour would be if it spread its legs evenly over the window. For a finished order, the same curves give the optimal dates exactly, so the local search that polishes tours (moving bodies, swapping, reversing short stretches) always works with perfectly timed tours.</p>
-<figure><img src="img/fig_grid.png" alt="Tour cost against the number of grid points for ACT's beam search, B-Swan and my beam search" loading="lazy">
-<figcaption><b>Finer grids should help, and with open timing they do.</b> ACT's beam search (width 10,000, values from [1]) gets worse as the grid gets finer; with 161 points on 20 asteroids it ends 12 times above my beam search of width 100. Beam search alone, no local search.</figcaption></figure>
+<section>
+  <span class="sn">02 · Progression</span>
+  <h2>From 3.8 times the cost to a new record</h2>
+  <p class="lead">Pick an instance. On the left, where each method ends up. On the right, my search running: the tour cost over time, measured against the best published tour.</p>
+  <div class="tabs" id="ptabs"></div>
+  <div class="grid3">
+    <div class="card"><h3>Where each method ends</h3><p class="cap">Total Δv of the tour, km/s. Shorter is better. ACT values from [1].</p>
+      <div class="legend"><span><i style="background:var(--swan)"></i>published by ACT</span><span><i style="background:var(--mine)"></i>mine</span></div>
+      <div class="ch"><canvas id="c_ladder"></canvas></div></div>
+    <div class="card"><h3>The search, minute by minute</h3><p class="cap" id="progcap">Tour Δv against the best known tour. Below the dashed line is a new record.</p>
+      <div class="legend"><span><i class="ln" style="background:var(--mine)"></i>my best tour so far</span><span><i class="ln" style="background:var(--muted)"></i>best known (ACT, Gurobi)</span></div>
+      <div class="ch"><canvas id="c_prog"></canvas></div></div>
+  </div>
+</section>
 
-<h2><span class="sn">4</span>Results on the thirteen harder instances</h2>
-<p>All instances with 20 or more bodies. Instances with fewer bodies are solved exactly (Section 2). "Best known" is the best of all Gurobi runs in [1] (4-hour limit, 2 × 64-core server), "lower bound" the best proven bound. My column is the best of my methods: the two beam searches, ant colony and MCTS, each followed by local search, and a longer iterated local search of 6 to 75 minutes per instance on one core.</p>
-<div class="tbl"><table>
-<thead><tr><th>Instance (bodies / grid points)</th><th class="r">Lower bound</th><th class="r">Best known</th><th class="r">ACT B-Swan</th><th class="r">Mine</th><th class="r">vs best known</th></tr></thead>
-<tbody>
-<tr><td>Asteroids 20 / 21</td><td class="num r">118&#8239;105</td><td class="num r">118&#8239;105</td><td class="num r">121&#8239;898</td><td class="num r">118&#8239;105</td><td class="num r">0.00%</td></tr>
+<section>
+  <span class="sn">03 · The idea</span>
+  <h2>Keep the clock open</h2>
+  <div class="grid3">
+    <div class="card txt"><h3>Don't decide the dates until the tour is finished</h3>
+      <p>A classic beam search builds tours body by body and keeps the best few thousand partial tours. To compare them it fixes when the spacecraft arrives at each body. On a fine time grid that locks in early dates that later turn out expensive, and there is no way back.</p>
+      <p>Mine keeps a whole curve for every partial tour: the cheapest Δv to be at the current body, ready to leave, for every date on the grid. Adding a leg updates the curve exactly. Partial tours are ranked "on schedule": by the cost of the curve at the date where the tour would be if it spread its legs evenly.</p>
+      <p>For a finished order the same curves give the optimal dates exactly, so the local search that polishes tours (moving bodies, swapping, reversing short stretches) always compares perfectly timed tours.</p></div>
+    <div class="card"><h3>Finer grids should help. With open timing they do</h3><p class="cap">Beam search alone, no polishing. Tour Δv divided by the best known, log scale. ACT's beam search (width 10,000) gets worse as the grid gets finer; mine (width 100) stays near the best known.</p>
+      <div class="tabs" id="gtabs" style="margin:0 0 8px"></div>
+      <div class="legend"><span><i class="ln" style="background:var(--act)"></i>ACT beam search</span><span><i class="ln" style="background:var(--swan)"></i>ACT B-Swan</span><span><i class="ln" style="background:var(--mine)"></i>my beam search</span></div>
+      <div class="ch"><canvas id="c_grid"></canvas></div></div>
+  </div>
+</section>
+
+<section>
+  <span class="sn">04 · Results</span>
+  <h2>Thirteen harder instances, same grid and cost model as ACT</h2>
+  <p class="lead">On 4 instances my tour is cheaper than the previous best and on the other 9 it equals it to the cent. Five of those nine are proven optimal in [1], so matching is the best possible there. On the coarsest grids, where each leg takes a single grid step, beam search plus one local search ends up to 12% above the optimum, and the longer iterated local search closes that gap. </p>
+  <div class="card" style="margin-top:26px"><h3>Distance to the previous best known tour</h3><p class="cap">Percent above the best published tour. Left of zero is a new best. ACT's beam search is left out: it sits between 19% and 1,205% above.</p>
+    <div class="legend"><span><i style="background:var(--swan)"></i>ACT B-Swan heuristic</span><span><i style="background:var(--mine)"></i>mine</span></div>
+    <div class="ch tall"><canvas id="c_all"></canvas></div></div>
+  <details><summary>Show the numbers as a table</summary><div class="tbl"><table>
+    <thead><tr><th>Instance (bodies / grid points)</th><th class="r">Lower bound</th><th class="r">Best known</th><th class="r">ACT B-Swan</th><th class="r">Mine</th><th class="r">vs best known</th></tr></thead>
+    <tbody><tr><td>Asteroids 20 / 21</td><td class="num r">118&#8239;105</td><td class="num r">118&#8239;105</td><td class="num r">121&#8239;898</td><td class="num r">118&#8239;105</td><td class="num r">0.00%</td></tr>
 <tr><td>Asteroids 20 / 41</td><td class="num r">95&#8239;033</td><td class="num r">95&#8239;033</td><td class="num r">98&#8239;109</td><td class="num r">95&#8239;033</td><td class="num r">0.00%</td></tr>
 <tr><td>Asteroids 20 / 81</td><td class="num r">80&#8239;955</td><td class="num r">92&#8239;545</td><td class="num r">95&#8239;404</td><td class="num r">92&#8239;545</td><td class="num r">0.00%</td></tr>
 <tr><td>Asteroids 20 / 161</td><td class="num r">70&#8239;628</td><td class="num r">91&#8239;631</td><td class="num r">100&#8239;353</td><td class="num r">91&#8239;631</td><td class="num r">0.00%</td></tr>
@@ -154,64 +229,264 @@ main{margin:0 auto !important;max-width:760px}
 <tr><td>Asteroids 40 / 81</td><td class="num r">259&#8239;178</td><td class="num r">316&#8239;923</td><td class="num r">368&#8239;538</td><td class="num r" style="color:#7cc6e8;font-weight:600">316&#8239;527</td><td class="num r" style="color:#7cc6e8;font-weight:600">-0.13%</td></tr>
 <tr><td>Asteroids 40 / 161</td><td class="num r">224&#8239;816</td><td class="num r">312&#8239;501</td><td class="num r">366&#8239;870</td><td class="num r" style="color:#7cc6e8;font-weight:600">307&#8239;515</td><td class="num r" style="color:#7cc6e8;font-weight:600">-1.60%</td></tr>
 <tr><td>Asteroids 80 / 81</td><td class="num r">1&#8239;236&#8239;138</td><td class="num r">1&#8239;557&#8239;281</td><td class="num r">1&#8239;888&#8239;710</td><td class="num r" style="color:#7cc6e8;font-weight:600">1&#8239;549&#8239;061</td><td class="num r" style="color:#7cc6e8;font-weight:600">-0.53%</td></tr>
-<tr><td>Asteroids 80 / 161</td><td class="num r">762&#8239;357</td><td class="num r">1&#8239;420&#8239;768</td><td class="num r">1&#8239;627&#8239;976</td><td class="num r" style="color:#7cc6e8;font-weight:600">1&#8239;370&#8239;931</td><td class="num r" style="color:#7cc6e8;font-weight:600">-3.51%</td></tr>
-</tbody>
-<caption>Total Δv in m/s. Blue: lower than the previous best known. Reference values from Tables 3 and 4 of [1]; ACT's beam search results are in the chart of Section 3.</caption>
-</table></div>
-<p>On 4 instances my tour is cheaper than the previous best and on the other 9 it equals it to the cent. Five of those nine are proven optimal in [1], so matching is the best possible there. On the coarsest grids, where each leg takes a single grid step, beam search plus one local search ends up to 12% above the optimum, and the longer iterated local search closes that gap. </p>
-<figure><img src="img/fig_all.png" alt="Gap to the previous best known for ACT B-Swan and my methods on thirteen instances" loading="lazy">
-<figcaption><b>Distance to the previous best known tour.</b> Below zero is a new best. ACT's beam search is left out of this chart: it sits between 19% and 1,205% above.</figcaption></figure>
-
-<h2><span class="sn">5</span>New best-known tours</h2>
-<div class="tbl"><table>
-<thead><tr><th>Instance</th><th class="r">Previous best</th><th class="r">New</th><th class="r">Change</th><th class="r">Gap to lower bound</th><th class="r">Worst arc miss</th><th>Tour</th></tr></thead>
-<tbody>
-<tr><td>Asteroids 40 / 81</td><td class="num r">316&#8239;923</td><td class="num r" style="color:#7cc6e8;font-weight:600">316&#8239;527</td><td class="num r">-0.13%</td><td class="num r">18.2% &rarr; 18.1%</td><td class="num r">0.3 cm</td><td><a href="tours/asteroids_40_T81.json">JSON</a></td></tr>
+<tr><td>Asteroids 80 / 161</td><td class="num r">762&#8239;357</td><td class="num r">1&#8239;420&#8239;768</td><td class="num r">1&#8239;627&#8239;976</td><td class="num r" style="color:#7cc6e8;font-weight:600">1&#8239;370&#8239;931</td><td class="num r" style="color:#7cc6e8;font-weight:600">-3.51%</td></tr></tbody>
+    <caption>Total Δv in m/s. Reference values from Tables 3 and 4 of [1]. "Best known" is the best of all Gurobi runs there (4-hour limit, 2 × 64-core server).</caption></table></div></details>
+  <div class="card" style="margin-top:16px"><h3>The four new best-known tours</h3><p class="cap">Each one was re-checked by a separate script that shares no code with the solver (only the Lambert library, pykep): it rebuilds every arc from the instance file and flies the spacecraft along it. "Worst arc miss" is how far from its target asteroid the worst arc ends.</p>
+    <div class="tbl" style="padding:0"><table>
+    <thead><tr><th>Instance</th><th class="r">Previous best</th><th class="r">New</th><th class="r">Change</th><th class="r">Gap to lower bound</th><th class="r">Worst arc miss</th><th>Tour</th></tr></thead>
+    <tbody><tr><td>Asteroids 40 / 81</td><td class="num r">316&#8239;923</td><td class="num r" style="color:#7cc6e8;font-weight:600">316&#8239;527</td><td class="num r">-0.13%</td><td class="num r">18.2% &rarr; 18.1%</td><td class="num r">0.3 cm</td><td><a href="tours/asteroids_40_T81.json">JSON</a></td></tr>
 <tr><td>Asteroids 40 / 161</td><td class="num r">312&#8239;501</td><td class="num r" style="color:#7cc6e8;font-weight:600">307&#8239;515</td><td class="num r">-1.60%</td><td class="num r">28.1% &rarr; 26.9%</td><td class="num r">0.7 cm</td><td><a href="tours/asteroids_40_T161.json">JSON</a></td></tr>
 <tr><td>Asteroids 80 / 81</td><td class="num r">1&#8239;557&#8239;281</td><td class="num r" style="color:#7cc6e8;font-weight:600">1&#8239;549&#8239;061</td><td class="num r">-0.53%</td><td class="num r">20.6% &rarr; 20.2%</td><td class="num r">0.3 cm</td><td><a href="tours/asteroids_80_T81.json">JSON</a></td></tr>
-<tr><td>Asteroids 80 / 161</td><td class="num r">1&#8239;420&#8239;768</td><td class="num r" style="color:#7cc6e8;font-weight:600">1&#8239;370&#8239;931</td><td class="num r">-3.51%</td><td class="num r">46.3% &rarr; 44.4%</td><td class="num r">0.8 cm</td><td><a href="tours/asteroids_80_T161.json">JSON</a></td></tr>
-</tbody>
-<caption>Δv in m/s. Gap to lower bound = (tour − bound) / tour, before and after. Each tour file lists the order, the grid dates and every leg.</caption>
-</table></div>
-<p>Each new tour was checked by a separate script that shares no code with the solver (only the Lambert library, pykep): it reads the instance file, moves every body to the leg dates, solves each Lambert arc again, propagates the spacecraft along it to confirm it really reaches the next body (worst miss in the table), checks the visiting and date rules, and adds up the Δv. The totals agree with the solver to the last digit.</p>
-<div class="box"><p class="t">What this does and does not show</p>
-<p>The new values are upper bounds on the optimum, found by heuristic search; I cannot prove any of them optimal. On the small instances where the optimum is known, my methods reach it, which says the search is sound, not that it is complete. The comparison is fair on the problem (same grid, same cost model, same rules) but not on computers: the old records came from a mixed-integer solver run for up to four hours on a large server, mine from heuristics on two CPU cores.</p></div>
+<tr><td>Asteroids 80 / 161</td><td class="num r">1&#8239;420&#8239;768</td><td class="num r" style="color:#7cc6e8;font-weight:600">1&#8239;370&#8239;931</td><td class="num r">-3.51%</td><td class="num r">46.3% &rarr; 44.4%</td><td class="num r">0.8 cm</td><td><a href="tours/asteroids_80_T161.json">JSON</a></td></tr></tbody></table></div></div>
+  <div class="note"><b>What this does and does not show</b><p>The new values are upper bounds found by heuristic search; I cannot prove any of them optimal. On the small instances where the optimum is known my methods reach it, which says the search is sound, not that it is complete. The comparison is fair on the problem (same grid, same cost model, same rules) but not on computers: the old records came from a mixed-integer solver run for up to four hours on a large server, mine from heuristics on two CPU cores.</p></div>
+</section>
 
-<h2><span class="sn">6</span>Can the search rule be discovered automatically?</h2>
-<p>This is the question of ACT's internship topic: replace hand-designed parts of search methods (beam rules, rollouts, pheromone updates) with parts found by an automatic generate, test and refine loop [5, 6]. I tested it on the one component that mattered most in my beam search, the rule that ranks partial tours.</p>
-<p>A genetic programming loop wrote ranking rules as formulas over eight features of a partial tour (cost on schedule, cheapest cost, cost a little earlier and later, last leg, progress, time used, cheapest next legs). It trained on six small instances only, and every rule was then tested unchanged on eight others it had never seen, most of them larger.</p>
-<figure><img src="img/fig_discovery.png" alt="Training curves of three evolution runs and held-out comparison of rules" loading="lazy">
-<figcaption><b>Left:</b> three runs from random formulas each beat my hand rule on the training set within a few generations. <b>Right:</b> on unseen instances (geometric mean of tour Δv / best known, beam search alone) the three rules evolved from random formulas land within about 1% of the hand rule, on both sides, and far ahead of ranking by cost alone; the run seeded with my rule ends +3.4% against it.</figcaption></figure>
-<p>What came out:</p>
-<ul>
-<li><strong>Starting from random formulas, every run rediscovered the same principle as my hand rule:</strong> judge a partial tour by its cost on schedule and penalise using up time. Ranking by cost alone, the obvious choice, is 1.6 times worse on the held-out instances.</li>
-<li><strong>None of the evolved rules beat the hand rule reliably</strong> on instances it had not seen: at beam width 200 they range from -0.5% to +0.3% against it. The gains seen in training did not transfer.</li>
-<li><strong>The largest improvement in this project was structural, not a better formula:</strong> keeping the timing open (Section 3) is a change to how the search represents a tour. A search over formulas cannot invent that; a search over code, which is what language-model methods do [5, 6], could. That is the part I would most like to explore with the team.</li>
-</ul>
+<section>
+  <span class="sn">05 · The internship question</span>
+  <h2>Can the search rule be discovered automatically?</h2>
+  <p class="lead">ACT's topic asks to replace hand-designed parts of search methods with parts found by an automatic generate, test and refine loop [5, 6]. I tried it on the part that mattered most in my beam search: the rule that ranks partial tours. A genetic programming loop wrote rules as formulas over eight features of a partial tour, trained on six small instances, and each rule was then tested unchanged on eight instances it had never seen.</p>
+  <div class="grid2">
+    <div class="card"><h3>In training, evolution wins quickly</h3><p class="cap">Mean tour Δv / best known on the six training instances, best rule of each generation. Three runs from random formulas.</p>
+      <div class="legend"><span><i class="ln" style="background:var(--mine)"></i>run 1</span><span><i class="ln" style="background:var(--amber)"></i>run 2</span><span><i class="ln" style="background:var(--swan)"></i>run 3</span><span><i class="ln" style="background:var(--act)"></i>my hand rule</span></div>
+      <div class="ch"><canvas id="c_train"></canvas></div></div>
+    <div class="card"><h3>On unseen instances, it only draws level</h3><p class="cap">Geometric mean of tour Δv / best known on eight held-out instances, beam search alone. Lower is better.</p>
+      <div class="legend"><span><i style="background:var(--mine)"></i>beam width 50</span><span><i style="background:var(--amber)"></i>beam width 200</span></div>
+      <div class="ch"><canvas id="c_held"></canvas></div></div>
+  </div>
+  <ul class="find">
+    <li><b>It rediscovered the principle.</b>Starting from random formulas, every run arrived at the same idea as my hand rule: judge a partial tour by its cost on schedule and penalise using up time. Ranking by cost alone is 1.6 times worse on the unseen instances.</li>
+    <li><b>It did not beat the hand rule.</b>At beam width 200 the evolved rules range from −0.5% to +0.3% against it on unseen instances. The gains seen in training did not transfer; the run seeded with my rule overfitted (+3.4%).</li>
+    <li><b>The big gain was structural.</b>Keeping the timing open changes how the search represents a tour. A search over formulas cannot invent that. A search over code, which is what language-model methods do [5, 6], could. That is the part I would most like to explore with the team.</li>
+  </ul>
+</section>
 
-<h2><span class="sn">7</span>Limits</h2>
-<ul>
-<li>The model is ACT's benchmark model: two-body dynamics, impulsive Lambert legs, dates on a fixed grid. Real low-thrust tours are a different problem.</li>
-<li>All values are for the grid of each instance. A finer grid gives cheaper tours; comparisons are only made on the same grid.</li>
-<li>My tours visit each body exactly once. ACT's formulation allows repeat visits, so a still cheaper tour could exist outside my search space.</li>
-<li>The automatic discovery used genetic programming over a fixed set of features, not a language model: this workspace has two CPU cores and no way to run one. The framework uses the same generate, evaluate, select loop, so a model-based generator can replace the GP step.</li>
-<li>Run times were short (minutes to about an hour per instance). Longer runs would probably improve the large instances further.</li>
-</ul>
-
-<h2><span class="sn">8</span>Code and data</h2>
-<p>All code is public in the <a href="https://github.com/taurasnienius/taurasnienius.github.io/tree/main/keplerian-tsp/code">code folder</a>: cost tables, exact solver, beam search, ant colony, MCTS, local search, the genetic programming loop, and the independent checker. The instance files are ACT's own (Zenodo, doi:10.5281/zenodo.14850862). The new tours are in <a href="tours/">tours/</a>, one JSON file each.</p>
-
-<h2><span class="sn">9</span>References</h2>
-<ol class="refs">
-<li>M. Bannach, G. Acciarini, D. Izzo, <i>The Keplerian Traveling Salesperson Problem</i>, arXiv:2605.00010, 2026. Instances: doi:10.5281/zenodo.14850862.</li>
-<li>D. Izzo et al., <i>Evolving solutions to TSP variants for active space debris removal</i>, GECCO 2015.</li>
-<li>L. F. Simões, D. Izzo, E. Haasdijk, A. E. Eiben, <i>Multi-rendezvous spacecraft trajectory optimization with beam P-ACO</i>, EvoCOP 2017.</li>
-<li>M. Schmidt, H. Lipson, <i>Distilling free-form natural laws from experimental data</i>, Science 324, 2009.</li>
-<li>F. Liu et al., <i>Evolution of Heuristics: towards efficient automatic algorithm design using large language model</i>, ICML 2024.</li>
-<li>H. Ye et al., <i>ReEvo: large language models as hyper-heuristics with reflective evolution</i>, NeurIPS 2024.</li>
-</ol>
-</main>
-<footer><a href="../">Tauras Nienius</a> · <a href="mailto:taurasn.nie@gmail.com">taurasn.nie@gmail.com</a> · <a href="https://www.linkedin.com/in/tauras-nienius/">LinkedIn</a> · November 2026</footer>
+<section>
+  <span class="sn">06 · Limits, code, sources</span>
+  <h2>What to keep in mind</h2>
+  <ul class="lim">
+    <li>The model is ACT's benchmark model: two-body dynamics, impulsive Lambert legs, dates on a fixed grid. Real low-thrust tours are a different problem.</li>
+    <li>All values are for the grid of each instance. A finer grid gives cheaper tours; comparisons are only made on the same grid.</li>
+    <li>My tours visit each body exactly once. ACT's formulation allows repeat visits, so a still cheaper tour could exist outside my search space.</li>
+    <li>The automatic discovery used genetic programming over a fixed set of features, not a language model: I had two CPU cores and no way to run one. The loop is the same generate, evaluate, select loop, so a model-based generator can replace the GP step.</li>
+    <li>Run times were short (minutes to about an hour per instance). Longer runs would probably improve the large instances further.</li>
+  </ul>
+  <p style="margin-top:22px">All code is public in the <a href="https://github.com/taurasnienius/taurasnienius.github.io/tree/main/keplerian-tsp/code">code folder</a>: cost tables, exact solver, beam search, ant colony, MCTS, local search, the genetic programming loop and the independent checker. The instance files are ACT's own (Zenodo, doi:10.5281/zenodo.14850862). The new tours are in the JSON files linked in the table above; the 3D view reads <a href="viz.json">viz.json</a>.</p>
+  <ol class="refs">
+    <li>M. Bannach, G. Acciarini, D. Izzo, <i>The Keplerian Traveling Salesperson Problem</i>, arXiv:2605.00010, 2026. Instances: doi:10.5281/zenodo.14850862.</li>
+    <li>D. Izzo et al., <i>Evolving solutions to TSP variants for active space debris removal</i>, GECCO 2015.</li>
+    <li>L. F. Simões, D. Izzo, E. Haasdijk, A. E. Eiben, <i>Multi-rendezvous spacecraft trajectory optimization with beam P-ACO</i>, EvoCOP 2017.</li>
+    <li>M. Schmidt, H. Lipson, <i>Distilling free-form natural laws from experimental data</i>, Science 324, 2009.</li>
+    <li>F. Liu et al., <i>Evolution of Heuristics: towards efficient automatic algorithm design using large language model</i>, ICML 2024.</li>
+    <li>H. Ye et al., <i>ReEvo: large language models as hyper-heuristics with reflective evolution</i>, NeurIPS 2024.</li>
+  </ol>
+  <footer><a href="../">Tauras Nienius</a> · <a href="mailto:taurasn.nie@gmail.com">taurasn.nie@gmail.com</a> · <a href="https://www.linkedin.com/in/tauras-nienius/">LinkedIn</a> · November 2026</footer>
+</section>
 </div>
+
+<script>const DATA={"results":{"asteroids_80_T161":{"beam_hand":{"cost":1937868.1622775984,"ls_cost":1578815.8421135473}},"asteroids_40_T161":{"beam_hand":{"cost":474618.9944193281,"ls_cost":336451.02849308675}},"asteroids_80_T81":{"beam_hand":{"cost":2800452.548065521,"ls_cost":2094260.7759137787}},"asteroids_40_T81":{"beam_hand":{"cost":480603.48756663536,"ls_cost":358509.6940625683}}},"grid":{"asteroids_20":{"T":[21,41,81,161],"act":[1.7018,2.4104,4.8112,13.0453],"swan":[1.0321,1.0324,1.0309,1.0952],"mine":[1.0744,1.0744,1.0648,1.071]},"jovianmoons_20":{"T":[21,41,81,161],"act":[1.1906,1.4032,2.6388,4.6131],"swan":[1.0707,1.0334,1.1007,1.0528],"mine":[1.0,1.005,1.0,1.0]}},"all":{"labels":["Asteroids 20 / 21","Asteroids 20 / 41","Asteroids 20 / 81","Asteroids 20 / 161","Jovian moons 20 / 21","Jovian moons 20 / 41","Jovian moons 20 / 81","Jovian moons 20 / 161","Asteroids 40 / 41","Asteroids 40 / 81","Asteroids 40 / 161","Asteroids 80 / 81","Asteroids 80 / 161"],"swan":[3.212,3.236,3.09,9.519,7.072,3.336,10.071,5.279,15.281,16.286,17.398,21.283,14.584],"mine":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-0.125,-1.595,-0.528,-3.508]},"train":{"hand":1.0873,"runs":[[1.0873431371157132,1.0810400376346252,1.0740311934587512,1.0740311934587512,1.0740311934587512,1.0740311934587512,1.0643472220149959,1.0643472220149959,1.0643472220149959,1.0643472220149959,1.0630686229617126,1.0613329200294839,1.0613329200294839,1.0613329200294839,1.0613329200294839,1.0613329200294839,1.0613329200294839,1.0613329200294839,1.0596338052854082,1.0596338052854082,1.0596338052854082,1.0596338052854082,1.0534579931390877,1.0534579931390877,1.0534579931390877,1.0534579931390877,1.0534579931390877,1.0534579931390877,1.0534579931390877,1.0534579931390877,1.0534579931390877,1.0534579931390877,1.0510426091548875,1.0510426091548875,1.0510426091548875,1.0510426091548875,1.0510426091548875,1.0510426091548875,1.0510426091548875,1.0510426091548875],[1.0873431371157132,1.0873431371157132,1.0748986903300521,1.0748986903300521,1.0748986903300521,1.0748986903300521,1.0748986903300521,1.0748986903300521,1.0748986903300521,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.0713161393890778,1.066078849148866,1.066078849148866,1.0654553226702381,1.066078849148866,1.066078849148866,1.066078849148866,1.066078849148866,1.066078849148866,1.066078849148866,1.066078849148866,1.066078849148866,1.0609013362845516,1.0609013362845516,1.0609013362845516,1.0609013362845516,1.0609013362845516,1.0582957772444799],[1.073012158623394,1.073012158623394,1.073012158623394,1.073012158623394,1.073012158623394,1.073012158623394,1.064713746540392,1.064713746540392,1.0634366596240845,1.0601511994670851,1.0601511994670851,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868,1.0577813641831868]]},"held":{"labels":[["hand:","on schedule"],["hand:","cost only"],["evolved","run 1"],["evolved","run 2"],["evolved","run 3"],["evolved,","seeded"]],"w50":[1.2649,2.1905,1.2744,1.2808,1.2757,1.3399],"w200":[1.2495,1.9712,1.2537,1.2485,1.243,1.2917]}};</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/lines/LineSegmentsGeometry.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/lines/LineMaterial.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/lines/LineSegments2.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const $=id=>document.getElementById(id), clamp=(x,a,b)=>Math.min(b,Math.max(a,x)), lerp=(a,b,t)=>a+(b-a)*t;
+const ease=t=>{t=clamp(t,0,1);return t*t*(3-2*t)};
+const REDUCE=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const fmt=x=>Math.round(x).toLocaleString('en-US').replace(/,/g,' ');
+const NAMES={asteroids_80_T161:'80 / 161',asteroids_40_T161:'40 / 161',asteroids_80_T81:'80 / 81',asteroids_40_T81:'40 / 81'};
+const RAMP=[[0,[104,58,190]],[.33,[205,72,140]],[.66,[246,128,96]],[1,[250,205,120]]];
+function ramp(t){t=clamp(t,0,1);for(let i=1;i<RAMP.length;i++)if(t<=RAMP[i][0]){const a=RAMP[i-1],b=RAMP[i],u=(t-a[0])/(b[0]-a[0]);return [0,1,2].map(k=>lerp(a[1][k],b[1][k],u)/255)}return RAMP[3][1].map(v=>v/255)}
+function chips(el,items,onpick){el.innerHTML='';items.forEach(([key,label],i)=>{const b=document.createElement('button');b.className='chip';b.textContent=label;b.setAttribute('aria-pressed',i===0);b.onclick=()=>{[...el.children].forEach(c=>c.setAttribute('aria-pressed',c===b));onpick(key)};el.appendChild(b)})}
+
+/* ================= 3D stage ================= */
+let VIZ=null, S=null;   // S = scene state
+const view={theta:0.6,phi:1.0,zoom:1,auto:true,userPhi:0};
+let day=0, playing=!REDUCE, showFull=false, lastT=0, hold=0, scrollP=0;
+
+function bodyPos(B,d,out){const f=((d/B.P)%1+1)%1*72, i=Math.floor(f)%72, j=(i+1)%72, u=f-Math.floor(f), r=B.ring;
+  out.set(lerp(r[3*i],r[3*j],u),lerp(r[3*i+2],r[3*j+2],u),-lerp(r[3*i+1],r[3*j+1],u));return out}
+function initGL(){
+  const cv=$('gl');let renderer;
+  try{renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true})}catch(e){return false}
+  renderer.setPixelRatio(Math.min(2,devicePixelRatio||1));
+  const scene=new THREE.Scene(), cam=new THREE.PerspectiveCamera(38,1,.1,200);
+  const glowTex=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);
+    gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.25,'rgba(255,255,255,.55)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})();
+  const dotTex=(()=>{const c=document.createElement('canvas');c.width=c.height=32;const g=c.getContext('2d');g.fillStyle='#fff';g.beginPath();g.arc(16,16,13,0,7);g.fill();return new THREE.CanvasTexture(c)})();
+  scene.add(new THREE.Mesh(new THREE.SphereGeometry(.11,24,16),new THREE.MeshBasicMaterial({color:0xffd27a})));
+  const sg=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0xffb060,transparent:true,opacity:.9,depthWrite:false}));sg.scale.set(1.15,1.15,1);scene.add(sg);
+  // faint stars
+  {const n=500,p=new Float32Array(n*3);for(let i=0;i<n;i++){const a=Math.random()*6.283,z=Math.random()*2-1,r=Math.sqrt(1-z*z),R=60;p[3*i]=R*r*Math.cos(a);p[3*i+1]=R*z;p[3*i+2]=R*r*Math.sin(a)}
+   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x8a7f78,size:.12,sizeAttenuation:true,transparent:true,opacity:.7})))}
+  const craft=new THREE.Mesh(new THREE.SphereGeometry(.035,16,12),new THREE.MeshBasicMaterial({color:0xffffff}));
+  const cg=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:0xffffff,transparent:true,opacity:.95,depthWrite:false}));cg.scale.set(.42,.42,1);craft.add(cg);scene.add(craft);
+  const group=new THREE.Group();scene.add(group);
+  S={renderer,scene,cam,craft,group,dotTex,res:new THREE.Vector2(1,1),tmp:new THREE.Vector3()};
+  const resize=()=>{const w=cv.clientWidth,h=cv.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();S.res.set(w,h);if(S.route){S.route.material.resolution.copy(S.res);S.ghost.material.resolution.copy(S.res)}};
+  S.resize=resize;addEventListener('resize',resize);resize();
+  // drag to rotate
+  let drag=null;
+  cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,touch:e.pointerType==='touch'};cv.classList.add('drag');view.auto=false;if(!drag.touch)cv.setPointerCapture(e.pointerId)});
+  addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;view.theta-=dx*.006;if(!drag.touch)view.userPhi=clamp(view.userPhi-dy*.005,-1.1,.6)});
+  const end=()=>{drag=null;cv.classList.remove('drag')};addEventListener('pointerup',end);addEventListener('pointercancel',end);
+  cv.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();view.zoom=clamp(view.zoom*(e.deltaY>0?1.08:.93),.45,2)}},{passive:false});
+  $('zin').onclick=()=>view.zoom=clamp(view.zoom*.82,.45,2);$('zout').onclick=()=>view.zoom=clamp(view.zoom*1.2,.45,2);
+  return true;
+}
+function loadTour(key){
+  const T=VIZ.tours.find(t=>t.inst+'_T'+t.nT===key), BD=VIZ.bodies[T.inst], g=S.group;
+  while(g.children.length){const o=g.children.pop();o.geometry&&o.geometry.dispose();o.material&&o.material.dispose()}
+  const nB=BD.list.length, days=BD.days;
+  // orbit rings
+  {const p=new Float32Array(nB*72*6);let k=0;for(const B of BD.list){const r=B.ring;for(let i=0;i<72;i++){const j=(i+1)%72;p[k++]=r[3*i];p[k++]=r[3*i+2];p[k++]=-r[3*i+1];p[k++]=r[3*j];p[k++]=r[3*j+2];p[k++]=-r[3*j+1]}}
+   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(p,3));
+   g.add(new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:0x8a786c,transparent:true,opacity:nB>50?.13:.2,depthWrite:false})))}
+  // route segments in time order (legs + waiting arcs), with end time per segment
+  const pos=[],col=[],tend=[],v=new THREE.Vector3(),w=new THREE.Vector3();
+  const visitT=new Float32Array(nB).fill(Infinity);visitT[T.legs[0].a]=0;
+  T.legs.forEach((L,li)=>{
+    const prevArr=li?T.legs[li-1].ta:0;
+    if(L.td>prevArr+1e-6){const n=Math.max(2,Math.ceil((L.td-prevArr)/12));for(let s=0;s<n;s++){const d0=prevArr+(L.td-prevArr)*s/n,d1=prevArr+(L.td-prevArr)*(s+1)/n;bodyPos(BD.list[L.a],d0,v);bodyPos(BD.list[L.a],d1,w);
+      pos.push(v.x,v.y,v.z,w.x,w.y,w.z);const c=ramp(d0/days).map(x=>x*.45);col.push(...c,...c);tend.push(d1)}}
+    const P=L.pts,n=P.length/3-1;for(let s=0;s<n;s++){pos.push(P[3*s],P[3*s+2],-P[3*s+1],P[3*s+3],P[3*s+5],-P[3*s+4]);
+      const d0=L.td+(L.ta-L.td)*s/n,d1=L.td+(L.ta-L.td)*(s+1)/n;col.push(...ramp(d0/days),...ramp(d1/days));tend.push(d1)}
+    if(li<T.legs.length-1)visitT[L.b]=L.ta;
+  });
+  const mk=(lw,op)=>{const geo=new THREE.LineSegmentsGeometry();geo.setPositions(pos);geo.setColors(col);
+    const m=new THREE.LineMaterial({linewidth:lw,vertexColors:true,transparent:true,opacity:op,depthWrite:false});m.resolution.copy(S.res);const o=new THREE.LineSegments2(geo,m);o.frustumCulled=false;g.add(o);return o};
+  S.ghost=mk(1.1,.16);S.route=mk(2.6,1);S.nseg=tend.length;S.tend=tend;
+  // bodies
+  const bp=new Float32Array(nB*3),bc=new Float32Array(nB*3),bgeo=new THREE.BufferGeometry();
+  bgeo.setAttribute('position',new THREE.BufferAttribute(bp,3));bgeo.setAttribute('color',new THREE.BufferAttribute(bc,3));
+  const pts=new THREE.Points(bgeo,new THREE.PointsMaterial({size:nB>50?.12:.14,map:S.dotTex,alphaTest:.5,vertexColors:true,sizeAttenuation:true}));pts.frustumCulled=false;g.add(pts);
+  // home marker
+  const home=new THREE.Mesh(new THREE.RingGeometry(.1,.125,32),new THREE.MeshBasicMaterial({color:0xefe9e2,side:THREE.DoubleSide,transparent:true,opacity:.9}));g.add(home);
+  Object.assign(S,{T,BD,days,pts,visitT,home,cum:T.legs.reduce((a,L)=>(a.push((a[a.length-1]||0)+L.dv),a),[])});
+  $('scrub').max=days;$('rk').textContent=`${nB} asteroids · ${T.nT} time points`;$('rpct').textContent=((T.cost/T.vub-1)*100).toFixed(1).replace('-','−')+'%';
+  day=0;hold=0;drawStrip();
+}
+function legAt(d){const L=S.T.legs;let lo=0,hi=L.length-1,ans=-1;while(lo<=hi){const m=(lo+hi)>>1;if(L[m].td<=d){ans=m;lo=m+1}else hi=m-1}return ans}
+function frame(t){
+  requestAnimationFrame(frame);if(!S||!S.T)return;
+  const dt=Math.min(.05,(t-lastT)/1000||0);lastT=t;
+  const visible=scrollP<2.4;if(!visible)return;
+  if(playing){if(day>=S.days){hold+=dt;if(hold>2.5){day=0;hold=0}}else day=Math.min(S.days,day+dt*S.days/48)}
+  if(view.auto&&!REDUCE)view.theta+=dt*.035;
+  // camera
+  const p=ease(scrollP/.9), R=lerp(5.6,10.2,p)*view.zoom*Math.max(1,1.2/S.cam.aspect), phi=clamp(lerp(1.32,.92,p)+view.userPhi,.12,1.5);
+  S.cam.position.set(R*Math.sin(phi)*Math.sin(view.theta),R*Math.cos(phi),R*Math.sin(phi)*Math.cos(view.theta));
+  S.cam.lookAt(0,lerp(-.5,-.25,p)*(S.res.x<700?0:1),0);
+  // bodies
+  const bp=S.pts.geometry.attributes.position,bc=S.pts.geometry.attributes.color,v=S.tmp;
+  S.BD.list.forEach((B,i)=>{bodyPos(B,day,v);bp.setXYZ(i,v.x,v.y,v.z);const vt=S.visitT[i];
+    if(vt<=day||showFull&&isFinite(vt)){const c=ramp(vt/S.days);bc.setXYZ(i,c[0],c[1],c[2])}else bc.setXYZ(i,.62,.57,.53)});
+  bp.needsUpdate=bc.needsUpdate=true;
+  bodyPos(S.BD.list[S.T.legs[0].a],day,v);S.home.position.copy(v);S.home.lookAt(S.cam.position);
+  // route drawn up to now
+  let lo=0,hi=S.nseg;while(lo<hi){const m=(lo+hi)>>1;if(S.tend[m]<=day)lo=m+1;else hi=m}
+  S.route.geometry.instanceCount=showFull?S.nseg:Math.min(S.nseg,lo+1);
+  S.ghost.material.opacity=showFull?0:.16;
+  // spacecraft
+  const li=legAt(day),L=S.T.legs;let sub,dv=0,vis=0;
+  if(li<0){bodyPos(S.BD.list[L[0].a],day,v);sub='waiting at the start'}
+  else{const G=L[li];if(day<G.ta){const n=G.pts.length/3-1,f=(day-G.td)/(G.ta-G.td)*n,i=Math.min(n-1,Math.floor(f)),u=f-i,P=G.pts;
+      v.set(lerp(P[3*i],P[3*i+3],u),lerp(P[3*i+2],P[3*i+5],u),-lerp(P[3*i+1],P[3*i+4],u));dv=(li?S.cum[li-1]:0)+G.dv*.5;vis=li;
+      sub=li===L.length-1?`leg ${li+1} of ${L.length}: flying home`:`leg ${li+1} of ${L.length}: to asteroid #${G.b}`}
+    else{bodyPos(S.BD.list[G.b],day,v);dv=S.cum[li];vis=Math.min(li+1,L.length-1);sub=li===L.length-1?'home again, every asteroid visited':`at asteroid #${G.b}, waiting for the next window`}}
+  S.craft.position.copy(v);
+  S.renderer.render(S.scene,S.cam);
+  // HUD
+  if(S._li!==li||S._d!==Math.round(day)){S._li=li;S._d=Math.round(day);
+    $('rdv').textContent=(dv/1000).toFixed(0);$('rsub').textContent=sub;$('rvis').textContent=`${vis} / ${L.length-1}`;$('rday').textContent='day '+Math.round(day);
+    if(document.activeElement!==$('scrub'))$('scrub').value=day;drawStrip(li)}
+}
+/* leg strip */
+function drawStrip(cur){
+  const c=$('strip'),dpr=Math.min(2,devicePixelRatio||1),w=c.clientWidth,h=c.clientHeight;if(!S||!S.T||!w)return;
+  if(c.width!==w*dpr){c.width=w*dpr;c.height=h*dpr}
+  const g=c.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+  const L=S.T.legs,n=L.length,bw=w/n,mx=Math.max(...L.map(l=>l.dv));
+  L.forEach((l,i)=>{const bh=Math.max(2,(h-4)*l.dv/mx),c3=ramp(l.td/S.days),done=cur!==undefined&&i<cur||l.ta<=day;
+    g.fillStyle=i===cur&&day<l.ta?'#fff':`rgba(${c3.map(x=>Math.round(x*255)).join(',')},${done||showFull?.95:.32})`;
+    const x=i*bw+1,ww=Math.max(1,bw-2);g.beginPath();if(g.roundRect)g.roundRect(x,h-bh,ww,bh,[Math.min(3,ww/2),Math.min(3,ww/2),0,0]);else g.rect(x,h-bh,ww,bh);g.fill()});
+}
+function stripIdx(e){const r=$('strip').getBoundingClientRect();return clamp(Math.floor((e.clientX-r.left)/r.width*S.T.legs.length),0,S.T.legs.length-1)}
+$('strip').addEventListener('pointermove',e=>{if(!S||!S.T)return;const i=stripIdx(e),l=S.T.legs[i];$('legtip').textContent=`leg ${i+1}: #${l.a} → #${l.b} · ${(l.dv/1000).toFixed(1)} km/s · ${Math.round(l.ta-l.td)} days`});
+$('strip').addEventListener('pointerleave',()=>$('legtip').textContent='');
+$('strip').addEventListener('click',e=>{if(!S||!S.T)return;day=S.T.legs[stripIdx(e)].td;hold=0;S._d=-1});
+$('scrub').addEventListener('input',e=>{day=+e.target.value;hold=0;view.auto=false});
+$('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'❚❚':'▶';$('play').setAttribute('aria-label',playing?'Pause':'Play');if(playing&&day>=S.days)day=0};
+if(REDUCE)$('play').textContent='▶';
+$('full').onclick=()=>{showFull=!showFull;$('full').setAttribute('aria-pressed',showFull);S._d=-1};
+function onScroll(){const r=$('stage').getBoundingClientRect(),vh=innerHeight;scrollP=clamp(-r.top/vh,0,2.5);
+  const a=ease(scrollP/.55);$('title').style.opacity=1-a;$('title').style.transform=`translateY(${-a*70}px)`;$('title').style.visibility=a>=1?'hidden':'visible';
+  $('gl').style.opacity=lerp(.5,1,a);$('hud').style.opacity=ease((scrollP-.4)/.35);$('hud').style.visibility=scrollP<.38?'hidden':'visible'}
+addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',()=>{onScroll();drawStrip()});onScroll();
+(async()=>{
+  try{VIZ=await (await fetch('viz.json')).json()}catch(e){VIZ=null}
+  if(!VIZ||!window.THREE||!THREE.LineSegments2||!initGL()){$('gl').style.display='none';$('fallback').style.display='flex';$('hud').remove();return}
+  chips($('tourchips'),VIZ.tours.map(t=>[t.inst+'_T'+t.nT,NAMES[t.inst+'_T'+t.nT]]),k=>{loadTour(k)});
+  loadTour('asteroids_80_T161');requestAnimationFrame(frame);
+  buildProgress('asteroids_80_T161');
+  chips($('ptabs'),Object.keys(NAMES).map(k=>[k,k.split('_')[1]+' asteroids, '+k.split('T')[1]+' time points']),buildProgress);
+})();
+
+/* ================= charts ================= */
+const C={mine:'#3594d0',act:'#e05a38',swan:'#8d70d8',amber:'#c98317',ink:'#efe9e2',muted:'#a39a91',grid:'rgba(255,235,220,.07)'};
+if(window.Chart){
+Chart.defaults.color=C.muted;Chart.defaults.font.family='"IBM Plex Sans",sans-serif';Chart.defaults.font.size=12;
+Chart.defaults.plugins.legend.display=false;Chart.defaults.maintainAspectRatio=false;Chart.defaults.animation=REDUCE?false:{duration:500};
+Object.assign(Chart.defaults.plugins.tooltip,{backgroundColor:'#231c18',borderColor:'rgba(255,235,220,.16)',borderWidth:1,titleColor:C.ink,bodyColor:C.ink,padding:10,cornerRadius:8,displayColors:true,boxWidth:8,boxHeight:8,usePointStyle:true});
+}
+const ax=(title,extra={})=>Object.assign({grid:{color:C.grid,drawTicks:false},border:{display:false},ticks:{padding:6},title:{display:!!title,text:title,color:C.muted,font:{size:12}}},extra);
+const endLabels={id:'endLabels',afterDatasetsDraw(ch){const g=ch.ctx,ds=ch.data.datasets[0],meta=ch.getDatasetMeta(0);g.save();g.font='500 12px "IBM Plex Mono",monospace';g.fillStyle=C.ink;g.textBaseline='middle';
+  meta.data.forEach((bar,i)=>{const t=ch.data.labelsRight[i];const wd=g.measureText(t).width;const inside=bar.x+8+wd>ch.width-2;g.textAlign=inside?'right':'left';g.fillStyle=inside?'#0b0909':C.ink;g.fillText(t,inside?bar.x-8:bar.x+8,bar.y)});g.restore()}};
+let chLadder,chProg;
+function buildProgress(key){
+  if(!window.Chart||!VIZ)return;const P=VIZ.progress[key],R=DATA.results[key],T=VIZ.tours.find(t=>t.inst+'_T'+t.nT===key);
+  const rows=[[['ACT beam search','(width 10,000)'],P.act_beam,C.swan],[['ACT B-Swan','heuristic'],P.bswan,C.swan],[['Best known before','(ACT, Gurobi)'],P.vub,C.swan],
+    [['My beam search','alone (width 100)'],R.beam_hand.cost,C.mine],[['My beam +','local search'],P.trace[0][1],C.mine],[['+ iterated','local search'],T.cost,C.mine]];
+  const pct=v=>{const p=(v/P.vub-1)*100;return Math.abs(p)<.005?'':' ('+(p>0?'+':'−')+Math.abs(p).toFixed(p>100?0:1)+'%)'};
+  chLadder&&chLadder.destroy();
+  chLadder=new Chart($('c_ladder'),{type:'bar',plugins:[endLabels],data:{labels:rows.map(r=>r[0]),labelsRight:rows.map(r=>fmt(r[1]/1000)+pct(r[1])),datasets:[{data:rows.map(r=>r[1]/1000),backgroundColor:rows.map(r=>r[2]),borderRadius:4,barPercentage:.72}]},
+    options:{indexAxis:'y',layout:{padding:{right:innerWidth<600?92:104}},scales:{x:ax('total Δv, km/s',{beginAtZero:true,ticks:{maxTicksLimit:5}}),y:ax('',{grid:{display:false},ticks:{color:C.ink,padding:6,font:{size:innerWidth<600?10:12}}})},
+      plugins:{tooltip:{callbacks:{label:c=>' '+fmt(c.parsed.x*1000)+' m/s'}}}}});
+  const tr=P.trace.map(([m,c])=>({x:m,y:(c/P.vub-1)*100})),xmax=tr[tr.length-1].x,cross=tr.find(p=>p.y<0);
+  $('progcap').textContent=`Tour Δv against the best known tour, starting from my beam search plus one local search. Below the dashed line is a new record`+(cross?`: crossed after ${cross.x<1?'under a minute':Math.round(cross.x)+' minutes'} on one core.`:'.');
+  chProg&&chProg.destroy();
+  chProg=new Chart($('c_prog'),{type:'line',data:{datasets:[
+      {label:'My best tour so far',data:tr,stepped:true,borderColor:C.mine,backgroundColor:C.mine,borderWidth:2,pointRadius:3,pointHoverRadius:6,pointBorderColor:'#15110f',pointBorderWidth:1.5},
+      {label:'Best known (ACT, Gurobi)',data:[{x:0,y:0},{x:xmax,y:0}],borderColor:C.muted,borderDash:[5,4],borderWidth:1.5,pointRadius:0,pointHitRadius:0}]},
+    options:{interaction:{mode:'nearest',intersect:false,axis:'x'},scales:{x:ax('minutes of search',{type:'linear',min:0,max:xmax}),y:ax('% above best known',{ticks:{callback:v=>(v>0?'+':'')+v+'%'}})},
+      plugins:{tooltip:{filter:i=>i.datasetIndex===0,callbacks:{title:i=>i.length?'after '+i[0].parsed.x.toFixed(1)+' min':'',label:c=>' '+(c.parsed.y>0?'+':'−')+Math.abs(c.parsed.y).toFixed(2)+'% vs best known'}}}}});
+}
+if(window.Chart){
+// grid refinement
+let chGrid;const buildGrid=k=>{const G=DATA.grid[k];chGrid&&chGrid.destroy();
+  const ds=(lab,arr,col)=>({label:lab,data:arr,borderColor:col,backgroundColor:col,borderWidth:2,pointRadius:4,pointHoverRadius:7,pointBorderColor:'#15110f',pointBorderWidth:1.5});
+  chGrid=new Chart($('c_grid'),{type:'line',data:{labels:G.T,datasets:[ds('ACT beam search',G.act,C.act),ds('ACT B-Swan',G.swan,C.swan),ds('My beam search',G.mine,C.mine)]},
+    options:{interaction:{mode:'index',intersect:false},scales:{x:ax('time-grid points (finer →)'),y:ax('tour Δv / best known',{type:'logarithmic',min:.9,max:16,ticks:{callback:v=>[1,2,5,10].includes(v)?v+'×':''}})},
+      plugins:{tooltip:{callbacks:{title:i=>i[0].label+' grid points',label:c=>' '+c.dataset.label+': '+c.parsed.y.toFixed(2)+'× best known'}}}}})};
+chips($('gtabs'),[['asteroids_20','20 asteroids'],['jovianmoons_20','20 Jovian moons']],buildGrid);buildGrid('asteroids_20');
+// all instances
+{const A=DATA.all;new Chart($('c_all'),{type:'bar',data:{labels:A.labels,datasets:[
+   {label:'ACT B-Swan',data:A.swan,backgroundColor:C.swan,borderRadius:3,barPercentage:.9,categoryPercentage:.72},
+   {label:'Mine',data:A.mine,backgroundColor:C.mine,borderRadius:3,barPercentage:.9,categoryPercentage:.72,minBarLength:3}]},
+  options:{indexAxis:'y',interaction:{mode:'index',intersect:false,axis:'y'},scales:{x:ax('% above the previous best known tour',{ticks:{callback:v=>(v>0?'+':'')+v+'%'},grid:{color:c=>c.tick.value===0?'rgba(239,233,226,.6)':C.grid}}),y:ax('',{grid:{display:false},ticks:{color:C.ink}})},
+    plugins:{tooltip:{callbacks:{label:c=>{const v=c.parsed.x;return ' '+c.dataset.label+': '+(Math.abs(v)<.005?'equals the best known':(v>0?'+':'−')+Math.abs(v).toFixed(2)+'%')}}}}}})}
+// training curves
+{const T=DATA.train,cols=[C.mine,C.amber,C.swan];new Chart($('c_train'),{type:'line',data:{datasets:[
+   ...T.runs.map((r,i)=>({label:'Run '+(i+1),data:r.map((y,x)=>({x,y})),stepped:true,borderColor:cols[i],backgroundColor:cols[i],borderWidth:2,pointRadius:0,pointHoverRadius:5})),
+   {label:'My hand rule',data:[{x:0,y:T.hand},{x:T.runs[0].length-1,y:T.hand}],borderColor:C.act,borderDash:[5,4],borderWidth:1.5,pointRadius:0}]},
+  options:{interaction:{mode:'index',intersect:false},scales:{x:ax('generation',{type:'linear',min:0,max:T.runs[0].length-1}),y:ax('mean Δv / best known',{ticks:{callback:v=>v.toFixed(3)}})},
+    plugins:{tooltip:{callbacks:{title:i=>'generation '+i[0].parsed.x,label:c=>' '+c.dataset.label+': '+c.parsed.y.toFixed(3)}}}}})}
+// held-out
+{const H=DATA.held;new Chart($('c_held'),{type:'bar',data:{labels:H.labels,datasets:[
+   {label:'Beam width 50',data:H.w50,backgroundColor:C.mine,borderRadius:3,categoryPercentage:.7,barPercentage:.9},{label:'Beam width 200',data:H.w200,backgroundColor:C.amber,borderRadius:3,categoryPercentage:.7,barPercentage:.9}]},
+  options:{interaction:{mode:'index',intersect:false},scales:{x:ax('',{grid:{display:false},ticks:{color:C.ink,maxRotation:0,autoSkip:false,font:{size:11}}}),y:ax('Δv / best known (1 = best known)',{beginAtZero:true,ticks:{callback:v=>v.toFixed(1)}})},
+    plugins:{tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y.toFixed(3)}}}}})}
+}
+</script>
 </body>
 </html>
