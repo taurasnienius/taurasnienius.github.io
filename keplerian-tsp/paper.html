@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Deferred-timing search for the Keplerian TSP: technical paper · Tauras Nienius</title>
+<meta name="description" content="Technical paper: cost model verification, exact scheduling of a fixed visiting order, beam search with deferred timing, local search, automatic rule discovery and new best-known tours on ESA ACT's Keplerian TSP benchmark.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#0c0a0a; --ink:#efe9e2; --muted:#a39a91; --rule:rgba(255,235,220,.09); --panel:rgba(22,17,15,.8);
+  --accent:#ff8a5c; --earth:#7cc6e8; --mars:#f2836b; --moon:#e9e1d3; color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#0c0a0a; --ink:#efe9e2; --muted:#a39a91; --rule:rgba(255,235,220,.09); --panel:rgba(22,17,15,.8);
+    --accent:#ff8a5c; --earth:#7cc6e8; --mars:#f2836b; --moon:#e9e1d3;}
+}
+:root[data-theme="dark"]{--bg:#0c0a0a; --ink:#efe9e2; --muted:#a39a91; --rule:rgba(255,235,220,.09); --panel:rgba(22,17,15,.8);
+  --accent:#ff8a5c; --earth:#7cc6e8; --mars:#f2836b; --moon:#e9e1d3;}
+*{box-sizing:border-box}
+html,body{overflow-x:clip;max-width:100%}
+html{background:#0c0a0a}
+body{margin:0;color:var(--ink);background-color:#0c0a0a;
+  background-image:linear-gradient(180deg,rgba(12,10,10,0) 0%,rgba(12,10,10,0) 82%,rgba(96,38,18,.22) 100%);
+  font:17px/1.72 "IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(255,138,92,.35)}
+a:hover{border-bottom-color:var(--accent)}
+.page{display:block;max-width:1240px;margin:0 auto;padding:0 18px 80px}
+header.top{max-width:760px;margin:0 auto;padding:44px 0 26px;border-bottom:1px solid var(--rule)}
+header.top .back{font:500 14px/1 "IBM Plex Mono",monospace;display:inline-block;margin-bottom:26px}
+header.top h1{font:700 clamp(29px,5vw,44px)/1.08 Archivo,Arial,sans-serif;letter-spacing:-.012em;margin:0 0 16px}
+header.top .byline{color:var(--muted);font-size:15.5px;margin:0}
+header.top .byline b{color:var(--ink);font-weight:600}
+.layout{display:block}
+main{max-width:760px;margin:0 auto;min-width:0}
+aside.toc{display:none}
+details.toc-narrow{max-width:760px;margin:22px auto 0;background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:10px 16px}
+details.toc-narrow summary{cursor:pointer;font:600 15px/1.4 Archivo,Arial,sans-serif;color:var(--ink)}
+.toc ol,.toc-narrow ol{list-style:none;margin:8px 0 4px;padding:0}
+.toc li,.toc-narrow li{margin:0;padding:0}
+.toc a,.toc-narrow a{display:block;border:0;color:var(--muted);font-size:14px;line-height:1.35;padding:4px 0 4px 10px;border-left:2px solid transparent}
+.toc a:hover,.toc-narrow a:hover{color:var(--ink)}
+.toc a.on{color:var(--ink);border-left-color:var(--accent)}
+.toc .n,.toc-narrow .n{font-family:"IBM Plex Mono",monospace;color:var(--accent);display:inline-block;min-width:1.9em}
+@media (min-width:1101px){
+  .layout{display:grid;grid-template-columns:240px minmax(0,760px);gap:56px;justify-content:center}
+  aside.toc{display:block;position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);overflow-y:auto;padding-top:34px}
+  aside.toc .lab{font:600 12px/1 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px 12px}
+  details.toc-narrow{display:none}
+  main{margin:0}
+}
+h2{font:700 25px/1.2 Archivo,Arial,sans-serif;margin:56px 0 14px;padding-top:26px;border-top:1px solid var(--rule);scroll-margin-top:20px}
+h2 .sn{color:var(--accent);font-family:"IBM Plex Mono",monospace;font-weight:500;margin-right:.45em}
+h3{font:600 18.5px/1.3 Archivo,Arial,sans-serif;margin:32px 0 8px;scroll-margin-top:20px}
+h3 .sn{color:var(--accent);font-family:"IBM Plex Mono",monospace;font-weight:500;margin-right:.45em;font-size:.9em}
+p{margin:0 0 15px}
+li{margin:0 0 7px}
+ul,ol{padding-left:1.25em;margin:0 0 16px}
+strong{font-weight:600}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em;color:#f3d9c9}
+.abstract{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:18px 22px;margin:30px 0 0}
+.abstract h2{border:0;margin:0 0 8px;padding:0;font-size:19px}
+.box{background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:8px;padding:14px 18px;margin:20px 0}
+.box p:last-child,.box ul:last-child{margin-bottom:0}
+.box .t{font:600 15px/1.3 Archivo,Arial,sans-serif;margin:0 0 6px;color:var(--ink)}
+.muted{color:var(--muted)}
+.earth{color:var(--earth)} .mars{color:var(--mars)} .moon{color:var(--moon)}
+.tbl{overflow-x:auto;margin:16px 0 22px;border:1px solid var(--rule);border-radius:8px;background:var(--panel);-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14.5px;line-height:1.45}
+th,td{padding:7px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule)}
+th{font-weight:600;color:var(--ink);background:rgba(255,235,220,.03);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+td.num,.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13.5px;white-space:nowrap}
+caption{caption-side:bottom;text-align:left;color:var(--muted);font-size:13.5px;padding:8px 10px}
+figure{margin:24px 0 28px}
+figure img{display:block;width:100%;max-width:100%;height:auto;border-radius:8px;border:1px solid var(--rule);background:#151110}
+figure.tall{max-width:380px;margin-left:auto;margin-right:auto}
+figure.mid{max-width:560px;margin-left:auto;margin-right:auto}
+figcaption{color:var(--muted);font-size:14px;line-height:1.55;margin-top:9px}
+figcaption b{color:var(--ink);font-weight:600}
+mjx-container[display]{display:block;overflow-x:auto;overflow-y:hidden;max-width:100%;min-width:0 !important;padding:2px 0}
+mjx-container{max-width:100%}
+.eqnote{color:var(--muted);font-size:15px}
+.refs li{font-size:14.5px;line-height:1.55;margin-bottom:9px;color:#ddd5cc}
+footer{max-width:760px;margin:60px auto 0;color:var(--muted);font-size:13.5px;border-top:1px solid var(--rule);padding-top:16px}
+
+main{margin:0 auto !important;max-width:780px}
+.tbl table{font-size:13.5px} .tbl td.num{font-size:12.5px}
+</style>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']], tags: 'none' },
+  svg: { fontCache: 'global' },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+};
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+</head>
+<body>
+<div class="page">
+<header class="top">
+  <a class="back" href="./">&larr; A cheaper way around</a>
+  <h1>Deferred-timing search for the Keplerian travelling salesperson problem</h1>
+  <p class="byline"><b>Tauras Nienius</b> &middot; Aerospace engineering, ELISA Aerospace (ISAE Group) &middot; November 2026 &middot; technical paper &middot; <a href="https://github.com/taurasnienius/taurasnienius.github.io/tree/main/keplerian-tsp/code">code</a></p>
+</header>
+<main>
+<div class="box"><p class="t">Abstract</p>
+<p>The Keplerian travelling salesperson problem (KTSP) asks for the cheapest closed tour, in total Δv, that rendezvous with every body of a set moving on Keplerian orbits, with departure and arrival dates on a time grid [1]. I rebuild the cost model of the benchmark published by ESA's Advanced Concepts Team and verify it by reproducing all 22 published optima for instances with up to 10 bodies (to the printed cent). I then describe a search in which the timing of a partial tour is never fixed: every partial tour carries its whole cost-versus-time curve, which is updated exactly when a leg is added. This gives an exact schedule for any fixed visiting order, a beam search that does not degrade on fine grids, and a local search that always compares optimally timed tours. On the 13 instances with 20 or more bodies the method finds 4 tours cheaper than the best published ones (up to 3.5 % on 80 asteroids and 161 time points) and equals the published value on the other 9. A genetic-programming search over the beam's ranking rule rediscovers the hand-designed rule but does not beat it on held-out instances. The technique of propagating time-dependent cost functions is known from time-dependent routing [7]; the contribution here is its application to this benchmark, the verified results and the negative result on rule discovery.</p></div>
+
+<h2><span class="sn">1</span>Problem</h2>
+<p>An instance gives $n$ bodies (body 0 is the depot), their Cartesian states at an initial epoch, a gravitational parameter $\mu$ and a time window $[t_0, t_f]$. Time is restricted to a uniform grid of $K$ points $\tau_0=t_0,\dots,\tau_{K-1}=t_f$. A tour is a permutation $\pi$ of the bodies $1..n-1$ together with departure and arrival indices $(d_p, a_p)$ for each of the $n$ legs, with</p>
+$$ d_p < a_p, \qquad a_p \le d_{p+1}, \qquad 0 \le d_0, \quad a_{n-1} \le K-1 . \tag{1}$$
+<p>Waiting at a body between an arrival and the next departure is free. The cost of the tour is the sum of the leg costs,</p>
+$$ J(\pi, d, a) = \sum_{p=0}^{n-1} c\big(\pi_p, d_p, \pi_{p+1}, a_p\big), \qquad \pi_0=\pi_n=0 . \tag{2}$$
+<p>I consider tours that visit every body exactly once. The formulation of [1] works on a time-expanded network and also admits repeated visits; this restriction is discussed in Section 10.</p>
+
+<h2><span class="sn">2</span>Cost model and its verification</h2>
+<p>The leg cost is the two-impulse rendezvous cost of a Lambert arc. With $\mathbf r_i(\tau), \mathbf v_i(\tau)$ the two-body state of body $i$ at time $\tau$,</p>
+$$ c(i,k,j,l) = \min_{s} \Big( \lVert \mathbf v^{\rm dep}_s - \mathbf v_i(\tau_k) \rVert + \lVert \mathbf v^{\rm arr}_s - \mathbf v_j(\tau_l) \rVert \Big), \tag{3}$$
+<p>where $s$ runs over all solutions of Lambert's problem from $\mathbf r_i(\tau_k)$ to $\mathbf r_j(\tau_l)$ in time $\tau_l-\tau_k$: every admissible number of revolutions, both branches, and both transfer directions. Bodies are propagated with <code>pykep.propagate_lagrangian</code> and arcs solved with <code>pykep.lambert_problem</code>. All $c(i,k,j,l)$ are precomputed into a tensor $C$ of size $n \times K \times n \times K$ (about 1.3 GB for $n=80$, $K=161$; 7 minutes on two cores).</p>
+<p>The paper [1] does not need to spell out these choices because it distributes the time-expanded networks. I did not use those files; I identified the model by brute force on the smallest instances. Multi-revolution arcs are required: on Jovian moons 4/11 the optimum is 33&#8239;268.31 m/s with zero-revolution arcs only and 20&#8239;096.59 m/s with all revolutions, the published value. Allowing the retrograde direction changed nothing on the instances I tested and is kept for completeness.</p>
+<p><strong>Exact solver.</strong> For small $n$ a dynamic programme over (visited set $S$, current body $j$, time index $t$) is exact:</p>
+$$ F(S \cup \{m\}, m, l) = \min_{j \in S} \; \min_{k \lt l} \Big[ \min_{k' \le k} F(S, j, k') + c(j,k,m,l) \Big], \tag{4}$$
+<p>with $F(\{0\},0,\cdot)=0$ and the closing leg back to body 0. It runs in $O(2^n n^2 K^2)$; 10 bodies and 161 time points take 1.6 s. Table 1 compares it with every optimum published in [1] for $n \le 10$.</p>
+<div class="tbl"><table>
+<thead><tr><th>Instance (bodies / grid points)</th><th class="r">Optimum in [1]</th><th class="r">This work</th><th class="r">Difference</th></tr></thead>
+<tbody><tr><td>Asteroids 5 / 6</td><td class="num r">12&#8239;318.13</td><td class="num r">12&#8239;318.13</td><td class="num r">0.00</td></tr>
+<tr><td>Asteroids 5 / 11</td><td class="num r">10&#8239;938.92</td><td class="num r">10&#8239;938.92</td><td class="num r">0.00</td></tr>
+<tr><td>Asteroids 5 / 21</td><td class="num r">10&#8239;533.94</td><td class="num r">10&#8239;533.94</td><td class="num r">0.00</td></tr>
+<tr><td>Asteroids 5 / 41</td><td class="num r">10&#8239;459.16</td><td class="num r">10&#8239;459.16</td><td class="num r">0.00</td></tr>
+<tr><td>Asteroids 5 / 81</td><td class="num r">10&#8239;431.62</td><td class="num r">10&#8239;431.62</td><td class="num r">0.00</td></tr>
+<tr><td>Asteroids 5 / 161</td><td class="num r">10&#8239;431.60</td><td class="num r">10&#8239;431.60</td><td class="num r">0.00</td></tr>
+<tr><td>Asteroids 10 / 11</td><td class="num r">38&#8239;734.94</td><td class="num r">38&#8239;734.94</td><td class="num r">0.00</td></tr>
+<tr><td>Asteroids 10 / 21</td><td class="num r">28&#8239;173.63</td><td class="num r">28&#8239;173.63</td><td class="num r">0.00</td></tr>
+<tr><td>Asteroids 10 / 41</td><td class="num r">25&#8239;290.47</td><td class="num r">25&#8239;290.47</td><td class="num r">0.00</td></tr>
+<tr><td>Asteroids 10 / 81</td><td class="num r">24&#8239;850.79</td><td class="num r">24&#8239;850.79</td><td class="num r">0.00</td></tr>
+<tr><td>Asteroids 10 / 161</td><td class="num r">24&#8239;718.40</td><td class="num r">24&#8239;718.40</td><td class="num r">0.00</td></tr>
+<tr><td>Jovian moons 4 / 6</td><td class="num r">38&#8239;705.57</td><td class="num r">38&#8239;705.57</td><td class="num r">0.00</td></tr>
+<tr><td>Jovian moons 4 / 11</td><td class="num r">20&#8239;096.59</td><td class="num r">20&#8239;096.59</td><td class="num r">0.00</td></tr>
+<tr><td>Jovian moons 4 / 21</td><td class="num r">18&#8239;618.00</td><td class="num r">18&#8239;618.00</td><td class="num r">0.00</td></tr>
+<tr><td>Jovian moons 4 / 41</td><td class="num r">17&#8239;841.49</td><td class="num r">17&#8239;841.49</td><td class="num r">0.00</td></tr>
+<tr><td>Jovian moons 4 / 81</td><td class="num r">17&#8239;623.63</td><td class="num r">17&#8239;623.63</td><td class="num r">0.00</td></tr>
+<tr><td>Jovian moons 4 / 161</td><td class="num r">17&#8239;430.97</td><td class="num r">17&#8239;430.97</td><td class="num r">0.00</td></tr>
+<tr><td>Jovian moons 10 / 11</td><td class="num r">19&#8239;871.59</td><td class="num r">19&#8239;871.59</td><td class="num r">0.00</td></tr>
+<tr><td>Jovian moons 10 / 21</td><td class="num r">16&#8239;268.25</td><td class="num r">16&#8239;268.25</td><td class="num r">0.00</td></tr>
+<tr><td>Jovian moons 10 / 41</td><td class="num r">15&#8239;611.09</td><td class="num r">15&#8239;611.09</td><td class="num r">0.00</td></tr>
+<tr><td>Jovian moons 10 / 81</td><td class="num r">15&#8239;443.86</td><td class="num r">15&#8239;443.86</td><td class="num r">0.00</td></tr>
+<tr><td>Jovian moons 10 / 161</td><td class="num r">15&#8239;373.88</td><td class="num r">15&#8239;373.88</td><td class="num r">0.00</td></tr>
+</tbody>
+<caption>Table 1. Reproduction of the published optima, m/s. Absolute differences; 0.01 is rounding in the last printed digit.</caption></table></div>
+
+<h2><span class="sn">3</span>Exact timing of a fixed order</h2>
+<p>Fix the order $\pi$. Let $A_p(t)$ be the cheapest cost of the first $p$ legs such that the spacecraft is at body $\pi_p$ and free to leave at grid index $t$. Because waiting is free, $A_p$ is non-increasing in $t$. Then $A_0 \equiv 0$ and</p>
+$$ A_p(t) = \min_{l \le t} \; \min_{k < l} \Big[ A_{p-1}(k) + c(\pi_{p-1}, k, \pi_p, l) \Big]. \tag{5}$$
+<p>This is a min-plus product of the vector $A_{p-1}$ with the $K \times K$ slice of $C$ for that pair of bodies, followed by a running minimum. The optimal cost of the order is $A_n(K-1)$ and the dates follow by backtracking. One leg costs $O(K^2)$, a whole tour $O(nK^2)$: about 20 &micro;s per leg for $K=161$ in compiled code.</p>
+<p>The same recursion run backwards gives $B_p(t)$, the cheapest cost of legs $p..n-1$ when the spacecraft is at $\pi_p$ and free to leave at $t$. For any position $p$,</p>
+$$ J^*(\pi) = \min_t \big[ A_p(t) + B_p(t) \big]. \tag{6}$$
+<p>Equation (6) makes local search cheap: if a move changes the order only between positions $lo$ and $hi$, the prefix curve $A_{lo-1}$ and the suffix curve $B_{hi+1}$ are still valid, so the new tour is evaluated exactly with $hi-lo+2$ applications of (5) instead of $n$.</p>
+
+<h2><span class="sn">4</span>Beam search with deferred timing</h2>
+<p>A beam search over (order prefix, arrival index) pairs has to commit to dates as it goes. In [1] the beam search of width 10&#8239;000 ends between 19 % and 1,205 % above the best known value on the 13 larger instances, and gets worse as $K$ grows. Here a beam state is a prefix together with its whole curve $A_p(\cdot)$. Expanding a state by body $b$ applies (5) once. Two states with the same visited set and the same last body are duplicates for ranking purposes and only the better ranked is kept. After $n-1$ expansions each surviving state is closed with the leg back to the depot.</p>
+<p>What remains is how to rank states, since a curve is not a number. Each child is summarised by eight features (cost features are divided by an instance scale, the median over body pairs of the cheapest leg departing at $t_0$):</p>
+<div class="tbl"><table>
+<thead><tr><th>Feature</th><th>Meaning</th></tr></thead><tbody>
+<tr><td class="num">a_sched</td><td>$A_p(t^*)$ at the proportional date $t^* = (p/n)(K-1)$: the cost if the tour stays on schedule</td></tr>
+<tr><td class="num">a_min</td><td>$\min_t A_p(t)$, the cheapest way to have visited the prefix at all</td></tr>
+<tr><td class="num">a_late, a_early</td><td>$A_p$ at $t^* \pm 0.1(K-1)$</td></tr>
+<tr><td class="num">leg</td><td>increase of $\min_t A$ caused by the last leg</td></tr>
+<tr><td class="num">depth</td><td>$p/n$</td></tr>
+<tr><td class="num">tmin</td><td>$\arg\min_t A_p(t) / (K-1)$, the share of the window already used at the cheapest point</td></tr>
+<tr><td class="num">near</td><td>mean over unvisited bodies of the cheapest leg from the last body departing at or after $t^*$</td></tr>
+</tbody><caption>Table 2. Features available to a ranking rule.</caption></table></div>
+<p>The hand-designed rule is simply <code>a_sched</code>. Ranking by <code>a_min</code>, the obvious choice, favours prefixes that are cheap because they have used most of the window, and leaves no time for the rest of the tour.</p>
+
+<h2><span class="sn">5</span>Local search and iterated local search</h2>
+<p>Neighbourhood: relocation of a segment of 1 to 3 consecutive bodies, swap of two bodies, and reversal of a stretch, all restricted to positions at most $W$ apart ($W$ = 12 to 15). Every candidate is evaluated exactly with (5) and (6). Two descent variants are used: best improvement (for the comparisons of Section 7) and first improvement with a random scan order (for long runs, several times cheaper per improvement on 80 bodies).</p>
+<p>Iterated local search perturbs the current tour with 4 random segment relocations inside the same window, descends, accepts the result if it is better (or with probability 0.02 otherwise), and returns to the best tour found with probability 0.01 per iteration. Runs start from the better of two beam-search tours (width 200 or 300) after one descent.</p>
+
+<h2><span class="sn">6</span>Baselines</h2>
+<p>Two of the methods named in ACT's internship topic were implemented on the same evaluator, so that the comparison isolates the search and not the cost model. <strong>P-ACO</strong> (population-based ant colony optimisation, after [3]): 20 ants per iteration, population of the 5 best tours, pheromone on body-to-body arcs, $\alpha=1$, $\beta=2$, heuristic desirability from the on-schedule cost of the candidate leg; ants also carry the curve $A$. <strong>MCTS</strong>: UCT ($c=0.7$) over the next two bodies from the committed prefix, rollouts that complete the order by sampling from a softmin of the cheapest-leg table, each rollout scored exactly with (5), one body committed per step. Both get the wall-clock time of the beam search plus 20 s.</p>
+
+<h2><span class="sn">7</span>Results</h2>
+<div class="tbl"><table>
+<thead><tr><th>Instance</th><th class="r">Beam, cost-only</th><th class="r">Beam, on-schedule</th><th class="r">P-ACO</th><th class="r">MCTS</th><th class="r">Final</th></tr></thead>
+<tbody><tr><td>Asteroids 20 / 21</td><td class="num r">1.865 &rarr; 1.034</td><td class="num r">1.074 &rarr; 1.018</td><td class="num r">1.033 &rarr; 1.019</td><td class="num r">1.268 &rarr; 1.057</td><td class="num r">1.0000</td></tr>
+<tr><td>Asteroids 20 / 41</td><td class="num r">1.848 &rarr; 1.029</td><td class="num r">1.074 &rarr; 1.021</td><td class="num r">1.080 &rarr; 1.062</td><td class="num r">1.124 &rarr; 1.021</td><td class="num r">1.0000</td></tr>
+<tr><td>Asteroids 20 / 81</td><td class="num r">1.824 &rarr; 1.075</td><td class="num r">1.065 &rarr; 1.030</td><td class="num r">1.134 &rarr; 1.027</td><td class="num r">1.298 &rarr; 1.047</td><td class="num r">1.0000</td></tr>
+<tr><td>Asteroids 20 / 161</td><td class="num r">1.846 &rarr; 1.044</td><td class="num r">1.071 &rarr; 1.036</td><td class="num r">1.215 &rarr; 1.094</td><td class="num r">1.184 &rarr; 1.064</td><td class="num r">1.0000</td></tr>
+<tr><td>Jovian moons 20 / 21</td><td class="num r">1.412 &rarr; 1.026</td><td class="num r">1.000 &rarr; 1.000</td><td class="num r">1.000 &rarr; 1.000</td><td class="num r">1.387 &rarr; 1.081</td><td class="num r">1.0000</td></tr>
+<tr><td>Jovian moons 20 / 41</td><td class="num r">1.263 &rarr; 1.139</td><td class="num r">1.005 &rarr; 1.005</td><td class="num r">1.081 &rarr; 1.075</td><td class="num r">1.265 &rarr; 1.081</td><td class="num r">1.0000</td></tr>
+<tr><td>Jovian moons 20 / 81</td><td class="num r">1.262 &rarr; 1.059</td><td class="num r">1.000 &rarr; 1.000</td><td class="num r">1.070 &rarr; 1.031</td><td class="num r">1.247 &rarr; 1.037</td><td class="num r">1.0000</td></tr>
+<tr><td>Jovian moons 20 / 161</td><td class="num r">1.242 &rarr; 1.122</td><td class="num r">1.000 &rarr; 1.000</td><td class="num r">1.206 &rarr; 1.056</td><td class="num r">1.297 &rarr; 1.163</td><td class="num r">1.0000</td></tr>
+<tr><td>Asteroids 40 / 41</td><td class="num r">3.078 &rarr; 1.350</td><td class="num r">1.994 &rarr; 1.169</td><td class="num r">1.970 &rarr; 1.103</td><td class="num r">2.203 &rarr; 1.173</td><td class="num r">1.0000</td></tr>
+<tr><td>Asteroids 40 / 81</td><td class="num r">2.598 &rarr; 1.346</td><td class="num r">1.516 &rarr; 1.131</td><td class="num r">2.017 &rarr; 1.335</td><td class="num r">1.786 &rarr; 1.334</td><td class="num r">0.9987</td></tr>
+<tr><td>Asteroids 40 / 161</td><td class="num r">2.619 &rarr; 1.459</td><td class="num r">1.519 &rarr; 1.077</td><td class="num r">2.079 &rarr; 1.249</td><td class="num r">1.888 &rarr; 1.218</td><td class="num r">0.9840</td></tr>
+<tr><td>Asteroids 80 / 81</td><td class="num r">3.314 &rarr; 1.505</td><td class="num r">1.798 &rarr; 1.345</td><td class="num r">2.892 &rarr; 1.479</td><td class="num r">2.608 &rarr; 1.454</td><td class="num r">0.9947</td></tr>
+<tr><td>Asteroids 80 / 161</td><td class="num r">2.903 &rarr; 1.487</td><td class="num r">1.364 &rarr; 1.111</td><td class="num r">2.594 &rarr; 1.308</td><td class="num r">2.414 &rarr; 1.429</td><td class="num r">0.9649</td></tr>
+<tr><td><b>Geometric mean</b></td><td class="num r"><b>1.966 &rarr; 1.192</b></td><td class="num r"><b>1.231 &rarr; 1.069</b></td><td class="num r"><b>1.456 &rarr; 1.133</b></td><td class="num r"><b>1.547 &rarr; 1.158</b></td><td></td></tr></tbody>
+<caption>Table 3. Tour Δv divided by the best value published in [1] (1 = equal, below 1 = new best). Each cell: constructive method alone &rarr; after one local-search descent. Beam width 100. "Final" is the best tour of this work, including iterated local search of 6 to 75 minutes on one core.</caption></table></div>
+<p>The on-schedule beam is the strongest constructive method by a wide margin, and one descent brings it to 7 % above the best known on average. The coarsest grids ($K = n+1$) are the weak spot: each leg must take exactly one grid step, timing carries no freedom, and the problem is a pure ordering problem. There the beam plus one descent is still up to 35 % above the best known (80 bodies, 81 points), and it is the iterated local search that closes the gap.</p>
+<div class="tbl"><table>
+<thead><tr><th>Instance</th><th class="r">Previous best [1]</th><th class="r">New</th><th class="r">Change</th><th class="r">Gap to lower bound</th><th class="r">Worst arc miss</th><th>Tour</th></tr></thead>
+<tbody><tr><td>Asteroids 40 / 81</td><td class="num r">316&#8239;923</td><td class="num r" style="color:#7cc6e8;font-weight:600">316&#8239;527</td><td class="num r">-0.13%</td><td class="num r">18.2% &rarr; 18.1%</td><td class="num r">0.3 cm</td><td><a href="tours/asteroids_40_T81.json">JSON</a></td></tr>
+<tr><td>Asteroids 40 / 161</td><td class="num r">312&#8239;501</td><td class="num r" style="color:#7cc6e8;font-weight:600">307&#8239;515</td><td class="num r">-1.60%</td><td class="num r">28.1% &rarr; 26.9%</td><td class="num r">0.7 cm</td><td><a href="tours/asteroids_40_T161.json">JSON</a></td></tr>
+<tr><td>Asteroids 80 / 81</td><td class="num r">1&#8239;557&#8239;281</td><td class="num r" style="color:#7cc6e8;font-weight:600">1&#8239;549&#8239;061</td><td class="num r">-0.53%</td><td class="num r">20.6% &rarr; 20.2%</td><td class="num r">0.3 cm</td><td><a href="tours/asteroids_80_T81.json">JSON</a></td></tr>
+<tr><td>Asteroids 80 / 161</td><td class="num r">1&#8239;420&#8239;768</td><td class="num r" style="color:#7cc6e8;font-weight:600">1&#8239;370&#8239;931</td><td class="num r">-3.51%</td><td class="num r">46.3% &rarr; 44.4%</td><td class="num r">0.8 cm</td><td><a href="tours/asteroids_80_T161.json">JSON</a></td></tr></tbody>
+<caption>Table 4. New best-known tours, m/s. Gap = (tour − bound)/tour with the lower bounds of [1], before &rarr; after.</caption></table></div>
+<p>On 80 asteroids and 161 time points the search passes the previous best after 14 minutes on one core and reaches 1&#8239;370&#8239;931 m/s after 75 minutes. ACT's public project page lists the same previous value for this instance (checked 25 November 2026); I am not aware of other published results on these instances, but cannot exclude unpublished ones.</p>
+
+<h2><span class="sn">8</span>Automatic discovery of the ranking rule</h2>
+<p>The ranking rule is the one hand-designed component of the beam search, which makes it a small test case for automated heuristic design [5, 6]. Rules are expression trees over the features of Table 2 and constants, with operators $+,-,\times,\div,\min,\max$, negation, $\sqrt{|\cdot|}$, $\log(1+|\cdot|)$ and square. Genetic programming [4]: population 200, 40 generations, tournament selection of size 4, 60 % crossover, 30 % mutation, 10 % fresh trees, 5 % elitism, trees of at most 25 nodes, parsimony pressure $2\times10^{-4}$ per node. Fitness is the mean ratio to the best known value of a width-20 beam search on six training instances (10 and 20 bodies). Three independent runs start from random trees; a fourth starts from the hand rule with width 50 on five instances.</p>
+<div class="tbl"><table>
+<thead><tr><th>Origin</th><th>Rule (lower score is better)</th><th class="r">Held-out, W = 50</th><th class="r">Held-out, W = 200</th></tr></thead>
+<tbody><tr><td>hand</td><td class="num" style="white-space:normal">a_sched (hand rule, "on schedule")</td><td class="num r">1.265</td><td class="num r">1.249</td></tr>
+<tr><td>hand</td><td class="num" style="white-space:normal">a_min (hand rule, "cost only")</td><td class="num r">2.191</td><td class="num r">1.971</td></tr>
+<tr><td>evolved, run 1</td><td class="num" style="white-space:normal">(a_sched - (-7.262 * min(max(0.25, a_early), (a_sched - (-7.262 * sq(tmin))))))</td><td class="num r">1.274</td><td class="num r">1.254</td></tr>
+<tr><td>evolved, run 2</td><td class="num" style="white-space:normal">((2 + (((tmin + log1p((3 + 5))) * a_sched) + a_sched)) * 10)</td><td class="num r">1.281</td><td class="num r">1.249</td></tr>
+<tr><td>evolved, run 3</td><td class="num" style="white-space:normal">((sq(a_sched) / (a_sched / a_early)) + (a_sched * a_min))</td><td class="num r">1.276</td><td class="num r">1.243</td></tr>
+<tr><td>evolved, seeded with a_sched</td><td class="num" style="white-space:normal">max(near, ((tmin + tmin) * sqrt(max(a_sched, 5))))</td><td class="num r">1.340</td><td class="num r">1.292</td></tr>
+</tbody>
+<caption>Table 5. Geometric mean of tour Δv / best known on eight instances not used in training (20, 40 and 80 bodies), beam search alone.</caption></table></div>
+<p>All three unseeded runs converge on rules dominated by <code>a_sched</code>, with a penalty on <code>tmin</code> or a product with a neighbouring sample of the curve. On the training set they improve on the hand rule by about 3 % (fitness 1.087 down to between 1.051 and 1.058). On held-out instances the differences are within about 1 % in both directions, and the seeded run, which was allowed to specialise at width 50 on fewer instances, is 3 to 6 % worse. With eight held-out instances a 1 % difference is not significant. I read this as: the feature set already contains the right quantity, a formula search finds it, and there is little left to gain by recombining these features. The improvement that mattered, replacing a date by a curve in the state, is a change of representation that lies outside a search over formulas.</p>
+
+<h2><span class="sn">9</span>Verification</h2>
+<ul>
+<li>The cost model is tied to [1] by Table 1.</li>
+<li>The scheduler (5) was checked against brute-force enumeration of all orders with the exact solver (4) on four instances, and the identity (6) holds to $10^{-6}$ at every position.</li>
+<li>All compiled routines were run once with array-bounds checking enabled.</li>
+<li>Every tour in Table 4 was re-evaluated by a separate script that shares no code with the solver: it reads the instance file, propagates the bodies, solves each Lambert arc again, propagates the spacecraft along the arc and measures the distance to the target at arrival ("worst arc miss"), checks constraints (1) and the visit-once rule, and sums the impulses. Totals agree with the solver to $10^{-6}$ m/s. The checker uses the same Lambert library (pykep), so an error inside that library would not be caught.</li>
+</ul>
+
+<h2><span class="sn">10</span>Limits</h2>
+<ul>
+<li><strong>Upper bounds only.</strong> No optimality proof; the lower bounds are those of [1].</li>
+<li><strong>Single visits.</strong> The formulation of [1] allows a body to be visited more than once. All its published optima for $n \le 10$ are reproduced by single-visit tours, but for larger instances a cheaper tour with revisits could exist.</li>
+<li><strong>Compute is not comparable.</strong> The values of [1] come from a mixed-integer solver with a 4-hour limit on a 2 &times; 64-core server and include bounds; mine from heuristics on two cores, minutes to 75 minutes, without bounds.</li>
+<li><strong>One run per instance.</strong> The long runs were not repeated with different seeds, so no variance is reported.</li>
+<li><strong>Benchmark model.</strong> Two-body dynamics, impulsive legs, grid dates. Nothing here addresses low thrust.</li>
+<li><strong>Rule discovery.</strong> Genetic programming over fixed features, not a language model; small training and test sets.</li>
+<li><strong>Memory.</strong> The dense tensor $C$ grows as $n^2K^2$; beyond a few hundred bodies it would have to be computed lazily or sparsified.</li>
+</ul>
+
+<h2><span class="sn">11</span>Relation to earlier work</h2>
+<p>Propagating a time-dependent cost or arrival function along a path is standard in time-dependent shortest-path and routing problems, including dynamic programming for the time-dependent TSP with time windows [7]. Beam search, ant colony optimisation and their hybrid for multi-rendezvous trajectories are established [2, 3]. The KTSP benchmark, its exact methods and the B-Swan heuristic are from [1]. What this work adds is the combination applied to that benchmark, a verified independent implementation of its cost model, improved upper bounds on four open instances, and a first, negative, data point on automatic discovery of a search component for it.</p>
+
+<h2><span class="sn">12</span>Reproducibility</h2>
+<p>Code, result files and tours are in the <a href="https://github.com/taurasnienius/taurasnienius.github.io/tree/main/keplerian-tsp/code">repository</a> (Python, numpy, numba, pykep 3). The new tours are provided as JSON and in ACT's <code>.sol</code> format in <a href="sol/">sol/</a>. Instance files: doi:10.5281/zenodo.14850862.</p>
+
+<h2><span class="sn">13</span>References</h2>
+<ol class="refs">
+<li>M. Bannach, G. Acciarini, D. Izzo, <i>The Keplerian Traveling Salesperson Problem</i>, arXiv:2605.00010, 2026.</li>
+<li>D. Izzo, I. Getzner, D. Hennes, L. F. Simões, <i>Evolving solutions to TSP variants for active space debris removal</i>, GECCO 2015.</li>
+<li>L. F. Simões, D. Izzo, E. Haasdijk, A. E. Eiben, <i>Multi-rendezvous spacecraft trajectory optimization with beam P-ACO</i>, EvoCOP 2017.</li>
+<li>M. Schmidt, H. Lipson, <i>Distilling free-form natural laws from experimental data</i>, Science 324, 2009.</li>
+<li>F. Liu et al., <i>Evolution of Heuristics: towards efficient automatic algorithm design using large language model</i>, ICML 2024.</li>
+<li>H. Ye et al., <i>ReEvo: large language models as hyper-heuristics with reflective evolution</i>, NeurIPS 2024.</li>
+<li>G. Lera-Romero, J. J. Miranda-Bront, F. J. Soulignac, <i>Dynamic programming for the time-dependent traveling salesman problem with time windows</i>, Optimization Online, 2020.</li>
+</ol>
+</main>
+<footer><a href="./">A cheaper way around</a> · <a href="../">Tauras Nienius</a> · <a href="mailto:taurasn.nie@gmail.com">taurasn.nie@gmail.com</a> · November 2026</footer>
+</div>
+</body>
+</html>

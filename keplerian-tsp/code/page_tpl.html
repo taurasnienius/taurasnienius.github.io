@@ -186,6 +186,7 @@ footer a{color:var(--muted)}
     <div class="kpi"><b>__BEAMX__×</b><span>cheaper than ESA's published beam search on the finest 20-asteroid grid, with a beam 100 times narrower</span></div>
     <div class="kpi"><b>__CROSS__ min</b><span>on one CPU core to pass a record set on a 128-core server</span></div>
   </div>
+  <p style="margin:18px 0 0;font:13.5px var(--f-mono);max-width:none"><a href="paper.html">Read the technical paper &rarr;</a> &nbsp;·&nbsp; <a href="https://github.com/taurasnienius/taurasnienius.github.io/tree/main/keplerian-tsp/code">code</a></p>
 </section>
 
 <section>
@@ -282,7 +283,7 @@ __PHOTOS2__
     <li><b>Same grid only</b>A finer grid gives cheaper tours, so every comparison is made on the grid of its instance.</li>
     <li><b>Evolution, not a language model</b>I had two CPU cores and no way to run one. The loop is the same generate, test, select loop, so a model can replace the formula generator.</li>
   </ul>
-  <div class="two"><p>All code is public in the <a href="https://github.com/taurasnienius/taurasnienius.github.io/tree/main/keplerian-tsp/code">code folder</a>: cost tables, exact solver, beam search, ant colony, MCTS, local search, the evolution loop and the independent checker. The instances are ACT's own (doi:10.5281/zenodo.14850862). The new tours are the JSON files linked above, and in ACT's own .sol format: <a href="sol/asteroids_80_161.sol">80/161</a>, <a href="sol/asteroids_40_161.sol">40/161</a>, <a href="sol/asteroids_80_81.sol">80/81</a>, <a href="sol/asteroids_40_81.sol">40/81</a>; the 3D view reads <a href="viz.json">viz.json</a>.</p>
+  <div class="two"><p>The full method, equations and tables are in the <a href="paper.html">technical paper</a>. All code is public in the <a href="https://github.com/taurasnienius/taurasnienius.github.io/tree/main/keplerian-tsp/code">code folder</a>: cost tables, exact solver, beam search, ant colony, MCTS, local search, the evolution loop and the independent checker. The instances are ACT's own (doi:10.5281/zenodo.14850862). The new tours are the JSON files linked above, and in ACT's own .sol format: <a href="sol/asteroids_80_161.sol">80/161</a>, <a href="sol/asteroids_40_161.sol">40/161</a>, <a href="sol/asteroids_80_81.sol">80/81</a>, <a href="sol/asteroids_40_81.sol">40/81</a>; the 3D view reads <a href="viz.json">viz.json</a>.</p>
   <ol class="refs">
     <li>M. Bannach, G. Acciarini, D. Izzo, <i>The Keplerian Traveling Salesperson Problem</i>, arXiv:2605.00010, 2026. Instances: doi:10.5281/zenodo.14850862.</li>
     <li>D. Izzo et al., <i>Evolving solutions to TSP variants for active space debris removal</i>, GECCO 2015.</li>
