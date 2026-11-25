@@ -18,3 +18,4 @@ Live at **https://taurasnienius.github.io**
   - Lomax et al. 2022, *Nature Communications* 13, 583: CC BY 4.0 (photographs cropped and relabelled).
   - Burke et al. 2024, *Frontiers in Space Technologies* 5, 1304579: CC BY 4.0.
   - Lomax et al. 2025, *Acta Astronautica* 234, 287–295: CC BY-NC-ND 4.0, reproduced unmodified for non-commercial use.
+- Asteroid photographs on the Keplerian TSP page: NASA/JPL-Caltech/UCLA/MPS/DLR/IDA (Vesta, PIA15678) and NASA/Goddard/University of Arizona (Bennu).
