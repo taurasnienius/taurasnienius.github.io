@@ -25,8 +25,13 @@ D['held'] = dict(labels=[['hand:', 'on schedule'], ['hand:', 'cost only'], ['evo
                  w50=[round(bp.gm(50, x), 4) for x in n], w200=[round(bp.gm(200, x), 4) for x in n])
 # check the hard-coded hand-rule training fitness against a fresh evaluation is done in check_hand.py
 big = viz['progress']['asteroids_80_T161']
+cross = next(m for m, c in big['trace'] if c < big['vub'])
+SUMMARY2 = (f"My tour is cheaper than the previous best on {bp.N_NEW} instances and equals it to the cent on the other {bp.n_match}. "
+            "Five of those are proven optimal, so matching is the best possible there.")
+import os
+PHOTOS = open('photos.html').read() if os.path.exists('photos.html') else ''
 sub = {'__DATA__': json.dumps(D, separators=(',', ':')), '__NNEW__': str(bp.N_NEW), '__BIG__': f'{bp.BIG:.1f}'.replace('-', '−'),
-       '__BIGABS__': f'{abs(bp.BIG):.1f}', '__NEXACT__': str(bp.n_exact), '__SUMMARY__': bp.SUMMARY, '__TABLE__': bp.TABLE, '__NB__': bp.NB,
+       '__BIGABS__': f'{abs(bp.BIG):.1f}', '__NEXACT__': str(bp.n_exact), '__SUMMARY__': SUMMARY2, '__BEAMX__': f'{bp.ratio_beam:.0f}', '__CROSS__': f'{cross:.0f}', '__PHOTOS__': PHOTOS, '__TABLE__': bp.TABLE, '__NB__': bp.NB,
        '__B10MIN__': f'{bp.B10MIN:.0f}', '__B10MAX__': f'{bp.B10MAX:,.0f}', '__COSTX__': f'{bp.g200[bp.hand_cost]/bp.g200[bp.hand_on]:.1f}',
        '__EVLO__': f'{(bp.ev_best/bp.g200[bp.hand_on]-1)*100:+.1f}'.replace('-', '−'), '__EVHI__': f'{(bp.ev_worst/bp.g200[bp.hand_on]-1)*100:+.1f}',
        '__SEEDED__': f'{(bp.g200[n[5]]/bp.g200[bp.hand_on]-1)*100:+.1f}',
