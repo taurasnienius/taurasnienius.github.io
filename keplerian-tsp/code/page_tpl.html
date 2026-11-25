@@ -101,15 +101,19 @@ p{max-width:72ch}
 .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:0 0 8px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 .legend i.ln{height:3px;border-radius:2px;vertical-align:3px;width:16px}
-.photos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr);gap:16px;margin-top:30px}
+.photos{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr) minmax(0,.8fr);gap:16px;margin-top:30px}
 .photos figure{margin:0;background:#000;border:1px solid var(--rule);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-.photos img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
-.photos figcaption{padding:12px 14px 14px;font-size:13px;line-height:1.5;color:var(--muted);background:var(--panel)}
+.photos img{width:100%;height:360px;object-fit:cover;display:block}
+.fam{display:grid;grid-template-columns:1fr 1.6fr;gap:16px;margin-top:26px}
+.fam figure{margin:0;background:#000;border:1px solid var(--rule);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.fam img{width:100%;height:220px;object-fit:contain;background:#000;display:block;flex:1}
+.fam figcaption{padding:12px 14px 14px;font-size:13px;line-height:1.5;color:var(--muted);background:var(--panel)}.fam figcaption b{color:var(--ink)}
+.photos figcaption{padding:12px 14px 14px;font-size:13px;line-height:1.5;color:var(--muted);background:var(--panel);flex:1}
 .photos figcaption b{color:var(--ink)}
 .pq{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:22px;display:flex;flex-direction:column;justify-content:center}
 .pq span{font:12.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:#d79a7c}
 .pq p{font-family:var(--f-display);font-weight:700;font-size:clamp(20px,2vw,27px);line-height:1.2;margin:12px 0 0}
-@media (max-width:900px){.photos{grid-template-columns:1fr 1fr}.pq{grid-column:1/-1}}
+@media (max-width:900px){.photos{grid-template-columns:1fr 1fr}.photos .wide,.pq{grid-column:1/-1}.photos img{height:260px}.fam{grid-template-columns:1fr}}
 .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:26px}
 .step{border-top:2px solid var(--rule);padding-top:14px}
 .step b{font:500 13px var(--f-mono);color:#d79a7c;letter-spacing:.08em}
@@ -233,6 +237,7 @@ __PHOTOS__
   <span class="sn">04 · Results</span>
   <div class="head"><h2>Thirteen harder instances, same rules as ACT</h2>
   <p class="lead">__SUMMARY__</p></div>
+__PHOTOS2__
   <div class="card" style="margin-top:26px"><h3>Distance to the previous best known tour</h3><p class="cap">Percent above the best published tour. Left of zero is a new best. ACT's beam search is left out: it sits between __B10MIN__% and __B10MAX__% above.</p>
     <div class="legend"><span><i style="background:var(--swan)"></i>ACT B-Swan heuristic</span><span><i style="background:var(--mine)"></i>mine</span></div>
     <div class="ch tall"><canvas id="c_all"></canvas></div></div>

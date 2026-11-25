@@ -101,15 +101,19 @@ p{max-width:72ch}
 .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:0 0 8px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 .legend i.ln{height:3px;border-radius:2px;vertical-align:3px;width:16px}
-.photos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr);gap:16px;margin-top:30px}
+.photos{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr) minmax(0,.8fr);gap:16px;margin-top:30px}
 .photos figure{margin:0;background:#000;border:1px solid var(--rule);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-.photos img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
-.photos figcaption{padding:12px 14px 14px;font-size:13px;line-height:1.5;color:var(--muted);background:var(--panel)}
+.photos img{width:100%;height:360px;object-fit:cover;display:block}
+.fam{display:grid;grid-template-columns:1fr 1.6fr;gap:16px;margin-top:26px}
+.fam figure{margin:0;background:#000;border:1px solid var(--rule);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.fam img{width:100%;height:220px;object-fit:contain;background:#000;display:block;flex:1}
+.fam figcaption{padding:12px 14px 14px;font-size:13px;line-height:1.5;color:var(--muted);background:var(--panel)}.fam figcaption b{color:var(--ink)}
+.photos figcaption{padding:12px 14px 14px;font-size:13px;line-height:1.5;color:var(--muted);background:var(--panel);flex:1}
 .photos figcaption b{color:var(--ink)}
 .pq{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:22px;display:flex;flex-direction:column;justify-content:center}
 .pq span{font:12.5px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:#d79a7c}
 .pq p{font-family:var(--f-display);font-weight:700;font-size:clamp(20px,2vw,27px);line-height:1.2;margin:12px 0 0}
-@media (max-width:900px){.photos{grid-template-columns:1fr 1fr}.pq{grid-column:1/-1}}
+@media (max-width:900px){.photos{grid-template-columns:1fr 1fr}.photos .wide,.pq{grid-column:1/-1}.photos img{height:260px}.fam{grid-template-columns:1fr}}
 .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:26px}
 .step{border-top:2px solid var(--rule);padding-top:14px}
 .step b{font:500 13px var(--f-mono);color:#d79a7c;letter-spacing:.08em}
@@ -189,9 +193,9 @@ footer a{color:var(--muted)}
   <div class="head"><h2>A travelling salesman whose cities never stop moving</h2>
   <p class="lead">A spacecraft has to rendezvous with every asteroid in a group and come home before a deadline. ESA's Advanced Concepts Team published it as a benchmark in 2026 [1]. Every leg costs fuel (Δv), and the goal is the tour that costs the least.</p></div>
   <div class="photos">
-    <figure><img src="img/nasa_vesta.jpg" alt="Asteroid Vesta seen by the Dawn spacecraft" loading="lazy"><figcaption><b>Vesta, 525 km across.</b> The largest main-belt asteroid visited so far, mapped by NASA's Dawn in 2011 and 2012. Image: NASA/JPL-Caltech/UCLA/MPS/DLR/IDA.</figcaption></figure>
-    <figure><img src="img/nasa_bennu.jpg" alt="Asteroid Bennu seen by OSIRIS-REx" loading="lazy"><figcaption><b>Bennu, 500 m across.</b> OSIRIS-REx spent seven years on one asteroid and one sample. Visiting many on one tank of fuel is the routing problem. Image: NASA/Goddard/University of Arizona.</figcaption></figure>
-    <div class="pq"><span>Why it matters</span><p>One spacecraft, many asteroids. Survey, sample-return and mining missions all depend on the same question: in which order, and on which dates?</p></div>
+    <figure class="wide"><img src="img/nasa_lucy.jpg" alt="Trajectory of NASA's Lucy spacecraft through the asteroid belt towards Jupiter's Trojan asteroids" loading="lazy"><figcaption><b>This problem is being flown right now.</b> NASA's Lucy is on a 12-year tour of eight asteroids. Its path, shown here in October 2026, was designed around the order and dates of the visits. Image: NASA's Scientific Visualization Studio.</figcaption></figure>
+    <figure><img src="img/nasa_bennu.jpg" alt="Asteroid Bennu seen by OSIRIS-REx" loading="lazy"><figcaption><b>Bennu, 500 m across.</b> OSIRIS-REx spent seven years on this one asteroid. Visiting many on one tank of fuel is the routing problem. Image: NASA/Goddard/University of Arizona.</figcaption></figure>
+    <div class="pq"><span>Why it matters</span><p>Survey, sample-return and mining missions all depend on the same question: in which order, and on which dates?</p></div>
   </div>
 
   <div class="steps">
@@ -238,6 +242,11 @@ footer a{color:var(--muted)}
   <span class="sn">04 · Results</span>
   <div class="head"><h2>Thirteen harder instances, same rules as ACT</h2>
   <p class="lead">My tour is cheaper than the previous best on 4 instances and equals it to the cent on the other 9. Five of those are proven optimal, so matching is the best possible there.</p></div>
+  <div class="fam">
+    <figure><img src="img/nasa_ida.jpg" alt="Main-belt asteroid Ida and its small moon Dactyl" loading="lazy"><figcaption><b>Family 1: main-belt asteroids.</b> Up to 80 bodies like Ida, 56 km long, seen here with its tiny moon by the Galileo probe. Image: NASA/JPL.</figcaption></figure>
+    <figure><img src="img/nasa_moons.jpg" alt="Io, Europa, Ganymede and Callisto to scale" loading="lazy"><figcaption><b>Family 2: the moons of Jupiter.</b> Up to 20 moons. The four largest, to scale: Io, Europa, Ganymede, Callisto. Image: NASA/JPL/DLR.</figcaption></figure>
+  </div>
+
   <div class="card" style="margin-top:26px"><h3>Distance to the previous best known tour</h3><p class="cap">Percent above the best published tour. Left of zero is a new best. ACT's beam search is left out: it sits between 19% and 1,205% above.</p>
     <div class="legend"><span><i style="background:var(--swan)"></i>ACT B-Swan heuristic</span><span><i style="background:var(--mine)"></i>mine</span></div>
     <div class="ch tall"><canvas id="c_all"></canvas></div></div>

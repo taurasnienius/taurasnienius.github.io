@@ -30,8 +30,9 @@ SUMMARY2 = (f"My tour is cheaper than the previous best on {bp.N_NEW} instances 
             "Five of those are proven optimal, so matching is the best possible there.")
 import os
 PHOTOS = open('photos.html').read() if os.path.exists('photos.html') else ''
+PHOTOS2 = open('photos2.html').read() if os.path.exists('photos2.html') else ''
 sub = {'__DATA__': json.dumps(D, separators=(',', ':')), '__NNEW__': str(bp.N_NEW), '__BIG__': f'{bp.BIG:.1f}'.replace('-', '−'),
-       '__BIGABS__': f'{abs(bp.BIG):.1f}', '__NEXACT__': str(bp.n_exact), '__SUMMARY__': SUMMARY2, '__BEAMX__': f'{bp.ratio_beam:.0f}', '__CROSS__': f'{cross:.0f}', '__PHOTOS__': PHOTOS, '__TABLE__': bp.TABLE, '__NB__': bp.NB,
+       '__BIGABS__': f'{abs(bp.BIG):.1f}', '__NEXACT__': str(bp.n_exact), '__SUMMARY__': SUMMARY2, '__BEAMX__': f'{bp.ratio_beam:.0f}', '__CROSS__': f'{cross:.0f}', '__PHOTOS__': PHOTOS, '__PHOTOS2__': PHOTOS2, '__TABLE__': bp.TABLE, '__NB__': bp.NB,
        '__B10MIN__': f'{bp.B10MIN:.0f}', '__B10MAX__': f'{bp.B10MAX:,.0f}', '__COSTX__': f'{bp.g200[bp.hand_cost]/bp.g200[bp.hand_on]:.1f}',
        '__EVLO__': f'{(bp.ev_best/bp.g200[bp.hand_on]-1)*100:+.1f}'.replace('-', '−'), '__EVHI__': f'{(bp.ev_worst/bp.g200[bp.hand_on]-1)*100:+.1f}',
        '__SEEDED__': f'{(bp.g200[n[5]]/bp.g200[bp.hand_on]-1)*100:+.1f}',
