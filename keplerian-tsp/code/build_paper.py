@@ -122,7 +122,7 @@ $$ J^*(\\pi) = \\min_t \\big[ A_p(t) + B_p(t) \\big]. \\tag{{6}}$$
 <p>Iterated local search perturbs the current tour with 4 random segment relocations inside the same window, descends, accepts the result if it is better (or with probability 0.02 otherwise), and returns to the best tour found with probability 0.01 per iteration. Runs start from the better of two beam-search tours (width 200 or 300) after one descent.</p>
 
 <h2><span class="sn">6</span>Baselines</h2>
-<p>Two of the methods named in ACT's internship topic were implemented on the same evaluator, so that the comparison isolates the search and not the cost model. <strong>P-ACO</strong> (population-based ant colony optimisation, after [3]): 20 ants per iteration, population of the 5 best tours, pheromone on body-to-body arcs, $\\alpha=1$, $\\beta=2$, heuristic desirability from the on-schedule cost of the candidate leg; ants also carry the curve $A$. <strong>MCTS</strong>: UCT ($c=0.7$) over the next two bodies from the committed prefix, rollouts that complete the order by sampling from a softmin of the cheapest-leg table, each rollout scored exactly with (5), one body committed per step. Both get the wall-clock time of the beam search plus 20 s.</p>
+<p>Two of the methods named in ACT's internship topic were implemented on the same evaluator, so that the comparison isolates the search and not the cost model. <strong>P-ACO</strong> (a plain population-based ant colony optimisation of my own, simpler than the Beam P-ACO hybrid of [3], which I did not reimplement): 20 ants per iteration, population of the 5 best tours, pheromone on body-to-body arcs, $\\alpha=1$, $\\beta=2$, heuristic desirability from the on-schedule cost of the candidate leg; ants also carry the curve $A$. <strong>MCTS</strong>: UCT ($c=0.7$) over the next two bodies from the committed prefix, rollouts that complete the order by sampling from a softmin of the cheapest-leg table, each rollout scored exactly with (5), one body committed per step. Both get the wall-clock time of the beam search plus 20 s.</p>
 
 <h2><span class="sn">7</span>Results</h2>
 <div class="tbl"><table>
@@ -137,7 +137,7 @@ $$ J^*(\\pi) = \\min_t \\big[ A_p(t) + B_p(t) \\big]. \\tag{{6}}$$
 <p>On 80 asteroids and 161 time points the search passes the previous best after {cross:.0f} minutes on one core and reaches {f0(viz['tours'][0]['cost'])} m/s after 75 minutes. ACT's public project page lists the same previous value for this instance (checked 25 November 2026); I am not aware of other published results on these instances, but cannot exclude unpublished ones.</p>
 
 <h2><span class="sn">8</span>Automatic discovery of the ranking rule</h2>
-<p>The ranking rule is the one hand-designed component of the beam search, which makes it a small test case for automated heuristic design [5, 6]. Rules are expression trees over the features of Table 2 and constants, with operators $+,-,\\times,\\div,\\min,\\max$, negation, $\\sqrt{{|\\cdot|}}$, $\\log(1+|\\cdot|)$ and square. Genetic programming [4]: population 200, 40 generations, tournament selection of size 4, 60 % crossover, 30 % mutation, 10 % fresh trees, 5 % elitism, trees of at most 25 nodes, parsimony pressure $2\\times10^{{-4}}$ per node. Fitness is the mean ratio to the best known value of a width-20 beam search on six training instances (10 and 20 bodies). Three independent runs start from random trees; a fourth starts from the hand rule with width 50 on five instances.</p>
+<p>The ranking rule is the one hand-designed component of the beam search, which makes it a small test case for automated heuristic design [5, 6]. Rules are expression trees over the features of Table 2 and constants, with operators $+,-,\\times,\\div,\\min,\\max$, negation, $\\sqrt{{|\\cdot|}}$, $\\log(1+|\\cdot|)$ and square. Genetic programming, in the spirit of symbolic search over expressions [4]: population 200, 40 generations, tournament selection of size 4, 60 % crossover, 30 % mutation, 10 % fresh trees, 5 % elitism, trees of at most 25 nodes, parsimony pressure $2\\times10^{{-4}}$ per node. Fitness is the mean ratio to the best known value of a width-20 beam search on six training instances (10 and 20 bodies). Three independent runs start from random trees; a fourth starts from the hand rule with width 50 on five instances.</p>
 <div class="tbl"><table>
 <thead><tr><th>Origin</th><th>Rule (lower score is better)</th><th class="r">Held-out, W = 50</th><th class="r">Held-out, W = 200</th></tr></thead>
 <tbody>{t5}</tbody>
@@ -164,12 +164,13 @@ $$ J^*(\\pi) = \\min_t \\big[ A_p(t) + B_p(t) \\big]. \\tag{{6}}$$
 </ul>
 
 <h2><span class="sn">11</span>Relation to earlier work</h2>
-<p>Propagating a time-dependent cost or arrival function along a path is standard in time-dependent shortest-path and routing problems, including dynamic programming for the time-dependent TSP with time windows [7]. Beam search, ant colony optimisation and their hybrid for multi-rendezvous trajectories are established [2, 3]. The KTSP benchmark, its exact methods and the B-Swan heuristic are from [1]. What this work adds is the combination applied to that benchmark, a verified independent implementation of its cost model, improved upper bounds on four open instances, and a first, negative, data point on automatic discovery of a search component for it.</p>
+<p>Carrying time-dependent cost information along a partial route is a known idea in time-dependent routing; dynamic programming with labels for the time-dependent TSP with time windows [7] is one example, and I do not claim the idea as new. TSP formulations of multi-target space missions go back to at least [2], and the hybrid of beam search and population-based ant colony optimisation for multi-rendezvous trajectories is from [3]. The KTSP benchmark, its exact methods and the B-Swan heuristic are from [1]. What this work adds is the combination applied to that benchmark, a verified independent implementation of its cost model, improved upper bounds on four open instances, and a first, negative, data point on automatic discovery of a search component for it.</p>
 
 <h2><span class="sn">12</span>Reproducibility</h2>
 <p>Code, result files and tours are in the <a href="https://github.com/taurasnienius/taurasnienius.github.io/tree/main/keplerian-tsp/code">repository</a> (Python, numpy, numba, pykep 3). The new tours are provided as JSON and in ACT's <code>.sol</code> format in <a href="sol/">sol/</a>. Instance files: doi:10.5281/zenodo.14850862.</p>
 
 <h2><span class="sn">13</span>References</h2>
+<p style="font-size:13.5px;color:var(--muted)">I worked from [1] in full. References [2] to [7] are cited for context and credit: I rely on their abstracts, not on a detailed reading, and I make no claim about their results beyond what is stated above.</p>
 <ol class="refs">
 <li>M. Bannach, G. Acciarini, D. Izzo, <i>The Keplerian Traveling Salesperson Problem</i>, arXiv:2605.00010, 2026.</li>
 <li>D. Izzo, I. Getzner, D. Hennes, L. F. Simões, <i>Evolving solutions to TSP variants for active space debris removal</i>, GECCO 2015.</li>
@@ -177,7 +178,7 @@ $$ J^*(\\pi) = \\min_t \\big[ A_p(t) + B_p(t) \\big]. \\tag{{6}}$$
 <li>M. Schmidt, H. Lipson, <i>Distilling free-form natural laws from experimental data</i>, Science 324, 2009.</li>
 <li>F. Liu et al., <i>Evolution of Heuristics: towards efficient automatic algorithm design using large language model</i>, ICML 2024.</li>
 <li>H. Ye et al., <i>ReEvo: large language models as hyper-heuristics with reflective evolution</i>, NeurIPS 2024.</li>
-<li>G. Lera-Romero, J. J. Miranda-Bront, F. J. Soulignac, <i>Dynamic programming for the time-dependent traveling salesman problem with time windows</i>, Optimization Online, 2020.</li>
+<li>G. Lera-Romero, J. J. Miranda-Bront, F. J. Soulignac, <i>Dynamic programming for the time-dependent traveling salesman problem with time windows</i>, INFORMS Journal on Computing 34(6), 3292&ndash;3308, 2022.</li>
 </ol>
 </main>
 <footer><a href="./">A cheaper way around</a> · <a href="../">Tauras Nienius</a> · <a href="mailto:taurasn.nie@gmail.com">taurasn.nie@gmail.com</a> · November 2026</footer>

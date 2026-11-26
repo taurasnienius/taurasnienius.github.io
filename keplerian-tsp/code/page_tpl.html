@@ -226,7 +226,7 @@ __PHOTOS__
       <p>For every partial tour I keep a whole curve: the cheapest fuel cost to be at the current asteroid, ready to leave, for every date on the grid. Adding a leg updates the curve exactly.</p>
       <p>Partial tours are ranked "on schedule": by their cost at the date they would reach if the legs were spread evenly.</p>
       <p>Once the order is fixed, the same curves give the best dates exactly, so every tour the search compares is perfectly timed.</p>
-      <p style="color:var(--muted);font-size:14px">Carrying a cost curve over time along a route is a known technique in time-dependent routing [7]. What I did is apply it to this benchmark and its search methods.</p></div>
+      <p style="color:var(--muted);font-size:14px">Carrying time-dependent cost information along a route is a known idea in time-dependent routing (for example [7]). What I did is apply it to this benchmark and its search methods.</p></div>
     <div class="card"><h3>Finer grids should help. With open timing they do</h3><p class="cap">Beam search alone, tour Δv divided by the best known (log scale). ACT's gets worse as the grid gets finer; mine stays close to the best known.</p>
       <div class="tabs" id="gtabs" style="margin:0 0 8px"></div>
       <div class="legend"><span><i class="ln" style="background:var(--act)"></i>ACT beam search</span><span><i class="ln" style="background:var(--swan)"></i>ACT B-Swan</span><span><i class="ln" style="background:var(--mine)"></i>my beam search</span></div>
@@ -291,7 +291,7 @@ __PHOTOS2__
     <li>M. Schmidt, H. Lipson, <i>Distilling free-form natural laws from experimental data</i>, Science 324, 2009.</li>
     <li>F. Liu et al., <i>Evolution of Heuristics: towards efficient automatic algorithm design using large language model</i>, ICML 2024.</li>
     <li>H. Ye et al., <i>ReEvo: large language models as hyper-heuristics with reflective evolution</i>, NeurIPS 2024.</li>
-    <li>G. Lera-Romero, J. J. Miranda-Bront, F. J. Soulignac, <i>Dynamic programming for the time-dependent traveling salesman problem with time windows</i>, Optimization Online, 2020.</li>
+    <li>G. Lera-Romero, J. J. Miranda-Bront, F. J. Soulignac, <i>Dynamic programming for the time-dependent traveling salesman problem with time windows</i>, INFORMS Journal on Computing 34(6), 2022.</li>
   </ol></div>
   <footer><a href="../">Tauras Nienius</a> · <a href="mailto:taurasn.nie@gmail.com">taurasn.nie@gmail.com</a> · <a href="https://www.linkedin.com/in/tauras-nienius/">LinkedIn</a> · November 2026</footer>
 </section>
